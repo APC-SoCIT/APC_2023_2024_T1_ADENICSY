@@ -1,0 +1,55 @@
+.box {
+    background-color: #6910A8;
+    border-color: 1px solid #502180;
+    border-radius: 5px;
+    min-height: 100px;
+    color:#F7EBFD;
+    text-shadow: 2px;
+    font-size: 60px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 2px 2px 4px #858585;
+  }
+  
+  .boxDoctors {
+    background-color: #810CA8;
+    border-color: 1px solid #6b2fa7;
+    border-radius: 20px;
+    min-height: 50px;
+    margin-bottom: 20px;
+    color:#F7EBFD;
+    text-shadow: 2px;
+    font-size: 60px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 2px 2px 4px #858585;
+  }
+  
+  .text {
+    font-size: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  
+  }
+
+
+  
+  .glow {
+    font-size: 20px;
+    background-color: #E9C5FB;
+    color:black;
+    font-weight: semi-bold;
+    animation: glow 1s ease-in-out infinite alternate;
+    -moz-animation: glow 1s ease-in-out infinite alternate;
+    -webkit-animation: glow 1s ease-in-out infinite alternate;
+  }
+  .list{
+  font-size: 19px;
+  background-color: #E9C5FB;
+  color:black;
+  border-style: solid;
+  border-radius: 20%;
+  font-weight: semi-bold;
+  }
+  
