@@ -1,0 +1,27 @@
+body {
+    background-color: hwb(325 9% 62% / 0.336);
+    font-family: Arial;
+}
+.box {
+    background-color: #6910A8;
+    border-color: 1px solid #502180;
+    border-radius: 5px;
+    min-height: 100px;
+    color:#F7EBFD;
+    text-shadow: 2px;
+    font-size: 60px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 2px 2px 4px #858585;
+  }
+
+.inputdate {
+    width:300px;
+    height:40px;
+    border-radius:20px;
+    border: none;
+    padding: 0 10px 0 29px;
+    margin-top: 20px;
+    box-shadow:3px 5px #888888;
+}
