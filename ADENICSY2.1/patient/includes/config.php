@@ -1,4 +1,6 @@
 <?php
+define('EMAIL', 'apelodentalclinicsystem@gmail.com');
+define('PASSWORD', 'xcafbqiigrvxfirv');
 define('DB_SERVER', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');

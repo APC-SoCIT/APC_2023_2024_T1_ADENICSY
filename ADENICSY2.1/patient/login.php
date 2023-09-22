@@ -12,7 +12,7 @@ if (isset($_POST['login'])) {
         $_SESSION['id'] = $num['id'];
         $_SESSION['id2'] = $num['id'];
         $_SESSION['name'] = $num['fname'];
-        header("location:patient-home.php");
+        header("location:index.php");
     } else {
         echo "<script>alert('Invalid email or password');</script>";
     }

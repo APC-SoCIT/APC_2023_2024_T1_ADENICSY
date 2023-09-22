@@ -20,7 +20,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary pt-2 fixed-top" style="box-shadow: 2px 0px 4px #858585;">
         <div class="container">
 
-            <a href="patient-home.php" style="text-decoration: none;">
+            <a href="index.php" style="text-decoration: none;">
                 <h5 class="navbar-brand text-white mb-0" style="color: #FFFFFF; font-weight: bold; ">Apelo Dental Clinic System</h5>
             </a>
             <!--button below is what appears when navbar collapses-->
@@ -31,7 +31,7 @@
             <div class="collapse navbar-collapse" id="navmenu">
                 <ul class="navbar-nav ms-auto fs-5"> <!-- ms-auto is to make the nav tab on right side -->
                     <li class="nav-item">
-                        <a href="patient-home.php" class="nav-link" style="color: #FFFFFF;">Home</a>
+                        <a href="index.php" class="nav-link" style="color: #FFFFFF;">Home</a>
                     </li>
                     <!-- <li class="nav-item">
                         <a href="patient-notifications.php" class="nav-link" style="color: #FFFFFF;">Notification</a>
