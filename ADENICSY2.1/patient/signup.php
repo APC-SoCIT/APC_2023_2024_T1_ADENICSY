@@ -39,7 +39,7 @@ if (isset($_POST['submit'])) {
         if ($stmt->execute()) {
             sendVerificationEmail($email, $token);
             echo "<script>alert('Registered successfully');</script>";
-            echo "<script type='text/javascript'> document.location = 'login.php'; </script>";
+            echo "<script type='text/javascript'> document.location = 'verify-message.php'; </script>";
         } else {
             echo "<script>alert('Database Error: Failed to register');</script>";
         }

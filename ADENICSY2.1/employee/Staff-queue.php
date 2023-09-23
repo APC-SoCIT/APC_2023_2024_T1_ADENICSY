@@ -1,4 +1,5 @@
 <?php session_start();
+ob_start();
 include_once('../includes/config.php');
 if (strlen($_SESSION['staffid'] == 0)) {
     header('location:patient-logout.php');
@@ -462,4 +463,6 @@ if (strlen($_SESSION['staffid'] == 0)) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js" crossorigin="anonymous"></script>
 
     </html>
-<?php } ?>
+<?php
+    ob_end_flush();
+} ?>

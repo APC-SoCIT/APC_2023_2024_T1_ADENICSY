@@ -33,7 +33,7 @@ if (isset($_POST['login'])) {
             echo "<script>alert('Incorrect Password');</script>";
         }
     } else {
-        echo "<script>alert('Invalid email or password');</script>";
+        echo "<script>alert('No credentials exist for that email. Create an account first.');</script>";
     }
 }
 ?>
