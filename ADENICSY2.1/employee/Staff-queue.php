@@ -260,7 +260,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
             </div>
         </div>
 
-        <!-- Doctor's List and Code -->
+        <!-- Dentist's List and Code -->
         <div class="container-fluid pb-5" style="background-color: #b69fc7;">
             <h1 class="text-primary fw-bold text-center pt-4">Active Dentists</h1>
             <div class="container pt-3 ">
@@ -269,13 +269,14 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 if ($con->connect_error) {
                     die("Connection failed: " . $con->connect_error);
                 }
-                $sql = "SELECT namecode, fname, lname FROM `employee` WHERE empRole = 'Doctor';";
+                $sql = "SELECT namecode, fname, lname, PRC_ID FROM `employee` WHERE empRole = 'Dentist';";
                 $result = $con->query($sql);
                 echo '<table class="table table-primary table-striped" style="width:80%; margin: 0 auto;">';
                 echo '<thead class="text-primary h4">';
                 echo '<tr>';
                 echo '<th style="width: 350px;">Dentist\'s Code</th>';
                 echo '<th>Dentist\'s name</th>';
+                echo '<th>PRC ID</th>';
                 echo '</tr>';
                 echo '</thead>';
                 echo '<tbody>';
@@ -285,6 +286,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
                         echo '<tr>';
                         echo '<td style="width: 350px;"> ' . $row["namecode"] . '</td>';
                         echo '<td> ' . $row["fname"] . " " . $row["lname"] . '</td>';
+                        echo '<td> ' . $row["PRC_ID"] . '</td>';
                         echo '</tr>';
                     }
                 } else {
@@ -314,7 +316,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 $msg1 = mysqli_query($con, "insert into d_calendar (d_name, d_code, s_time, e_time, date, availableSlot) VALUES ('$d_name', '$d_code', '$s_time', '$e_time', '$date', '$availSlots')");
 
                 if ($msg1) {
-                    echo "<script>alert('Doctor Added successfully');</script>";
+                    echo "<script>alert('Dentist Added successfully');</script>";
                     echo "<script type='text/javascript'> document.location = 'staff-queue.php'; </script>";
                 }
             }
@@ -379,7 +381,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
             <div>
                 <!-- Button trigger modal -->
                 <div class="d-grid d-flex justify-content-end">
-                    <button class="btn btn-primary justify-content-end" data-bs-toggle="modal" data-bs-target="#exampleModal" type="button">Add Doctor Schedule</button>
+                    <button class="btn btn-primary justify-content-end" data-bs-toggle="modal" data-bs-target="#exampleModal" type="button">Add Dentist Schedule</button>
                 </div>
                 <!-- Modal -->
                 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -400,11 +402,11 @@ if (strlen($_SESSION['staffid'] == 0)) {
                                                 die("Connection failed: " . mysqli_connect_error());
                                             }
 
-                                            // Query doctors from the doctor_list table
-                                            $sql4 = "SELECT id, fname, lname, namecode FROM employee WHERE empRole = 'Doctor'";
+                                            // Query Dentists from the Dentist_list table
+                                            $sql4 = "SELECT id, fname, lname, namecode FROM employee WHERE empRole = 'Dentist'";
                                             $result4 = mysqli_query($con, $sql4);
 
-                                            // Populate the select element with the list of doctors
+                                            // Populate the select element with the list of Dentists
                                             while ($row4 = mysqli_fetch_assoc($result4)) {
                                                 echo "<option value='" . "Dr. " . $row4['fname'] . " " . $row4['lname'] . "' data-code='" . $row4['namecode'] . "'>" . "Dr. " . $row4['fname'] . " " . $row4['lname'] . "</option>";
                                             }
@@ -422,7 +424,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
                                                 // Get the selected option
                                                 var selectedOption = select.options[select.selectedIndex];
 
-                                                // Set the value of the hidden input field to the code of the selected doctor
+                                                // Set the value of the hidden input field to the code of the selected Dentist
                                                 codeInput.value = selectedOption.dataset.code;
                                             });
                                         </script>

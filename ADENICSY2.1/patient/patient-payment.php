@@ -49,7 +49,10 @@ if (strlen($_SESSION['id'] == 0)) {
                 </div>
 
                 <?php
-                $sql = "SELECT * FROM s_payment WHERE s_patiendID='$userid'";
+                $sql = "SELECT s.s_date, s.s_procedure, s.s_total, s.s_amount, s.s_balance, s.dentist_assigned, e.PRC_ID
+        FROM s_payment s
+        LEFT JOIN employee e ON s.dentist_assigned_ID = e.id
+        WHERE s.s_patiendID = '$userid'";
                 $result = mysqli_query($con, $sql);
                 $queryResults = mysqli_num_rows($result);
                 // Create a Bootstrap table to display the data
@@ -61,6 +64,8 @@ if (strlen($_SESSION['id'] == 0)) {
                 echo '<th>Total Procedure Cost</th>';
                 echo '<th>Amount Paid</th>';
                 echo '<th>Balance</th>';
+                echo '<th>Assigned Dentist</th>';
+                echo '<th>PRC ID</th>';
                 echo '</tr>';
                 echo '</thead>';
                 echo '<tbody>';
@@ -72,6 +77,8 @@ if (strlen($_SESSION['id'] == 0)) {
                         echo '<td> ' . $row["s_total"] . '</td>';
                         echo '<td> ' . $row["s_amount"] . '</td>';
                         echo '<td> ' . $row["s_balance"] . '</td>';
+                        echo '<td> ' . $row["dentist_assigned"] . '</td>';
+                        echo '<td> ' . $row["PRC_ID"] . '</td>'; // Display the PRC ID
                         echo '</tr>';
                     }
                     // Output data with no result
@@ -87,6 +94,7 @@ if (strlen($_SESSION['id'] == 0)) {
                 echo '</tbody>';
                 echo '</table>';
                 ?>
+
 
             </div>
         </section>

@@ -8,7 +8,7 @@ if (isset($_POST['login'])) {
     $ret = mysqli_query($con, "SELECT id,fname,empRole FROM employee WHERE username='$username' and password='$dec_password'");
     $num = mysqli_fetch_array($ret);
     if ($num > 0) {
-        if ($num['empRole'] == 'Doctor') {
+        if ($num['empRole'] == 'Dentist') {
 
             $_SESSION['doctorid'] = $num['id'];
             $_SESSION['name'] = $num['fname'];

@@ -29,7 +29,9 @@ include 'employee-nav-staff.php';
                 $date = $_POST['date'];
                 $procedure = $_POST['procedure'];
                 $amount = $_POST['amount'];
-                $msg1 = mysqli_query($con, "insert into s_payment (s_date, s_procedure, s_amount, s_patiendID, added_by, s_modify) VALUES ('$date', '$procedure', '$amount', '$patientID', '$staff_fname', '$staff_fname')");
+                $dentist_id = $_POST['dentist-id'];
+                $dentist_name = $_POST['dentist-name'];
+                $msg1 = mysqli_query($con, "insert into s_payment (s_date, s_procedure, s_amount, s_patiendID, added_by, s_modify, dentist_assigned_ID, dentist_assigned) VALUES ('$date', '$procedure', '$amount', '$patientID', '$staff_fname', '$staff_fname', '$dentist_id', '$dentist_name')");
 
                 if ($msg1) {
                     echo "<script>alert('Payment Details Added Successfully');</script>";
@@ -61,6 +63,7 @@ include 'employee-nav-staff.php';
             echo '<th>Total Cost</th>';
             echo '<th>Paid Amount</th>';
             echo '<th>Balance</th>';
+            echo '<th>Assigned Dentist</th>';
             echo '<th>Modified by</th>';
             echo '<th>Update PA</th>';
             echo '</tr>';
@@ -75,12 +78,13 @@ include 'employee-nav-staff.php';
                     echo '<td> ' . $row["s_total"] . '</td>';
                     echo '<td> ' . $row["s_amount"] . '</td>';
                     echo '<td> ' . $row["s_balance"] . '</td>';
+                    echo '<td> ' . $row["dentist_assigned"] . '</td>';
                     echo '<td> ' . $row["s_modify"] . '</td>';
                     echo '<td class="text-center">';
                     if ($row["s_amount"]) {
                         echo '<button type="button" class="btn btn-primary" disabled>Update</button>';
                     } else {
-                        echo '<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal" data-payid="' . $row["s_payID"] . '" data-total="' . $row["s_total"] . '" data-balance="' . $row["s_amount"] . '">Update</button>';
+                        echo '<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal" data-payid="' . $row["s_payID"] . '" data-dentistassigned="' . $row["dentist_assigned"] . '" data-total="' . $row["s_total"] . '" data-balance="' . $row["s_amount"] . '">Update</button>';
                     }
                     echo '</td>';
                     echo '</tr>';
@@ -107,9 +111,11 @@ include 'employee-nav-staff.php';
                 $('#updateModal').on('show.bs.modal', function(event) {
                     var button = $(event.relatedTarget);
                     var payid = button.data('payid');
+                    var dentist_assigned = button.data('dentistassigned');
                     var balance = button.data('balance');
                     var total = button.data('total');
                     var modal = $(this);
+                    modal.find('#dentist_assigned').val(dentist_assigned);
                     modal.find('#payID').val(payid);
                     modal.find('#newBalance').attr('max', total); // set max attribute to total.
                     modal.find('#newBalance').val(balance);
@@ -126,11 +132,15 @@ include 'employee-nav-staff.php';
                     </div>
                     <div class="modal-body">
                         <form name="updatebalance" method="post">
-                            <div class="form-group">
+                            <div class="form-group mb-3">
                                 <label for="payID">Payment ID</label>
                                 <input type="text" class="form-control" id="payID" name="payid" readonly>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group mb-3">
+                                <label for="dentist_assigned">Assigned Dentist</label>
+                                <input type="text" class="form-control" id="dentist_assigned" name="dentist_assigned" readonly>
+                            </div>
+                            <div class="form-group mb-3">
                                 <label for="newBalance">Paid Amount</label>
                                 <input type="number" class="form-control" id="newBalance" name="newBalance" min="1" pattern="[0-9]+">
                             </div>
@@ -196,6 +206,42 @@ include 'employee-nav-staff.php';
                         <div class="mb-3">
                             <label for="note" class="form-label">Paid Amount</label>
                             <input type="number" class="form-control" id="amount" name="amount" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="dentist" class="form-label">Assigned Dentist</label>
+                            <select class="form-control" id="dentist-name" name="dentist-name">
+                                <?php
+                                // Check connection
+                                if (!$con) {
+                                    die("Connection failed: " . mysqli_connect_error());
+                                }
+
+                                // Query Dentists from the Dentist_list table
+                                $sql4 = "SELECT id, fname, lname, namecode FROM employee WHERE empRole = 'Dentist'";
+                                $result4 = mysqli_query($con, $sql4);
+
+                                // Populate the select element with the list of Dentists
+                                while ($row4 = mysqli_fetch_assoc($result4)) {
+                                    echo "<option value='" . $row4['fname'] . " " . $row4['lname'] . "' data-dentistid='" . $row4['id'] . "'>" . $row4['fname'] . " " . $row4['lname'] . "</option>";
+                                }
+
+                                ?>
+                            </select>
+                            <input type="hidden" name="dentist-id" id="dentist-id" value="">
+                            <script>
+                                // Get the select element and the hidden input field
+                                var select = document.getElementById("dentist-name");
+                                var dentistIdInput = document.getElementById("dentist-id");
+
+                                // Listen for changes to the select element
+                                select.addEventListener("change", function() {
+                                    // Get the selected option
+                                    var selectedOption = select.options[select.selectedIndex];
+
+                                    // Set the value of the hidden input field to the ID of the selected Dentist
+                                    dentistIdInput.value = selectedOption.dataset.dentistid;
+                                });
+                            </script>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

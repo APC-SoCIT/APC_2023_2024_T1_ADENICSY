@@ -33,6 +33,7 @@ $userid = $_GET['uid'];
         echo '<th>Procedure</th>';
         echo '<th>Amount</th>';
         echo '<th>Inputted by</th>';
+        echo '<th>Assigned Dentist</th>';
         echo '</tr>';
         echo '</thead>';
         echo '<tbody>';
@@ -43,6 +44,7 @@ $userid = $_GET['uid'];
                 echo '<td> ' . $row["s_procedure"] . '</td>';
                 echo '<td> ' . $row["s_total"] . '</td>';
                 echo '<td> ' . $row["added_by"] . '</td>';
+                echo '<td> ' . $row["dentist_assigned"] . '</td>';
                 echo '</tr>';
             }
         } else {
@@ -72,7 +74,7 @@ $userid = $_GET['uid'];
             $date = $_POST['date'];
             $procedure = $_POST['procedure'];
             $amount = $_POST['amount'];
-            $msg1 = mysqli_query($con, "insert into s_payment (s_date, s_procedure, s_total, s_patiendID, added_by) VALUES ('$date', '$procedure', '$amount', '$userid', '$dentist_fname')");
+            $msg1 = mysqli_query($con, "insert into s_payment (s_date, s_procedure, s_total, s_patiendID, added_by, dentist_assigned_ID, dentist_assigned) VALUES ('$date', '$procedure', '$amount', '$userid', '$dentist_fname', '$docID', '$dentist_fname')");
 
             if ($msg1) {
                 echo "<script>alert('Payment Details Added Successfully');</script>";
