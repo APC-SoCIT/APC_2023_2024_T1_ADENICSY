@@ -38,6 +38,8 @@ if (isset($_POST['submit'])) {
 
         if ($stmt->execute()) {
             sendVerificationEmail($email, $token);
+            $_SESSION['id'] = mysqli_insert_id($con); // Set the user ID after registration
+            $_SESSION['email'] = $email; // Set the user's email
             echo "<script>alert('Registered successfully');</script>";
             echo "<script type='text/javascript'> document.location = 'verify-message.php'; </script>";
         } else {
