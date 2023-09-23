@@ -25,7 +25,7 @@ function sendVerificationEmail($useremail, $token)
     <body>
         <div class="wrapper">
             <p>You\'re one step closer to becoming a patient of Apelo Dental Clinic. Please click the link below to verify your email.</p>
-            <a href="http://localhost/adenicsy2.1/patient/index.php?token=' . $token . '">Verify email address</a>
+            <a href="http://localhost/Githubclone/adenicsy2.1/patient/index.php?token=' . $token . '">Verify email address</a>
         </div>
     </body>
     </html>';
