@@ -66,3 +66,34 @@ function verifyUser($token)
         }
     }
 }
+
+function sendPasswordResetEmail($useremail, $token)
+{
+    global $mailer;
+    $body = '<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <!-- Your email HTML template here -->
+    </head>
+    <body>
+        <div class="wrapper">
+            <p>Click the link below to reset your password:</p>
+            <a href="http://localhost/Githubclone/adenicsy2.1/patient/reset-password.php?token=' . $token . '">Reset Password</a>
+        </div>
+    </body>
+    </html>';
+
+    $message = (new Swift_Message('Password Reset'))
+        ->setFrom(EMAIL)
+        ->setTo($useremail)
+        ->setBody($body, 'text/html');
+
+    $result = $mailer->send($message);
+
+    // Check if the email was sent successfully and return true if it was
+    if ($result > 0) {
+        return true;
+    } else {
+        return false;
+    }
+}

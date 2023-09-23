@@ -84,7 +84,7 @@ if (isset($_POST['login'])) {
 
 
                                         <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
-                                            <a class="small" href="password-recovery.php">Forgot Password?</a>
+                                            <a class="small" href="forgot-password.php">Forgot Password?</a>
                                             <button class="btn btn-primary" name="login" type="submit">Login</button>
                                         </div>
                                     </form>

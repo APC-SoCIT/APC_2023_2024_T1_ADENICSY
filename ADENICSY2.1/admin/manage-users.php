@@ -85,7 +85,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
 
                                                     <a href="patient-user-profile.php?uid=<?php echo $row['id']; ?>">
                                                         <i class="fas fa-edit"></i></a>
-                                                    <a href="manage-users.php?id=<?php echo $row['id']; ?>" onClick="return confirm('Do you really want to delete');"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                                                    <a href="manage-users.php?id=<?php echo $row['id']; ?>" onClick="return confirm('Do you really want to delete this patient?');"><i class="fa fa-trash" aria-hidden="true"></i></a>
                                                 </td>
                                             </tr>
                                         <?php $cnt = $cnt + 1;
