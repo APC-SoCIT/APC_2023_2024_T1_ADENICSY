@@ -15,7 +15,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
     <?php
     require_once('../includes/config.php');
     if (isset($_POST['submit'])) {
-        // Get the form data
+        // Get the form dataa
         $fname = $_POST['fname'];
         $lname = $_POST['lname'];
         $email = $_POST['email'];
@@ -23,12 +23,13 @@ if (strlen($_SESSION['adminid'] == 0)) {
         $password = $_POST['password'];
         $role = $_POST['empRole'];
         $code = $_POST['namecode'];
+        $prc_id = $_POST['prc_id'];
         $sql = mysqli_query($con, "select id from employee where username='$username'");
         $row = mysqli_num_rows($sql);
         if ($row > 0) {
             echo "<script>alert('Username already exist with another account. Please try other username');</script>";
         } else {
-            $msg1 = mysqli_query($con, "insert into employee (fname, lname, email, username, password, empRole, namecode) VALUES ('$fname', '$lname', '$email', '$username', '$password', '$role', '$code')");
+            $msg1 = mysqli_query($con, "insert into employee (fname, lname, email, username, password, empRole, namecode, PRC_ID) VALUES ('$fname', '$lname', '$email', '$username', '$password', '$role', '$code', '$prc_id')");
 
             if ($msg1) {
                 echo "<script>alert('Employee Added successfully');</script>";
@@ -171,10 +172,15 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="employeerole" class="form-label">Role</label>
-                                                        <select class="form-select mb-3" id="employeerole" name="empRole" pattern="(Doctor|Staff)" required>
-                                                            <option value="Doctor">Doctor</option>
+                                                        <select class="form-select mb-3" id="employeerole" name="empRole" pattern="(Dentist|Staff)" required>
                                                             <option value="Staff">Staff</option>
+                                                            <option value="Dentist">Dentist</option>
                                                         </select>
+                                                    </div>
+                                                    <!-- Add the PRC ID input field conditionally -->
+                                                    <div class="mb-3" id="prcIdField" style="display: none;">
+                                                        <label for="prc_id" class="form-label">PRC ID</label>
+                                                        <input type="text" class="form-control" id="prc_id" name="prc_id" minlength="7" maxlength="7" required>
                                                     </div>
                                             </div>
                                             <div class="modal-footer">
@@ -196,6 +202,19 @@ if (strlen($_SESSION['adminid'] == 0)) {
         <script src="../js/scripts.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
         <script src="../js/datatables-simple-demo.js"></script>
+        <script>
+            // JavaScript to show/hide the PRC ID field based on the selected role
+            const employeeroleSelect = document.getElementById('employeerole');
+            const prcIdField = document.getElementById('prcIdField');
+
+            employeeroleSelect.addEventListener('change', function() {
+                if (this.value === 'Dentist') {
+                    prcIdField.style.display = 'block';
+                } else {
+                    prcIdField.style.display = 'none';
+                }
+            });
+        </script>
     </body>
 
     </html>
