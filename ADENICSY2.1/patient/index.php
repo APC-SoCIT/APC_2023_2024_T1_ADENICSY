@@ -1,12 +1,33 @@
-<?php session_start();
+<?php
+session_start();
+ob_start(); // Start output buffering
+
 include_once('includes/config.php');
-if (strlen($_SESSION['id'] == 0)) {
-    header('location:patient-logout.php');
+require_once('includes/emailController.php');
+
+// Verify User using token
+if (isset($_GET['token'])) {
+    $token = $_GET['token'];
+    verifyUser($token);
+}
+// Check if the user is logged in
+if (strlen($_SESSION['id']) == 0) {
+    header('location: patient-logout.php');
 } else {
+    // Include Navbar
+    include_once('patient-nav.php');
+
+    // Verify User using token (you may need to include the code or functions from authController.php)
+    if ($_SESSION['verified'] == 0) {
+        // Redirect to the verification message page
+        header('location: verify-message.php');
+        exit(); // Make sure to exit after redirection
+    }
+
+    // Rest of your code for the authorized user
 
 ?>
-    <!-- Include Navbar -->
-    <?php include_once('patient-nav.php'); ?>
+    <html>
 
     <body style="padding-top: 100px;">
         <!-- Patient Greetings -->
@@ -62,7 +83,7 @@ if (strlen($_SESSION['id'] == 0)) {
             $checkPatientResult = mysqli_query($con, $checkPatientQuery);
             if (mysqli_num_rows($checkPatientResult) > 0) {
                 echo "<script>alert('You are already in the queue.');</script>";
-                echo "<script type='text/javascript'> document.location = 'patient-home.php?id=" . $userid . "'; </script>";
+                echo "<script type='text/javascript'> document.location = 'index.php?id=" . $userid . "'; </script>";
                 exit();
             }
 
@@ -79,18 +100,18 @@ if (strlen($_SESSION['id'] == 0)) {
 
 
                 echo "<script>
-                $(document).ready(function() {
-                    $('#patient-name').text('$patientName');
-                    $('#queue-number').text('$queueNumber');
-                    $('#queue-modal').modal('show');
-                    $('#current-datetime').text('$currentDateTime');
+            $(document).ready(function() {
+                $('#patient-name').text('$patientName');
+                $('#queue-number').text('$queueNumber');
+                $('#queue-modal').modal('show');
+                $('#current-datetime').text('$currentDateTime');
 
-                    $('#queue-modal').on('hide.bs.modal', function (e) {
-                        window.location.href = 'patient-home.php?id=<?php echo $userid; ?>';
-                    });
+                $('#queue-modal').on('hide.bs.modal', function (e) {
+                    window.location.href = 'index.php?id=<?php echo $userid; ?>';
                 });
-                
-          </script>";
+            });
+            
+      </script>";
             }
         }
         // Submit queueing info in queueing list for priority patients
@@ -108,7 +129,7 @@ if (strlen($_SESSION['id'] == 0)) {
             $checkPatientResult = mysqli_query($con, $checkPatientQuery);
             if (mysqli_num_rows($checkPatientResult) > 0) {
                 echo "<script>alert('You are already in the queue.');</script>";
-                echo "<script type='text/javascript'> document.location = 'patient-home.php?id=" . $userid . "'; </script>";
+                echo "<script type='text/javascript'> document.location = 'index.php?id=" . $userid . "'; </script>";
                 exit();
             }
 
@@ -125,18 +146,18 @@ if (strlen($_SESSION['id'] == 0)) {
 
 
                 echo "<script>
-                $(document).ready(function() {
-                    $('#1patient-name').text('$patientName');
-                    $('#1queue-number').text('$queueNumber2');
-                    $('#queue-modal-priority').modal('show');
-                    $('#1current-datetime').text('$currentDateTime');
+            $(document).ready(function() {
+                $('#1patient-name').text('$patientName');
+                $('#1queue-number').text('$queueNumber2');
+                $('#queue-modal-priority').modal('show');
+                $('#1current-datetime').text('$currentDateTime');
 
-                    $('#queue-modal-priority').on('hide.bs.modal', function (e) {
-                        window.location.href = 'patient-home.php?id=<?php echo $userid; ?>';
-                    });
+                $('#queue-modal-priority').on('hide.bs.modal', function (e) {
+                    window.location.href = 'index.php?id=<?php echo $userid; ?>';
                 });
-                
-          </script>";
+            });
+            
+      </script>";
             }
         }
         ?>
@@ -523,4 +544,10 @@ if (strlen($_SESSION['id'] == 0)) {
     </body>
 
     </html>
+
 <?php } ?>
+
+<?php
+// End output buffering and send the captured output to the browser
+ob_end_flush();
+?>

@@ -1,23 +1,43 @@
-<?php session_start();
+<?php
+session_start();
 include_once('includes/config.php');
-// Code for login 
-if (isset($_POST['login'])) {
-    $password = $_POST['password'];
-    $dec_password = $password;
-    $useremail = $_POST['uemail'];
-    $ret = mysqli_query($con, "SELECT id,fname FROM patient WHERE email='$useremail' and password='$dec_password'");
-    $num = mysqli_fetch_array($ret);
-    if ($num > 0) {
 
-        $_SESSION['id'] = $num['id'];
-        $_SESSION['id2'] = $num['id'];
-        $_SESSION['name'] = $num['fname'];
-        header("location:index.php");
+// Login post submit
+if (isset($_POST['login'])) {
+    $useremail = $_POST['uemail'];
+    $password = $_POST['password'];
+
+    // Fetch the hashed password and verified status from the database
+    $sql = "SELECT id, fname, h_password, verified FROM patient WHERE email=?";
+    $stmt = $con->prepare($sql);
+    $stmt->bind_param('s', $useremail);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();
+
+        // Retrieve the 'verified' status from the result
+        $is_verified = $user['verified'];
+
+        if (password_verify($password, $user['h_password'])) {
+            // Login success
+            $_SESSION['id'] = $user['id'];
+            $_SESSION['id2'] = $user['id'];
+            $_SESSION['email'] = $useremail; // Set the email here
+            $_SESSION['name'] = $user['fname'];
+            $_SESSION['verified'] = $is_verified; // Set the verified status
+            header("location:index.php");
+            exit();
+        } else {
+            echo "<script>alert('Incorrect Password');</script>";
+        }
     } else {
         echo "<script>alert('Invalid email or password');</script>";
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
