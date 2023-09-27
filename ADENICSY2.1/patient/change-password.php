@@ -1,27 +1,39 @@
-<?php session_start();
+<?php
+session_start();
 include_once('includes/config.php');
-if (strlen($_SESSION['id'] == 0)) {
-    header('location:logout.php');
+
+if (strlen($_SESSION['id']) == 0) {
+    header('location: logout.php');
 } else {
-    //Code for Updation 
-    // for  password change   
+    // Code for password change
     if (isset($_POST['update'])) {
         $oldpassword = $_POST['currentpassword'];
         $newpassword = $_POST['newpassword'];
-        $sql = mysqli_query($con, "SELECT password FROM patient where password='$oldpassword'");
-        $num = mysqli_fetch_array($sql);
-        if ($num > 0) {
-            $userid = $_SESSION['id'];
-            $ret = mysqli_query($con, "update patient set password='$newpassword' where id='$userid'");
-            echo "<script>alert('Password Changed Successfully !!');</script>";
-            echo "<script type='text/javascript'> document.location = 'edit-profile.php'; </script>";
+        $userid = $_SESSION['id'];
+
+        // Retrieve the hashed password from the database
+        $sql = mysqli_query($con, "SELECT h_password FROM patient WHERE id='$userid'");
+        $row = mysqli_fetch_array($sql);
+        $hashed_password = $row['h_password'];
+
+        // Verify if the entered old password matches the stored hashed password
+        if (password_verify($oldpassword, $hashed_password)) {
+            // Hash the new password
+            $newpassword = password_hash($newpassword, PASSWORD_DEFAULT);
+
+            // Update the password in the database
+            $ret = mysqli_query($con, "UPDATE patient SET h_password='$newpassword' WHERE id='$userid'");
+            if ($ret) {
+                echo "<script>alert('Password Changed Successfully !!');</script>";
+                echo "<script type='text/javascript'> document.location = 'edit-profile.php'; </script>";
+            } else {
+                echo "<script>alert('Database Error: Failed to update password');</script>";
+            }
         } else {
-            echo "<script>alert('Old Password not match !!');</script>";
+            echo "<script>alert('Current Password is Incorrect!');</script>";
             echo "<script type='text/javascript'> document.location = 'change-password.php'; </script>";
         }
     }
-
-
 ?>
     <!DOCTYPE html>
     <html lang="en">
@@ -39,7 +51,7 @@ if (strlen($_SESSION['id'] == 0)) {
         <script language="javascript" type="text/javascript">
             function valid() {
                 if (document.changepassword.newpassword.value != document.changepassword.confirmpassword.value) {
-                    alert("Password and Confirm Password Field do not match  !!");
+                    alert("New Password and Confirm Password Field does not match   !");
                     document.changepassword.confirmpassword.focus();
                     return false;
                 }
@@ -66,8 +78,9 @@ if (strlen($_SESSION['id'] == 0)) {
                                 </tr>
                                 <tr>
                                     <th>New Password</th>
-                                    <td><input class="form-control" id="newpassword" name="newpassword" type="password" value="" required /></td>
+                                    <td><input class="form-control" id="newpassword" name="newpassword" type="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}" title="At least one number and one uppercase and lowercase letter, and at least 6 or more characters" required /></td>
                                 </tr>
+
                                 <tr>
                                     <th>Confirm Password</th>
                                     <td colspan="3"><input class="form-control" id="confirmpassword" name="confirmpassword" type="password" required /></td>
