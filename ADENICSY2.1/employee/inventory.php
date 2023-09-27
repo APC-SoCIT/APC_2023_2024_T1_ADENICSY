@@ -103,6 +103,22 @@ if (strlen($_SESSION['staffid'] == 0)) {
         // Close the statement
         mysqli_stmt_close($stmt);
     }
+    if (isset($_POST['delete-item'])) {
+        $itemId = $_POST['delete-item'];
+
+        // Perform the deletion in your database
+        $deleteQuery = "DELETE FROM inventory1 WHERE id = ?";
+        $stmt = $con->prepare($deleteQuery);
+        $stmt->bind_param('i', $itemId);
+
+        if ($stmt->execute()) {
+            echo "<script>alert('Item deleted successfully!');</script>";
+        } else {
+            echo "<script>alert('Failed to delete item.');</script>";
+        }
+
+        $stmt->close();
+    }
     if (isset($_POST['add-item'])) {
         $itemName = $_POST['add-item-name'];
         $quantity = $_POST['add-quantity'];
@@ -198,6 +214,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 echo '<th>Last Modified By</th>';
                 echo '<th>Last Modified Time</th>';
                 echo '<th>Update</th>';
+                echo '<th>Delete</th>';
                 echo '</tr>';
                 echo '</thead>';
                 echo '<tbody>';
@@ -219,6 +236,12 @@ if (strlen($_SESSION['staffid'] == 0)) {
                         echo '<form id="edit-item-form" method="post" action="">';
                         echo '<input type="hidden" name="edit-item" value="' . $row["id"] . '">';
                         echo '<button class="edit-item-btn btn btn-primary" data-queueing-number="' . $row["id"] . '">Update</button>';
+                        echo '</form>';
+                        echo '</td>';
+                        echo '<td>';
+                        echo '<form id="delete-item-form-' . $row["id"] . '" method="post" action="">';
+                        echo '<input type="hidden" name="delete-item" value="' . $row["id"] . '">';
+                        echo '<button class="delete-item-btn btn btn-danger" data-queueing-number2="' . $row["id"] . '">Delete</button>';
                         echo '</form>';
                         echo '</td>';
                         echo '</tr>';
@@ -341,6 +364,28 @@ if (strlen($_SESSION['staffid'] == 0)) {
                     </div>
                 </div>
             </div>
+            <!-- Confirmation Modal for Delete -->
+            <div class="modal fade" id="confirm-delete-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-delete-modal-label" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirm-delete-modal-label">Confirm Delete</h5>
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete the item: <span id="delete-item-name"></span>?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-danger confirm-delete" name="delete-item">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
             <!-- Modal Handler -->
             <!-- Update Button Handler -->
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Include jQuery library -->
@@ -398,8 +443,6 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 });
             </script>
 
-
-
             <!-- Add New Item Button Handler -->
             <script>
                 const addItemButton = document.querySelector('.add-item-btn');
@@ -415,6 +458,57 @@ if (strlen($_SESSION['staffid'] == 0)) {
                     $('#add-item-modal').modal('show');
                 });
             </script>
+
+            <!-- Delete button item handler -->
+            <script>
+                $(document).ready(function() {
+                    $('.delete-item-btn').click(function(e) {
+                        e.preventDefault();
+                        const itemId = $(this).data('queueing-number2');
+
+                        // Make an AJAX request to fetch the item data
+                        $.ajax({
+                            type: 'POST',
+                            url: 'inventory.php', // Make sure this URL is correct
+                            data: {
+                                getItemData: true,
+                                itemId: itemId
+                            },
+                            dataType: 'json',
+                            success: function(response) {
+                                if (response) {
+                                    const itemName = response.item_name;
+
+                                    // Show the confirmation modal
+                                    $('#confirm-delete-modal').modal('show');
+
+                                    // Set the item name in the modal for confirmation
+                                    $('#delete-item-name').text(itemName);
+
+                                    // Set a data attribute to store the item ID for deletion
+                                    $('#confirm-delete-modal').attr('data-item-id', itemId);
+                                } else {
+                                    console.error('Error fetching item data.');
+                                }
+                            },
+                            error: function() {
+                                console.error('AJAX request failed.');
+                            }
+                        });
+                    });
+
+                    // Handle the delete confirmation
+                    $('#confirm-delete-modal').on('click', '.confirm-delete', function() {
+                        const itemId = $('#confirm-delete-modal').attr('data-item-id');
+
+                        // Submit the delete form
+                        $('#delete-item-form-' + itemId).submit();
+                    });
+                });
+            </script>
+
+
+
             <!-- large quantity input warning handler for edit -->
             <script>
                 const quantityInput = document.getElementById('edit-quantity');
