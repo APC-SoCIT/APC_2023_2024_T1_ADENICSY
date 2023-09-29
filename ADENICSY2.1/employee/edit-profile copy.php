@@ -1,6 +1,6 @@
 <?php session_start();
 include_once('../includes/config.php');
-if (strlen($_SESSION['staffid'] == 0)) {
+if (strlen($_SESSION['doctorid'] == 0)) {
     header('location:logout.php');
 } else {
     //Code for Updation 
@@ -8,12 +8,12 @@ if (strlen($_SESSION['staffid'] == 0)) {
         $fname = $_POST['fname'];
         $lname = $_POST['lname'];
         $contact = $_POST['contact'];
-        $userid = $_SESSION['staffid'];
+        $userid = $_SESSION['doctorid'];
         $msg = mysqli_query($con, "update employee set fname='$fname',lname='$lname',contactno='$contact' where id='$userid'");
 
         if ($msg) {
             echo "<script>alert('Profile updated successfully');</script>";
-            echo "<script type='text/javascript'> document.location = 'staff-homepage.php'; </script>";
+            echo "<script type='text/javascript'> document.location = 'doc-homepage.php'; </script>";
         }
     }
 
@@ -31,7 +31,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
         <meta name="author" content="" />
         <title>Edit Profile | Registration and Login System</title>
         <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" />
-        <link rel="stylesheet" href="../patient/patient-css/bootstrap.css">
+        <link rel="stylesheet" href="../patient-css/bootstrap.css">
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js" crossorigin="anonymous"></script>
     </head>
@@ -51,9 +51,9 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 <div class="collapse navbar-collapse" id="navmenu">
                     <ul class="navbar-nav ms-auto h5"> <!-- ms-auto is to make the nav tab on right side -->
                         <li class="nav-item">
-                            <a href="staff-homepage.php" class="nav-link" style="color: #FFFFFF; font-weight: bold;">Home</a>
+                            <a href="doc-homepage.php" class="nav-link" style="color: #FFFFFF; font-weight: bold;">Home</a>
                         </li>
-                        <a href="staff-emp-profile.php" class="nav-link" style="color: #FFFFFF; font-weight: bold;">Profile</a>
+                        <a href="emp-profile.php" class="nav-link" style="color: #FFFFFF; font-weight: bold;">Profile</a>
                         </li>
                         <li class="nav-item">
                             <a href="emp-logout.php" class="nav-link" style="color: #FFFFFF; font-weight: bold;">Logout</a>
