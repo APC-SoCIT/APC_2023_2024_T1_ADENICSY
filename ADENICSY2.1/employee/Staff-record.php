@@ -44,10 +44,28 @@ include 'employee-nav-staff.php';
             $sqlpatientinfo = "SELECT fname, lname FROM patient WHERE id='$patientID'";
             $result_info = mysqli_query($con, $sqlpatientinfo);
             $queryResults_info = mysqli_num_rows($result_info);
+            // Initialize the total remaining balance to 0
+            $totalRemainingBalance = 0;
+
             if ($queryResults_info > 0) {
                 while ($data = mysqli_fetch_assoc($result_info)) {
                     echo '<h2 class="text-primary fw-bold">' . $data["fname"] . " " . $data["lname"] . " Account" . '</h2>';
                 }
+
+                // Calculate the total remaining balance for the current patient
+                $sql = "SELECT * FROM s_payment WHERE s_patiendID='$patientID'";
+                $result = mysqli_query($con, $sql);
+                $queryResults = mysqli_num_rows($result);
+
+                if ($queryResults > 0) {
+                    while ($row = mysqli_fetch_assoc($result)) {
+                        // Calculate and add the remaining balance to the total
+                        $totalRemainingBalance += ($row["s_total"] - $row["s_amount"]);
+                    }
+                }
+
+                // Display the total remaining balance
+                echo '<h4 class="text-dark fw-bold">Total Remaining Balance: ' . $totalRemainingBalance . '</h4>';
             }
 
             $sql = "SELECT * FROM s_payment WHERE s_patiendID='$patientID'";
