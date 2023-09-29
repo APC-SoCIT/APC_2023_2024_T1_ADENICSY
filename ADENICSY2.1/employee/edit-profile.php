@@ -13,7 +13,7 @@ if (strlen($_SESSION['doctorid'] == 0)) {
 
         if ($msg) {
             echo "<script>alert('Profile updated successfully');</script>";
-            echo "<script type='text/javascript'> document.location = 'doc-homepage.php'; </script>";
+            echo "<script type='text/javascript'> document.location = 'edit-profile.php'; </script>";
         }
     }
 
@@ -31,7 +31,7 @@ if (strlen($_SESSION['doctorid'] == 0)) {
         <meta name="author" content="" />
         <title>Edit Profile | Registration and Login System</title>
         <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" />
-        <link rel="stylesheet" href="../patient-css/bootstrap.css">
+        <link rel="stylesheet" href="../patient/patient-css/bootstrap.css">
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js" crossorigin="anonymous"></script>
     </head>
@@ -66,7 +66,7 @@ if (strlen($_SESSION['doctorid'] == 0)) {
             <div class="container-fluid px-4" style="padding-top: 70px;">
 
                 <?php
-                $userid = $_SESSION['staffid'];
+                $userid = $_SESSION['doctorid'];
                 $query = mysqli_query($con, "select * from employee where id='$userid'");
                 while ($result = mysqli_fetch_array($query)) { ?>
                     <img style="max-width: 200px;" class="img-fluid mx-auto d-block d-md-block pt-5" src="../undrawAnimations/undraw_pic_profile.svg" alt="User Profile">

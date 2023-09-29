@@ -1,6 +1,6 @@
 <?php session_start();
 include_once('../includes/config.php');
-if (strlen($_SESSION['doctorid'] == 0)) {
+if (strlen($_SESSION['staffid'] == 0)) {
     header('location:emp-logout.php');
 } else {
     //Code for Updation 
@@ -11,13 +11,13 @@ if (strlen($_SESSION['doctorid'] == 0)) {
         $sql = mysqli_query($con, "SELECT password FROM employee where password='$oldpassword'");
         $num = mysqli_fetch_array($sql);
         if ($num > 0) {
-            $userid = $_SESSION['doctorid'];
+            $userid = $_SESSION['staffid'];
             $ret = mysqli_query($con, "update employee set password='$newpassword' where id='$userid'");
             echo "<script>alert('Password Changed Successfully !!');</script>";
-            echo "<script type='text/javascript'> document.location = 'edit-profile.php'; </script>";
+            echo "<script type='text/javascript'> document.location = 'staff-edit-profile.php'; </script>";
         } else {
             echo "<script>alert('Old Password not match !!');</script>";
-            echo "<script type='text/javascript'> document.location = 'change-password.php'; </script>";
+            echo "<script type='text/javascript'> document.location = 'staff-change-password.php'; </script>";
         }
     }
 
