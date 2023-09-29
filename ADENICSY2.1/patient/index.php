@@ -38,7 +38,7 @@ if (strlen($_SESSION['id']) == 0) {
 
             .hover-button2:hover {
                 transform: scale(1.05);
-                font-weight: 700;
+                font-weight: 800;
             }
         </style>
     </head>
