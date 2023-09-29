@@ -29,6 +29,32 @@ if (strlen($_SESSION['id']) == 0) {
 ?>
     <html>
 
+    <head>
+        <style>
+            .hover-button:hover {
+                transform: scale(1.05);
+                font-weight: 500;
+            }
+
+            .hover-button2:hover {
+                transform: scale(1.05);
+                font-weight: 700;
+            }
+
+            .nav-link:hover {
+                font-weight: bold;
+                transform: scale(1.05);
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+            }
+
+            .navbar-brand:hover {
+                font-weight: 500;
+                transform: scale(1);
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+            }
+        </style>
+    </head>
+
     <body style="padding-top: 100px;">
         <!-- Patient Greetings -->
         <?php
@@ -237,7 +263,7 @@ if (strlen($_SESSION['id']) == 0) {
                         <div class="row pt-2">
                             <div class="col text-center">
                                 <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
-                                    <button type="submit" name="submit2" class="btn btn-primary">Click here to refresh the number</button>
+                                    <button type="submit" name="submit2" class="btn btn-primary hover-button">Click here to refresh the number</button>
                                 </form>
                                 <?php
                                 date_default_timezone_set('Asia/Manila');
@@ -288,7 +314,7 @@ if (strlen($_SESSION['id']) == 0) {
                         <div class="row pt-2">
                             <div class="col text-center">
                                 <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
-                                    <button type="submit" name="submit2" class="btn text-light" style="background-color:hotpink;">Click here to refresh the number</button>
+                                    <button type="submit" name="submit2" class="btn text-light hover-button" style="background-color:hotpink;">Click here to refresh the number</button>
                                 </form>
                                 <?php
                                 date_default_timezone_set('Asia/Manila');
@@ -337,7 +363,7 @@ if (strlen($_SESSION['id']) == 0) {
                             }
                         ?><p class="text-center pt-0 pb-1 my-0" style="font-weight: 500;">Next Available Number</p>
                             <div class="row d-flex justify-content-around" data-bs-toggle="modal" data-bs-target="#exampleModal" style="font-weight: bold; cursor:pointer;">
-                                <div class="col-8 col-lg-2 box d-flex align-items-center" style="font-size: 50px;"><?php echo $next_queue = $next_queue + 1; ?></div>
+                                <div class="col-8 col-lg-2 box d-flex align-items-center hover-button2" style="font-size: 50px;"><?php echo $next_queue = $next_queue + 1; ?></div>
                             <?php
                         } else {
                             echo '<div class="row d-flex justify-content-around" style="font-weight: 500">';
@@ -363,7 +389,7 @@ if (strlen($_SESSION['id']) == 0) {
                             }
                         ?><p class="text-center pt-0 pb-1 my-0" style="font-weight: 500;">Next Available Number</p>
                             <div class="row d-flex justify-content-around" data-bs-toggle="modal" data-bs-target="#modalpriority" style="font-weight: bold; cursor:pointer;">
-                                <div class="col-8 col-lg-2 box d-flex align-items-center" style="font-size: 50px; background-color:hotpink"><?php echo $next_queue = $next_queue + 1; ?></div>
+                                <div class="col-8 col-lg-2 box d-flex align-items-center hover-button2" style="font-size: 50px; background-color:hotpink"><?php echo $next_queue = $next_queue + 1; ?></div>
                             <?php
                         } else {
                             echo '<div class="row d-flex justify-content-around" style="font-weight: 500">';
