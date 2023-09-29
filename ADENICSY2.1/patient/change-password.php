@@ -87,7 +87,7 @@ if (strlen($_SESSION['id']) == 0) {
                                 </tr>
 
                                 <tr>
-                                    <td colspan="4" style="text-align:center ;"><button type="submit" class="btn btn-primary btn-block" name="update">Change</button></td>
+                                    <td colspan="4" style="text-align:center ;"><button type="submit" class="btn btn-primary btn-block hover-button" name="update">Change</button></td>
 
                                 </tr>
                                 </tbody>

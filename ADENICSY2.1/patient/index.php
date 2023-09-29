@@ -40,18 +40,6 @@ if (strlen($_SESSION['id']) == 0) {
                 transform: scale(1.05);
                 font-weight: 700;
             }
-
-            .nav-link:hover {
-                font-weight: bold;
-                transform: scale(1.05);
-                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
-            }
-
-            .navbar-brand:hover {
-                font-weight: 500;
-                transform: scale(1);
-                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
-            }
         </style>
     </head>
 
@@ -447,7 +435,7 @@ if (strlen($_SESSION['id']) == 0) {
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button class="btn btn-primary" name="submit" type="submit">Submit</button>
+                                <button class="btn btn-primary hover-button" name="submit" type="submit">Submit</button>
                             </div>
                             </form>
                         </div>
@@ -500,7 +488,7 @@ if (strlen($_SESSION['id']) == 0) {
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button class="btn" name="submitforpriority" style="background-color:hotpink;" type="submit">Submit</button>
+                                <button class="btn hover-button" name="submitforpriority" style="background-color:hotpink;" type="submit">Submit</button>
                             </div>
                             </form>
                         </div>

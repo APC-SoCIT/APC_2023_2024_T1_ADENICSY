@@ -44,7 +44,7 @@ if (strlen($_SESSION['id'] == 0)) {
                                                         } ?></h3>
                     </div>
                     <div class="col-4 d-grid justify-content-end">
-                        <a href="patient-payment.php" class="btn btn-primary btn-block" role="button" aria-pressed="true">Refresh Page</a>
+                        <a href="patient-payment.php" class="btn btn-primary btn-block hover-button" role="button" aria-pressed="true">Refresh Page</a>
                     </div>
                 </div>
 

@@ -68,14 +68,14 @@ if (strlen($_SESSION['id'] == 0)) {
                                     </tr>
                                     <tr>
                                         <th>Password</th>
-                                        <td colspan="3"><a class="btn btn-sm btn-primary float-end" href="change-password.php">Change password</a></td>
+                                        <td colspan="3"><a class="btn btn-sm btn-primary float-end hover-button" href="change-password.php">Change password</a></td>
                                     </tr>
                                     <tr>
                                         <th>Reg. Date</th>
                                         <td colspan="3"><?php echo $result['posting_date']; ?></td>
                                     </tr>
                                     <tr>
-                                        <td colspan="4" style="text-align:center ;"><button type="submit" class="btn btn-primary btn-block" name="update">Update Profile</button></td>
+                                        <td colspan="4" style="text-align:center ;"><button type="submit" class="btn btn-primary btn-block hover-button" name="update">Update Profile</button></td>
 
                                     </tr>
                                     </tbody>

@@ -59,7 +59,7 @@ if (strlen($_SESSION['id'] == 0)) {
                                         </tr>
                                         </tbody>
                                     </table>
-                                    <a class="btn btn-md btn-primary mb-2 float-end" href="edit-profile.php"">Update Profile</a>
+                                    <a class="btn btn-md btn-primary mb-2 float-end hover-button" href="edit-profile.php"">Update Profile</a>
                                 </div>
                             </div>
                         </div>

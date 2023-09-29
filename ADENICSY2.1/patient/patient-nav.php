@@ -13,6 +13,24 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <style>
+        .nav-link:hover {
+            font-weight: bold;
+            transform: scale(1.05);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .navbar-brand:hover {
+            font-weight: 800;
+            transform: scale(1.05);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .hover-button:hover {
+            transform: scale(1.05);
+            font-weight: 500;
+        }
+    </style>
 </head>
 
 <body>
