@@ -164,7 +164,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="code" class="form-label">Name Code</label>
-                                                        <input type="text" class="form-control" id="namecode" name="namecode" required>
+                                                        <input type="text" class="form-control" id="namecode" name="namecode" required pattern="[A-Z]{3,4}" title="Please input 3-4 characters in uppercase.">
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="password" class="form-label">Password</label>

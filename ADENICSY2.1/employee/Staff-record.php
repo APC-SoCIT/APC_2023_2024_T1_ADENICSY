@@ -223,7 +223,7 @@ include 'employee-nav-staff.php';
                         </div>
                         <div class="mb-3">
                             <label for="note" class="form-label">Paid Amount</label>
-                            <input type="number" class="form-control" id="amount" name="amount" required>
+                            <input type="number" class="form-control" id="amount" name="amount" required min="1">
                         </div>
                         <div class="mb-3">
                             <label for="dentist" class="form-label">Assigned Dentist</label>
