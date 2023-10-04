@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 80vh;
+            margin: 0;
+            background-color: #f2f2f2; /* Background color for the entire page */
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .error-text {
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333; /* Text color */
+        }
+
+        .btn-go-back {
+            font-size: 18px;
+            background-color: #461873   ; /* Button color */
+            border: none;
+            color: #fff; /* Text color on the button */
+            padding: 10px 20px;
+            border-radius: 10px; /* Rounded edges */
+            cursor: pointer;
+            transition: transform 0.2s, font-weight 0.2s;
+        }
+
+        .btn-go-back:hover {
+            transform: scale(1.05);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="error-text">Page Not Found</h1>
+        <p class="error-text">The requested URL was not found on this server.</p>
+        <button class="btn-go-back" onclick="goToIndexPage()">Go Back to Apelo Dental Clinic Landing Page</button>
+    </div>
+
+    <script>
+        function goToIndexPage() {
+            window.location.href = 'http://localhost/githubclone/adenicsy2.1'; // Replace with the actual URL of your index page.
+        }
+    </script>
+</body>
+</html>
