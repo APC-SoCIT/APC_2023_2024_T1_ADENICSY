@@ -194,6 +194,23 @@ if (strlen($_SESSION['adminid'] == 0)) {
         <link href="../css/styles.css" rel="stylesheet" />
         <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js" crossorigin="anonymous"></script>
+        <style>
+            /* Change text color for elements outside the table */
+            .bg-success .text-white {
+                color: white;
+            }
+
+            /* Change text color for pagination controls */
+            #inventory-container .dataTables_paginate .paginate_button .DataTables_Table_0_length {
+                color: white;
+            }
+
+            /* Change background color for pagination controls */
+            #inventory-container .dataTables_paginate .paginate_button:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+                /* Add a hover effect */
+            }
+        </style>
 
 
     </head>
@@ -352,7 +369,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                         </div>
 
                         <div class="container">
-                            <div class="row bg-success bg-gradient pt-3 mb-3">
+                            <div class="row bg-success bg-gradient pt-3 mb-3 text-white">
                                 <!-- Normal View -->
                                 <div class="col-11">
                                     <h5 class="fw-bold text-white text-start pb-2">Normal View</h5>
@@ -363,7 +380,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                     </button>
                                 </div>
                                 <!-- Table -->
-                                <div class="col-12" id="normal-view-table">
+                                <div class="col-12 pb-2" id="inventory-container">
                                     <!-- Table -->
                                     <?php
                                     // Output Form Entries from the Database
@@ -371,7 +388,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                     // Fire query
                                     $result = mysqli_query($con, $sql);
                                     // Create a Bootstrap table to display the data
-                                    echo '<table class="table table-light table-striped">';
+                                    echo '<table class=" py-2 table table-light table-striped">';
                                     echo '<thead class="text-primary h4">';
                                     echo '<tr>';
                                     echo '<th>ID</th>';
@@ -769,6 +786,41 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                     });
                                 });
                             </script>
+                            <!-- Include DataTables CSS and JavaScript files -->
+                            <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+                            <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+
+                            <!-- Initialize DataTables for the container -->
+                            <script>
+                                $(document).ready(function() {
+                                    $('#inventory-container table').DataTable({
+                                        "paging": true, // Enable pagination
+                                        "pageLength": 10, // Set the number of rows per page
+                                        "lengthMenu": [10, 25, 50, 100], // Define the page length menu options
+                                        "order": [
+                                            [1, 'asc'], // Sort by Item Name (column index 1) in ascending order
+                                            [2, 'asc'], // Then sort by Quantity (column index 2) in ascending order
+                                            [5, 'asc'], // Then sort by Last Modified Date (column index 5) in ascending order
+                                            [4, 'asc'] // Finally sort by Last Modified By (column index 4) in ascending order
+                                        ],
+                                        "language": {
+                                            "lengthMenu": "Show _MENU_ entries per page",
+                                            "zeroRecords": "No matching records found",
+                                            "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                                            "infoEmpty": "Showing 0 to 0 of 0 entries",
+                                            "infoFiltered": "(filtered from _MAX_ total entries)",
+                                            "search": "Search:",
+                                            "paginate": {
+                                                "first": "First",
+                                                "last": "Last",
+                                                "next": "Next",
+                                                "previous": "Previous"
+                                            }
+                                        }
+                                    });
+                                });
+                            </script>
+
 
                         </div>
                 </main>
