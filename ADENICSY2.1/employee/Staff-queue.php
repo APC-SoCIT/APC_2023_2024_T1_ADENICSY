@@ -313,13 +313,26 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 $e_time = $_POST['e_time'];
                 $date = $_POST['date'];
                 $availSlots = $_POST['slots'];
-                $msg1 = mysqli_query($con, "insert into d_calendar (d_name, d_code, s_time, e_time, date, availableSlot) VALUES ('$d_name', '$d_code', '$s_time', '$e_time', '$date', '$availSlots')");
 
-                if ($msg1) {
-                    echo "<script>alert('Dentist Added successfully');</script>";
+                // Check if the dentist's schedule for the specified date and time already exists
+                $checkExistingQuery = "SELECT * FROM d_calendar WHERE d_name='$d_name' AND date='$date' AND ((s_time >= '$s_time' AND s_time < '$e_time') OR (e_time > '$s_time' AND e_time <= '$e_time'))";
+                $checkExistingResult = mysqli_query($con, $checkExistingQuery);
+
+                if (mysqli_num_rows($checkExistingResult) > 0) {
+                    // Dentist's schedule already exists for the specified date and time
+                    echo "<script>alert('Dentist already exists for this date and time.');</script>";
                     echo "<script type='text/javascript'> document.location = 'staff-queue.php'; </script>";
+                } else {
+                    // Dentist's schedule doesn't exist, so add it
+                    $msg1 = mysqli_query($con, "INSERT INTO d_calendar (d_name, d_code, s_time, e_time, date, availableSlot) VALUES ('$d_name', '$d_code', '$s_time', '$e_time', '$date', '$availSlots')");
+
+                    if ($msg1) {
+                        echo "<script>alert('Dentist Added successfully');</script>";
+                        echo "<script type='text/javascript'> document.location = 'staff-queue.php'; </script>";
+                    }
                 }
             }
+
             // Check if the form has been submitted
             if (isset($_POST['date'])) {
                 $date = $_POST['date'];
