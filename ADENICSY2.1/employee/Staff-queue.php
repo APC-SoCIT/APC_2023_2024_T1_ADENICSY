@@ -413,7 +413,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
                                             ?>
                                         </select>
-                                        <input type="hidden" name="d_code" id="d_code" value="">
+                                        <input type="hidden" name="d_code" id="d_code" value="<?php echo isset($row4['namecode']) ? $row4['namecode'] : ''; ?>">
                                         <script>
                                             // Get the select element and the hidden input field
                                             var select = document.getElementById("name");
@@ -427,9 +427,13 @@ if (strlen($_SESSION['staffid'] == 0)) {
                                                 // Set the value of the hidden input field to the code of the selected Dentist
                                                 codeInput.value = selectedOption.dataset.code;
                                             });
-                                        </script>
 
+                                            // Trigger the change event on page load to set the initial d_code
+                                            var initialSelectedOption = select.options[select.selectedIndex];
+                                            codeInput.value = initialSelectedOption.dataset.code;
+                                        </script>
                                     </div>
+
                                     <div class="mb-3">
                                         <label for="date" class="form-label">Date:</label>
                                         <input type="date" class="form-control" id="date" name="date" value="<?php echo date('Y-m-d'); ?>">
