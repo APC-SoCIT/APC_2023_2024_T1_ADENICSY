@@ -7,12 +7,11 @@ include_once('../includes/config.php');
 if (strlen($_SESSION['staffid'] == 0)) {
 
     header('location:patient-logout.php');
-
 } else {
 
 ?>
 
- 
+
 
     <?php
 
@@ -28,19 +27,19 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
         }
 
- 
+
 
         // Assuming 'inventory1' is your table name
 
         $sql = "SELECT item_name, quantity, metric, critical_level, common_max_qty FROM inventory1 WHERE id = ?";
 
- 
+
 
         $stmt = mysqli_prepare($con, $sql);
 
         mysqli_stmt_bind_param($stmt, "i", $itemId);
 
- 
+
 
         if (mysqli_stmt_execute($stmt)) {
 
@@ -51,16 +50,14 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 return $row; // Return the item data as an associative array
 
             }
-
         }
 
- 
+
 
         return null;
-
     }
 
- 
+
 
     // Add this at the beginning of your PHP file to handle AJAX requests
 
@@ -72,13 +69,13 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
         // You should sanitize and validate $itemId to prevent SQL injection
 
- 
+
 
         // For example, assume you have a function to fetch the item data
 
         $itemData = getItemDataFromDatabase($itemId, $con);
 
- 
+
 
         // Return the data as JSON
 
@@ -135,14 +132,13 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 $metric = 'pcs';
 
                 break;
-
         }
 
         $common_max_qty = $_POST['edit-common-max-qty'];
 
         $criticalLevel = $_POST['edit-critical-level'];
 
- 
+
 
         // Retrieve the first name of the staff from the session
 
@@ -150,7 +146,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
         $staffFirstName = "";
 
- 
+
 
         // Query the database to get the staff's first name
 
@@ -168,13 +164,13 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
         mysqli_stmt_close($stmt);
 
- 
+
 
         // Get the current timestamp
 
         $lastModifiedTime = date("Y-m-d H:i:s");
 
- 
+
 
         // Update the item in the database
 
@@ -184,35 +180,32 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
         mysqli_stmt_bind_param($stmt, "sssssssi", $itemName, $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime, $itemId);
 
- 
+
 
         if (mysqli_stmt_execute($stmt)) {
 
             // Update successful
 
             echo '<script>alert("Item updated successfully!");</script>';
-
         } else {
 
             // Update failed
 
             echo '<script>alert("Failed to update item. Please try again.");</script>';
-
         }
 
- 
+
 
         // Close the statement
 
         mysqli_stmt_close($stmt);
-
     }
 
     if (isset($_POST['delete-item'])) {
 
         $itemId = $_POST['delete-item'];
 
- 
+
 
         // Perform the deletion in your database
 
@@ -222,22 +215,19 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
         $stmt->bind_param('i', $itemId);
 
- 
+
 
         if ($stmt->execute()) {
 
             echo "<script>alert('Item deleted successfully!');</script>";
-
         } else {
 
             echo "<script>alert('Failed to delete item.');</script>";
-
         }
 
- 
+
 
         $stmt->close();
-
     }
 
     if (isset($_POST['add-item'])) {
@@ -285,14 +275,13 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 $metric = 'pcs';
 
                 break;
-
         }
 
         $criticalLevel = $_POST['add-critical-level'];
 
         $common_max_qty = $_POST['add-common-max-qty'];
 
- 
+
 
         // Retrieve the first name of the staff from the session
 
@@ -300,7 +289,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
         $staffFirstName = "";
 
- 
+
 
         // Query the database to get the staff's first name
 
@@ -318,53 +307,53 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
         mysqli_stmt_close($stmt);
 
- 
+
 
         // Get the current timestamp
 
         $lastModifiedTime = date("Y-m-d H:i:s");
 
- 
+        // Check if the item with the same name already exists
+        $checkItemQuery = "SELECT item_name FROM inventory1 WHERE item_name = ?";
+        $stmt = mysqli_prepare($con, $checkItemQuery);
+        mysqli_stmt_bind_param($stmt, "s", $itemName);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_store_result($stmt);
 
-        // Insert the new item into the database
-
-        $sql = "INSERT INTO inventory1 (item_name, quantity, metric, critical_level, common_max_qty, last_modified, last_modified_date) VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-        $stmt = mysqli_prepare($con, $sql);
-
-        mysqli_stmt_bind_param($stmt, "sssssss", $itemName, $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime);
-
- 
-
-        if (mysqli_stmt_execute($stmt)) {
-
-            // Insert successful
-
-            echo '<script>alert("Item added successfully!");</script>';
-
+        if (mysqli_stmt_num_rows($stmt) > 0) {
+            // Item with the same name already exists
+            echo '<script>alert("Item with the same name already exists. Please use a different name.");</script>';
         } else {
+            // Item does not exist, insert it into the database
+            $sql = "INSERT INTO inventory1 (item_name, quantity, metric, critical_level, common_max_qty, last_modified, last_modified_date) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $stmt = mysqli_prepare($con, $sql);
+            mysqli_stmt_bind_param($stmt, "sssssss", $itemName, $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime);
 
-            // Insert failed
+            if (mysqli_stmt_execute($stmt)) {
+                // Insert successful
+                echo '<script>alert("Item added successfully!");</script>';
+            } else {
+                // Insert failed
+                echo '<script>alert("Failed to add item. Please try again.");</script>';
+            }
 
-            echo '<script>alert("Failed to add item. Please try again.");</script>';
-
+            // Close the statement
+            mysqli_stmt_close($stmt);
         }
 
- 
-
-        // Close the statement
-
+        // Close the checkItemQuery statement
         mysqli_stmt_close($stmt);
-
     }
 
- 
 
- 
+
+
+
+
 
     ?>
 
- 
+
 
     <!-- Navbar -->
 
@@ -442,7 +431,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
                     while ($row = mysqli_fetch_assoc($result)) {
 
- 
+
 
                         // Format the last modified date and time
 
@@ -491,9 +480,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
                         echo '</td>';
 
                         echo '</tr>';
-
                     }
-
                 } else {
 
                     echo '<tr>';
@@ -515,7 +502,6 @@ if (strlen($_SESSION['staffid'] == 0)) {
                     echo '<td> ' . "" . '</td>';
 
                     echo '</tr>';
-
                 }
 
                 echo '</tbody>';
@@ -524,7 +510,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
                 ?>
 
- 
+
 
             </div>
 
@@ -770,9 +756,9 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
             </div>
 
- 
 
- 
+
+
 
             <!-- Modal Handler -->
 
@@ -781,7 +767,6 @@ if (strlen($_SESSION['staffid'] == 0)) {
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Include jQuery library -->
 
             <script>
-
                 $(document).ready(function() {
 
                     $('.edit-item-btn').click(function(e) {
@@ -790,7 +775,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
                         const itemId = $(this).data('queueing-number');
 
- 
+
 
                         // Make an AJAX request to fetch the item data
 
@@ -828,7 +813,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
                                     } = response;
 
- 
+
 
                                     // Populate the form fields with the retrieved data
 
@@ -854,7 +839,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
                                     });
 
- 
+
 
                                     $('#edit-critical-level').val(critical_level);
 
@@ -883,24 +868,22 @@ if (strlen($_SESSION['staffid'] == 0)) {
                     });
 
                 });
-
             </script>
 
- 
+
 
             <!-- Add New Item Button Handler -->
 
             <script>
-
                 const addItemButton = document.querySelector('.add-item-btn');
 
- 
+
 
                 addItemButton.addEventListener('click', function(e) {
 
                     e.preventDefault();
 
- 
+
 
                     // Reset the form fields here if needed
 
@@ -908,22 +891,20 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
                     document.getElementById('add-quantity').value = '';
 
- 
+
 
                     // Show the add item modal
 
                     $('#add-item-modal').modal('show');
 
                 });
-
             </script>
 
- 
+
 
             <!-- Delete button item handler -->
 
             <script>
-
                 $(document).ready(function() {
 
                     $('.delete-item-btn').click(function(e) {
@@ -932,7 +913,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
                         const itemId = $(this).data('queueing-number2');
 
- 
+
 
                         // Make an AJAX request to fetch the item data
 
@@ -958,19 +939,19 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
                                     const itemName = response.item_name;
 
- 
+
 
                                     // Show the confirmation modal
 
                                     $('#confirm-delete-modal').modal('show');
 
- 
+
 
                                     // Set the item name in the modal for confirmation
 
                                     $('#delete-item-name').text(itemName);
 
- 
+
 
                                     // Set a data attribute to store the item ID for deletion
 
@@ -994,7 +975,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
                     });
 
- 
+
 
                     // Handle the delete confirmation
 
@@ -1002,7 +983,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
                         const itemId = $('#confirm-delete-modal').attr('data-item-id');
 
- 
+
 
                         // Submit the delete form
 
@@ -1011,26 +992,24 @@ if (strlen($_SESSION['staffid'] == 0)) {
                     });
 
                 });
-
             </script>
 
- 
 
- 
 
- 
+
+
+
 
             <!-- large quantity input warning handler for edit -->
 
             <script>
-
                 const quantityInput = document.getElementById('edit-quantity');
 
                 const quantityWarning = document.getElementById('quantity-warning');
 
                 const commonMaxQtyInput = document.getElementById('edit-common-max-qty');
 
- 
+
 
                 // Function to validate the quantity and show/hide the warning message for edit
 
@@ -1040,7 +1019,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
                     const commonMaxQty = parseInt(commonMaxQtyInput.value);
 
- 
+
 
                     if (quantityValue > commonMaxQty) {
 
@@ -1058,7 +1037,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
                 }
 
- 
+
 
                 // Add input, focus, and blur event listeners for edit
 
@@ -1075,22 +1054,20 @@ if (strlen($_SESSION['staffid'] == 0)) {
                     quantityWarning.style.display = 'none';
 
                 });
-
             </script>
 
- 
+
 
             <!-- large quantity input warning handler for add -->
 
             <script>
-
                 const quantityInput2 = document.getElementById('add-quantity');
 
                 const quantityWarning2 = document.getElementById('quantity-warning-add');
 
                 const commonMaxQtyInput2 = document.getElementById('add-common-max-qty');
 
- 
+
 
                 // Function to validate the quantity and show/hide the warning message for add
 
@@ -1100,7 +1077,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
                     const commonMaxQty2 = parseInt(commonMaxQtyInput2.value);
 
- 
+
 
                     if (quantityValue2 > commonMaxQty2) {
 
@@ -1118,7 +1095,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
                 }
 
- 
+
 
                 // Add input, focus, and blur event listeners for add
 
@@ -1135,7 +1112,6 @@ if (strlen($_SESSION['staffid'] == 0)) {
                     quantityWarning2.style.display = 'none';
 
                 });
-
             </script>
 
             <!-- Include DataTables CSS and JavaScript files -->
@@ -1144,12 +1120,11 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
             <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
 
- 
+
 
             <!-- Initialize DataTables for the container -->
 
             <script>
-
                 $(document).ready(function() {
 
                     $('#inventory-container table').DataTable({
@@ -1203,7 +1178,6 @@ if (strlen($_SESSION['staffid'] == 0)) {
                     });
 
                 });
-
             </script>
         </div>
 
