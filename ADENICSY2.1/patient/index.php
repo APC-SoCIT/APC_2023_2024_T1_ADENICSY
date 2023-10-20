@@ -73,11 +73,11 @@ if (strlen($_SESSION['id']) == 0) {
         $result5 = mysqli_query($con, $sql5);
         if (mysqli_num_rows($result4) > 0) {
             while ($row4 = mysqli_fetch_assoc($result4)) { ?>
-                <div class="container">You're in the queueing list for regular patients. <b>Your queueing number is <?php echo $row4["queueing_number"]; ?></b> <button id="cancel-queue" type="button submit" class="btn btn-danger btn-sm" name="cancel-queueing">Cancel Queueing</button></div>
+                <div class="container">You're in the queueing list for regular patients. <b>Your queueing number is <?php echo $row4["queueing_number"]; ?></b> <button id="cancel-queue" type="button submit" class="btn btn-danger btn-sm hover-button" name="cancel-queueing">Cancel Queueing</button></div>
         <?php }
         } elseif (mysqli_num_rows($result5) > 0) {
             $row5 = mysqli_fetch_assoc($result5);
-            echo '<div class="container">You\'re in the queueing list for priority patients.<b> Your queueing number is ' . $row5["queueing_number"] . '</b> <button id="cancel-queue2" type="button submit" class="btn btn-danger btn-sm" name="cancel-queueing2">Cancel Queueing</button></div>';
+            echo '<div class="container">You\'re in the queueing list for priority patients.<b> Your queueing number is ' . $row5["queueing_number"] . '</b> <button id="cancel-queue2" type="button submit" class="btn btn-danger btn-sm hover-button" name="cancel-queueing2">Cancel Queueing</button></div>';
         } else {
             echo '<div class="container"><em>You\'re not in the queueing list</em></div>';
         }
