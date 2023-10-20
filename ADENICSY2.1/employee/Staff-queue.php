@@ -449,8 +449,9 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
                                     <div class="mb-3">
                                         <label for="date" class="form-label">Date:</label>
-                                        <input type="date" class="form-control" id="date" name="date" value="<?php echo date('Y-m-d'); ?>">
+                                        <input type="date" class="form-control" id="date" name="date" value="<?php echo date('Y-m-d'); ?>" min="<?php echo date('Y-m-d'); ?>">
                                     </div>
+
                                     <div class="mb-3">
                                         <label for="s_time" class="form-label">Start Time:</label>
                                         <input type="time" class="form-control" id="s_time" name="s_time" value="09:30">
