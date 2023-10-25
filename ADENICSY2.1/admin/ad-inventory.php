@@ -87,19 +87,30 @@ if (strlen($_SESSION['adminid'] == 0)) {
         // Get the current timestamp
         $lastModifiedTime = date("Y-m-d H:i:s");
 
-        // Update the item in the database
-        $sql = "UPDATE inventory1 SET item_name = ?, quantity = ?, metric = ?, critical_level = ?, common_max_qty = ?, last_modified = ?, last_modified_date = ? WHERE id = ?";
-        $stmt = mysqli_prepare($con, $sql);
-        mysqli_stmt_bind_param($stmt, "sssssssi", $itemName, $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime, $itemId);
+        // Check if the item with the same name already exists
+        $checkItemQuery = "SELECT item_name FROM inventory1 WHERE item_name = ?";
+        $stmt = mysqli_prepare($con, $checkItemQuery);
+        mysqli_stmt_bind_param($stmt, "s", $itemName);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_store_result($stmt);
 
-        if (mysqli_stmt_execute($stmt)) {
-            // Update successful
-            echo '<script>alert("Item updated successfully!");</script>';
+        if (mysqli_stmt_num_rows($stmt) > 0) {
+            // Item with the same name already exists
+            echo '<script>alert("Item with the same name already exists. Please use a different name.");</script>';
         } else {
-            // Update failed
-            echo '<script>alert("Failed to update item. Please try again.");</script>';
-        }
+            // Item does not exist, update it into the database
+            $sql = "UPDATE inventory1 SET item_name = ?, quantity = ?, metric = ?, critical_level = ?, common_max_qty = ?, last_modified = ?, last_modified_date = ? WHERE id = ?";
+            $stmt2 = mysqli_prepare($con, $sql);
+            mysqli_stmt_bind_param($stmt2, "sssssssi", $itemName, $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime, $itemId);
 
+            if (mysqli_stmt_execute($stmt2)) {
+                // Update successful
+                echo '<script>alert("Item updated successfully!");</script>';
+            } else {
+                // Update failed
+                echo '<script>alert("Failed to update item. Please try again.");</script>';
+            }
+        }
         // Close the statement
         mysqli_stmt_close($stmt);
     }
@@ -162,22 +173,38 @@ if (strlen($_SESSION['adminid'] == 0)) {
         // Get the current timestamp
         $lastModifiedTime = date("Y-m-d H:i:s");
 
-        // Insert the new item into the database
-        $sql = "INSERT INTO inventory1 (item_name, quantity, metric, critical_level, common_max_qty, last_modified, last_modified_date) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        $stmt = mysqli_prepare($con, $sql);
-        mysqli_stmt_bind_param($stmt, "sssssss", $itemName, $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime);
+        // Check if the item with the same name already exists
+        $checkItemQuery = "SELECT item_name FROM inventory1 WHERE item_name = ?";
+        $stmt = mysqli_prepare($con, $checkItemQuery);
+        mysqli_stmt_bind_param($stmt, "s", $itemName);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_store_result($stmt);
 
-        if (mysqli_stmt_execute($stmt)) {
-            // Insert successful
-            echo '<script>alert("Item added successfully!");</script>';
+        if (mysqli_stmt_num_rows($stmt) > 0) {
+            // Item with the same name already exists
+            echo '<script>alert("Item with the same name already exists. Please use a different name.");</script>';
         } else {
-            // Insert failed
-            echo '<script>alert("Failed to add item. Please try again.");</script>';
+            // Item does not exist, insert it into the database
+            $sql = "INSERT INTO inventory1 (item_name, quantity, metric, critical_level, common_max_qty, last_modified, last_modified_date) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $stmt = mysqli_prepare($con, $sql);
+            mysqli_stmt_bind_param($stmt, "sssssss", $itemName, $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime);
+
+            if (mysqli_stmt_execute($stmt)) {
+                // Insert successful
+                echo '<script>alert("Item added successfully!");</script>';
+            } else {
+                // Insert failed
+                echo '<script>alert("Failed to add item. Please try again.");</script>';
+            }
+
+            // Close the statement
+            mysqli_stmt_close($stmt);
         }
 
-        // Close the statement
+        // Close the checkItemQuery statement
         mysqli_stmt_close($stmt);
     }
+
 
 
     ?>
@@ -782,7 +809,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                     });
 
                                     $("#normal-view-minimize").click(function() {
-                                        toggleTable("normal-view-table", "normal-view-minimize");
+                                        toggleTable("inventory-container", "normal-view-minimize");
                                     });
                                 });
                             </script>
@@ -798,7 +825,8 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                         "pageLength": 10, // Set the number of rows per page
                                         "lengthMenu": [10, 25, 50, 100], // Define the page length menu options
                                         "order": [
-                                            [1, 'asc'], // Sort by Item Name (column index 1) in ascending order
+                                            [0, 'asc'], // Sort by ID (column index 0) in ascending order
+                                            [1, 'asc'], // Then sort by Item Name (column index 1) in ascending order
                                             [2, 'asc'], // Then sort by Quantity (column index 2) in ascending order
                                             [5, 'asc'], // Then sort by Last Modified Date (column index 5) in ascending order
                                             [4, 'asc'] // Finally sort by Last Modified By (column index 4) in ascending order

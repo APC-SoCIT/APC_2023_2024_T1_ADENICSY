@@ -103,6 +103,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
             echo '<th>Preffered Doctor</th>';
             echo '<th>Time Arrived</th>';
             echo '<th>Stamp</th>';
+            echo '<th>Status</th>';
             echo '</tr>';
             echo '</thead>';
             echo '<tbody>';
@@ -124,12 +125,14 @@ if (strlen($_SESSION['staffid'] == 0)) {
                     echo '<button class="timeStamped btn btn-primary" data-queueing-number="' . $row["queueing_number"] . '">Timestamp</button>';
                     echo '</form>';
                     echo '</td>';
+                    echo '<td> ' . $row["status"] . '</td>';
 
                     echo '</tr>';
                 }
             } else {
                 echo '<tr>';
                 echo '<td> ' . "No data available for this patient." . '</td>';
+                echo '<td> ' . "" . '</td>';
                 echo '<td> ' . "" . '</td>';
                 echo '<td> ' . "" . '</td>';
                 echo '<td> ' . "" . '</td>';

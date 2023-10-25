@@ -121,16 +121,16 @@ if (isset($_POST['submit'])) {
                                             </div>
                                         </div>
                                     </form>
+                                    <div class="text-center py-3">
+                                        <div class="small"><a href="login.php">Have an account? Go to login</a></div>
+                                        <div class="small"><a href="../index.php">Back to Home</a></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="card-footer text-center py-3">
-                    <div class="small"><a href="login.php">Have an account? Go to login</a></div>
-                    <div class="small"><a href="../index.php">Back to Home</a></div>
-                </div>
         </div>
     </div>
     </div>

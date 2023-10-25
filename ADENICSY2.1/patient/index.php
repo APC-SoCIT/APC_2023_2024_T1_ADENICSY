@@ -65,18 +65,19 @@ if (strlen($_SESSION['id']) == 0) {
 
         <?php } ?>
         <?php
-        $sql4 = "SELECT * FROM queueing_list WHERE patient_id = $userid";
-        $sql5 = "SELECT * FROM queueing_list_priority WHERE patient_id = $userid";
+        $sql4 = "SELECT * FROM queueing_list WHERE patient_id = $userid AND status != 'Canceled'";
+        $sql5 = "SELECT * FROM queueing_list_priority WHERE patient_id = $userid AND status != 'Canceled'";
+
         //fire query
         $result4 = mysqli_query($con, $sql4);
         $result5 = mysqli_query($con, $sql5);
         if (mysqli_num_rows($result4) > 0) {
             while ($row4 = mysqli_fetch_assoc($result4)) { ?>
-                <div class="container">You're in the queueing list for regular patients. <b>Your queueing number is <?php echo $row4["queueing_number"]; ?></b></div>
+                <div class="container">You're in the queueing list for regular patients. <b>Your queueing number is <?php echo $row4["queueing_number"]; ?></b> <button id="cancel-queue" type="button submit" class="btn btn-danger btn-sm hover-button" name="cancel-queueing">Cancel Queueing</button></div>
         <?php }
         } elseif (mysqli_num_rows($result5) > 0) {
             $row5 = mysqli_fetch_assoc($result5);
-            echo '<div class="container">You\'re in the queueing list for priority patients.<b> Your queueing number is ' . $row5["queueing_number"] . '</b></div>';
+            echo '<div class="container">You\'re in the queueing list for priority patients.<b> Your queueing number is ' . $row5["queueing_number"] . '</b> <button id="cancel-queue2" type="button submit" class="btn btn-danger btn-sm hover-button" name="cancel-queueing2">Cancel Queueing</button></div>';
         } else {
             echo '<div class="container"><em>You\'re not in the queueing list</em></div>';
         }
@@ -92,11 +93,28 @@ if (strlen($_SESSION['id']) == 0) {
             $contact = $_POST['contact'];
             $prefDoc = $_POST['prefDoc'];
 
-            // Check if the user is not already in the queue
-            $checkPatientQuery = "SELECT patient_id FROM queueing_list WHERE patient_id='$userid'";
+            // Check if the user is already in the queue and has more than 2 'Canceled' statuses
+            $checkCanceledQuery = "SELECT COUNT(*) AS cancel_count FROM queueing_list WHERE patient_id='$userid' AND status = 'Canceled'";
+            $checkCanceledResult = mysqli_query($con, $checkCanceledQuery);
+            $cancelCount = mysqli_fetch_assoc($checkCanceledResult)['cancel_count'];
+
+            if ($cancelCount >= 2) {
+                echo "<script>alert('Sorry, you cannot get a queueing number after 2 cancellations, please queue again on the next business day.');</script>";
+                echo "<script type='text/javascript'> document.location = 'index.php?id=" . $userid . "'; </script>";
+                exit();
+            }
+
+            // Check if the user is already in the queue and doesn't have a 'Canceled' status
+            $checkPatientQuery = "SELECT patient_id FROM queueing_list WHERE patient_id='$userid' AND status != 'Canceled'";
             $checkPatientResult = mysqli_query($con, $checkPatientQuery);
+            $checkPatientQuery2 = "SELECT patient_id FROM queueing_list_priority WHERE patient_id='$userid' AND status != 'Canceled'";
+            $checkPatientResult2 = mysqli_query($con, $checkPatientQuery2);
             if (mysqli_num_rows($checkPatientResult) > 0) {
-                echo "<script>alert('You are already in the queue.');</script>";
+                echo "<script>alert('You are already in the queue for regular patients. Cancel your existing queue first.');</script>";
+                echo "<script type='text/javascript'> document.location = 'index.php?id=" . $userid . "'; </script>";
+                exit();
+            } else if (mysqli_num_rows($checkPatientResult2) > 0) {
+                echo "<script>alert('You are already in the queue for priority patients. Cancel your existing queue first.');</script>";
                 echo "<script type='text/javascript'> document.location = 'index.php?id=" . $userid . "'; </script>";
                 exit();
             }
@@ -105,27 +123,27 @@ if (strlen($_SESSION['id']) == 0) {
             $msg1 = mysqli_query($con, "INSERT INTO queueing_list (patient_id, patient_name, concern, contact, preffDoctor) VALUES ('$userid', '$patientName', '$concern', '$contact', '$prefDoc')");
 
             if ($msg1) {
-                $queueQuery = "SELECT queueing_number, patient_name FROM queueing_list WHERE patient_id='$userid'";
+                $queueQuery = "SELECT queueing_number, patient_name FROM queueing_list WHERE patient_id='$userid' AND status != 'Canceled'";
                 $queueResult = mysqli_query($con, $queueQuery);
                 $queueRow = mysqli_fetch_assoc($queueResult);
                 $queueNumber = $queueRow['queueing_number'];
+                $patientName = $queueRow['patient_name'];
+
                 date_default_timezone_set('Asia/Manila');
                 $currentDateTime = date('F j, Y g:i A');
 
-
                 echo "<script>
-            $(document).ready(function() {
-                $('#patient-name').text('$patientName');
-                $('#queue-number').text('$queueNumber');
-                $('#queue-modal').modal('show');
-                $('#current-datetime').text('$currentDateTime');
-
-                $('#queue-modal').on('hide.bs.modal', function (e) {
-                    window.location.href = 'index.php?id=<?php echo $userid; ?>';
-                });
-            });
+                    $(document).ready(function() {
+                        $('#patient-name').text('$patientName');
+                        $('#queue-number').text('$queueNumber');
+                        $('#queue-modal').modal('show');
+                        $('#current-datetime').text('$currentDateTime');
             
-      </script>";
+                        $('#queue-modal').on('hide.bs.modal', function (e) {
+                            window.location.href = 'index.php?id=<?php echo $userid; ?>';
+                        });
+                    });
+                </script>";
             }
         }
         // Submit queueing info in queueing list for priority patients
@@ -138,11 +156,28 @@ if (strlen($_SESSION['id']) == 0) {
             $contact = $_POST['contact'];
             $prefDoc = $_POST['prefDoc'];
 
-            // Check if the user is not already in the queue
-            $checkPatientQuery = "SELECT patient_id FROM queueing_list_priority WHERE patient_id='$userid'";
+            // Check if the user is already in the queue and has more than 2 'Canceled' statuses
+            $checkCanceledQuery = "SELECT COUNT(*) AS cancel_count FROM queueing_list_priority WHERE patient_id='$userid' AND status = 'Canceled'";
+            $checkCanceledResult = mysqli_query($con, $checkCanceledQuery);
+            $cancelCount = mysqli_fetch_assoc($checkCanceledResult)['cancel_count'];
+
+            if ($cancelCount >= 2) {
+                echo "<script>alert('Sorry, you cannot get a queueing number after 2 cancellations, please queue again on the next business day.');</script>";
+                echo "<script type='text/javascript'> document.location = 'index.php?id=" . $userid . "'; </script>";
+                exit();
+            }
+
+            // Check if the user is already in the queue and doesn't have a 'Canceled' status
+            $checkPatientQuery = "SELECT patient_id FROM queueing_list WHERE patient_id='$userid' AND status != 'Canceled'";
             $checkPatientResult = mysqli_query($con, $checkPatientQuery);
+            $checkPatientQuery2 = "SELECT patient_id FROM queueing_list_priority WHERE patient_id='$userid' AND status != 'Canceled'";
+            $checkPatientResult2 = mysqli_query($con, $checkPatientQuery2);
             if (mysqli_num_rows($checkPatientResult) > 0) {
-                echo "<script>alert('You are already in the queue.');</script>";
+                echo "<script>alert('You are already in the queue for regular patients. Cancel your existing queue first.');</script>";
+                echo "<script type='text/javascript'> document.location = 'index.php?id=" . $userid . "'; </script>";
+                exit();
+            } else if (mysqli_num_rows($checkPatientResult2) > 0) {
+                echo "<script>alert('You are already in the queue for priority patients. Cancel your existing queue first.');</script>";
                 echo "<script type='text/javascript'> document.location = 'index.php?id=" . $userid . "'; </script>";
                 exit();
             }
@@ -151,7 +186,7 @@ if (strlen($_SESSION['id']) == 0) {
             $msg2 = mysqli_query($con, "INSERT INTO queueing_list_priority (patient_id, patient_name, concern, contact, preffDoctor) VALUES ('$userid', '$patientName', '$concern', '$contact', '$prefDoc')");
 
             if ($msg2) {
-                $queueQuery2 = "SELECT queueing_number, patient_name FROM queueing_list_priority WHERE patient_id='$userid'";
+                $queueQuery2 = "SELECT queueing_number, patient_name FROM queueing_list_priority WHERE patient_id='$userid' AND status != 'Canceled'";
                 $queueResult2 = mysqli_query($con, $queueQuery2);
                 $queueRow2 = mysqli_fetch_assoc($queueResult2);
                 $queueNumber2 = $queueRow2['queueing_number'];
@@ -174,7 +209,38 @@ if (strlen($_SESSION['id']) == 0) {
       </script>";
             }
         }
+        // Cancel queueing for regular queueing
+        if (isset($_POST['cancel-queue2'])) {
+            // Check if the patient is in the regular queue
+            $checkPatientQuery = "SELECT patient_id FROM queueing_list WHERE patient_id='$userid'";
+            $checkPatientResult = mysqli_query($con, $checkPatientQuery);
+
+            if (mysqli_num_rows($checkPatientResult) > 0) {
+                // Update the 'status' column to "Canceled" for regular queue
+                $updateQuery = "UPDATE queueing_list SET status = 'Canceled' WHERE patient_id = '$userid'";
+                mysqli_query($con, $updateQuery);
+            }
+
+            // Redirect back to the original page
+            header("Location: index.php?id=" . $userid);
+        }
+        // Cancel queueing for priority queueing
+        if (isset($_POST['cancel-queue3'])) {
+            // Check if the patient is in the priority queue
+            $checkPatientQuery2 = "SELECT patient_id FROM queueing_list_priority WHERE patient_id='$userid'";
+            $checkPatientResult2 = mysqli_query($con, $checkPatientQuery2);
+
+            if (mysqli_num_rows($checkPatientResult2) > 0) {
+                // Update the 'status' column to "Canceled" for priority queue
+                $updateQuery2 = "UPDATE queueing_list_priority SET status = 'Canceled' WHERE patient_id = '$userid'";
+                mysqli_query($con, $updateQuery2);
+            }
+
+            // Redirect back to the original page
+            header("Location: index.php?id=" . $userid);
+        }
         ?>
+
         <!-- Modal Confirmation for Regular Queueing -->
         <div class="modal fade" id="queue-modal" tabindex="-1" role="dialog" aria-labelledby="queue-modal-label" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -218,7 +284,50 @@ if (strlen($_SESSION['id']) == 0) {
                 </div>
             </div>
         </div>
-
+        <!-- Modal for cancel queueing regular -->
+        <div class="modal fade" id="confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="confirmation-modal-label" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmation-modal-label">Cancel Queueing</h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to cancel your existing queueing number for regular patients?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <form method="post">
+                            <button type="submit" class="btn btn-primary" name="cancel-queue2">Cancel Queue</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal for cancel queueing priority -->
+        <div class="modal fade" id="confirmation-modal-2" tabindex="-1" role="dialog" aria-labelledby="confirmation-modal-label" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmation-modal-label">Cancel Queueing</h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to cancel your existing queueing number for priority patients?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <form method="post">
+                            <button type="submit" class="btn btn-primary" name="cancel-queue3">Cancel Queue</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- Available Numbers -->
         <section>
             <h1 class="text-center mb-3 text-primary fw-bold">Current Number</h1>
@@ -555,6 +664,27 @@ if (strlen($_SESSION['id']) == 0) {
         </section>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var cancelQueueButton = document.getElementById('cancel-queue');
+                var cancelQueue2Button = document.getElementById('cancel-queue2');
+
+                if (cancelQueueButton) {
+                    cancelQueueButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        $('#confirmation-modal').modal('show');
+                    });
+                }
+
+                if (cancelQueue2Button) {
+                    cancelQueue2Button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        $('#confirmation-modal-2').modal('show');
+                    });
+                }
+            });
+        </script>
+
     </body>
 
     </html>

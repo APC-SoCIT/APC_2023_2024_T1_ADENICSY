@@ -313,13 +313,26 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 $e_time = $_POST['e_time'];
                 $date = $_POST['date'];
                 $availSlots = $_POST['slots'];
-                $msg1 = mysqli_query($con, "insert into d_calendar (d_name, d_code, s_time, e_time, date, availableSlot) VALUES ('$d_name', '$d_code', '$s_time', '$e_time', '$date', '$availSlots')");
 
-                if ($msg1) {
-                    echo "<script>alert('Dentist Added successfully');</script>";
+                // Check if the dentist's schedule for the specified date and time already exists
+                $checkExistingQuery = "SELECT * FROM d_calendar WHERE d_name='$d_name' AND date='$date' AND ((s_time >= '$s_time' AND s_time < '$e_time') OR (e_time > '$s_time' AND e_time <= '$e_time'))";
+                $checkExistingResult = mysqli_query($con, $checkExistingQuery);
+
+                if (mysqli_num_rows($checkExistingResult) > 0) {
+                    // Dentist's schedule already exists for the specified date and time
+                    echo "<script>alert('Dentist already exists for this date and time.');</script>";
                     echo "<script type='text/javascript'> document.location = 'staff-queue.php'; </script>";
+                } else {
+                    // Dentist's schedule doesn't exist, so add it
+                    $msg1 = mysqli_query($con, "INSERT INTO d_calendar (d_name, d_code, s_time, e_time, date, availableSlot) VALUES ('$d_name', '$d_code', '$s_time', '$e_time', '$date', '$availSlots')");
+
+                    if ($msg1) {
+                        echo "<script>alert('Dentist Added successfully');</script>";
+                        echo "<script type='text/javascript'> document.location = 'staff-queue.php'; </script>";
+                    }
                 }
             }
+
             // Check if the form has been submitted
             if (isset($_POST['date'])) {
                 $date = $_POST['date'];
@@ -413,7 +426,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
                                             ?>
                                         </select>
-                                        <input type="hidden" name="d_code" id="d_code" value="">
+                                        <input type="hidden" name="d_code" id="d_code" value="<?php echo isset($row4['namecode']) ? $row4['namecode'] : ''; ?>">
                                         <script>
                                             // Get the select element and the hidden input field
                                             var select = document.getElementById("name");
@@ -427,13 +440,18 @@ if (strlen($_SESSION['staffid'] == 0)) {
                                                 // Set the value of the hidden input field to the code of the selected Dentist
                                                 codeInput.value = selectedOption.dataset.code;
                                             });
-                                        </script>
 
+                                            // Trigger the change event on page load to set the initial d_code
+                                            var initialSelectedOption = select.options[select.selectedIndex];
+                                            codeInput.value = initialSelectedOption.dataset.code;
+                                        </script>
                                     </div>
+
                                     <div class="mb-3">
                                         <label for="date" class="form-label">Date:</label>
-                                        <input type="date" class="form-control" id="date" name="date" value="<?php echo date('Y-m-d'); ?>">
+                                        <input type="date" class="form-control" id="date" name="date" value="<?php echo date('Y-m-d'); ?>" min="<?php echo date('Y-m-d'); ?>">
                                     </div>
+
                                     <div class="mb-3">
                                         <label for="s_time" class="form-label">Start Time:</label>
                                         <input type="time" class="form-control" id="s_time" name="s_time" value="09:30">
