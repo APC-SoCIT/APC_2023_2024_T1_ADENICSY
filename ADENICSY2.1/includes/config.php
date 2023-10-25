@@ -4,7 +4,7 @@ define('DB_USER', 'adenicsy');
 define('DB_PASS', '');
 define('DB_NAME', 'adenicsy');
 $con = mysqli_connect(DB_SERVER, DB_USER, DB_PASS, DB_NAME);
-$con = mysqli_connect('localhost', 'adenicsy', 'adenicsy', 'adenicsy');
+$con = mysqli_connect('localhost', 'adenicsy', '', 'adenicsy');
 date_default_timezone_set('Asia/Manila');
 
 // Check connection
