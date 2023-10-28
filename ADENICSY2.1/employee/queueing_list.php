@@ -1,9 +1,8 @@
 <?php session_start();
 include_once('../includes/config.php');
-if (strlen($_SESSION['staffid'] == 0)) {
+if (strlen($_SESSION['staffid']) == 0) {
     header('location:patient-logout.php');
 } else {
-
 ?>
     <!-- Navbar -->
     <?php
@@ -120,9 +119,11 @@ if (strlen($_SESSION['staffid'] == 0)) {
                     echo '<td> ' . $row["preffDoctor"] . '</td>';
                     echo '<td> ' . $formatted_time . '</td>';
                     echo '<td>';
-                    echo '<form id="timestamp-form" method="post" action="">';
+                    echo '<form id="action-form" method="post" action="">';
                     echo '<input type="hidden" name="id" value="' . $row["queueing_number"] . '">';
-                    echo '<button class="timeStamped btn btn-primary" data-queueing-number="' . $row["queueing_number"] . '">Timestamp</button>';
+                    echo '<button class="action-btn btn btn-primary" data-queueing-number="' . $row["queueing_number"] . '" data-action="cancel"><i class="fas fa-times"></i></button>';
+                    echo '<button class="action-btn btn btn-success" data-queueing-number="' . $row["queueing_number"] . '" data-action="done"><i class="fas fa-check"></i></button>';
+                    echo '<button class="action-btn btn btn-info" data-queueing-number="' . $row["queueing_number"] . '" data-action="arrive"><i class="fas fa-clock"></i></button>';
                     echo '</form>';
                     echo '</td>';
                     echo '<td> ' . $row["status"] . '</td>';
@@ -148,21 +149,23 @@ if (strlen($_SESSION['staffid'] == 0)) {
             ?>
         </div>
         <script>
-            const buttons = document.querySelectorAll('.timeStamped');
+            const buttons = document.querySelectorAll('.action-btn');
 
             buttons.forEach((button) => {
-                button.addEventListener('click', function(e) {
+                button.addEventListener('click', function (e) {
                     e.preventDefault();
                     const queueingNumber = this.dataset.queueingNumber;
-                    $('#confirm-timestamp-modal').modal('show');
-                    $('#confirm-timestamp-button').off('click').on('click', function() {
+                    const action = this.dataset.action;
+                    $('#confirm-action-modal').modal('show');
+                    $('#confirm-action-button').off('click').on('click', function () {
                         $.ajax({
                             type: 'POST',
                             url: '',
                             data: {
-                                id: queueingNumber
+                                id: queueingNumber,
+                                action: action
                             },
-                            success: function(response) {
+                            success: function (response) {
                                 location.reload();
                             }
                         });
@@ -181,7 +184,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>Are you sure you want to update the timestamp?</p>
+                        <p>Are you sure you want to update this action?</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
