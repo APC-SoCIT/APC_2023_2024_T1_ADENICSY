@@ -1,6 +1,7 @@
 <?php
 session_start();
 include_once('includes/config.php');
+include_once('includes/emailController.php');
 
 // Code for Registration
 if (isset($_POST['submit'])) {
@@ -9,17 +10,43 @@ if (isset($_POST['submit'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
     $contact = $_POST['contact'];
-    $sql = mysqli_query($con, "select id from patient where email='$email'");
-    $row = mysqli_num_rows($sql);
-    if ($row > 0) {
-        echo "<script>alert('Email id already exists with another account. Please try with another email id');</script>";
-    } else {
-        $msg = mysqli_query($con, "insert into patient(fname,lname,email,password,contactno) values('$fname','$lname','$email','$password','$contact')");
 
-        if ($msg) {
+    // Check if email already exists
+    $emailQuery = "SELECT * FROM patient WHERE email=?";
+    $stmt = $con->prepare($emailQuery);
+    $stmt->bind_param('s', $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $userCount = $result->num_rows;
+    $stmt->close();
+
+    if ($userCount > 0) {
+        echo "<script>alert('Email already exists with another account. Please try with another email.');</script>";
+    } else {
+        // Generate a random token
+        $token = bin2hex(random_bytes(50));
+
+        // Hash the password
+        $password = password_hash($password, PASSWORD_DEFAULT);
+
+        // Set verified to false (0)
+        $verified = false;
+
+        // Insert the data into the database
+        $insertQuery = "INSERT INTO patient (fname, lname, email, h_password, contactno, token, verified) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $con->prepare($insertQuery);
+        $stmt->bind_param('ssssssi', $fname, $lname, $email, $password, $contact, $token, $verified);
+
+        if ($stmt->execute()) {
+            sendVerificationEmail($email, $token);
+            $_SESSION['id'] = mysqli_insert_id($con); // Set the user ID after registration
+            $_SESSION['email'] = $email; // Set the user's email
             echo "<script>alert('Registered successfully');</script>";
-            echo "<script type='text/javascript'> document.location = 'login.php'; </script>";
+            echo "<script type='text/javascript'> document.location = 'verify-message.php'; </script>";
+        } else {
+            echo "<script>alert('Database Error: Failed to register');</script>";
         }
+        $stmt->close();
     }
 }
 ?>
