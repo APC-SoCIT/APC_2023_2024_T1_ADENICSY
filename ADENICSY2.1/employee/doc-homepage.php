@@ -1,7 +1,7 @@
 <?php session_start();
 include_once('../includes/config.php');
 if (strlen($_SESSION['doctorid'] == 0)) {
-    header('location:patient-logout.php');
+    header('location:emp-logout.php');
 } else {
 
 ?>
@@ -9,7 +9,7 @@ if (strlen($_SESSION['doctorid'] == 0)) {
     <?php
     include_once('employee-nav.php');
     ?>
-    <!-- Patient Greetings -->
+    <!-- Dentist Greetings -->
     <?php
     $userid = $_SESSION['doctorid'];
     $query = mysqli_query($con, "select * from employee where id='$userid'");

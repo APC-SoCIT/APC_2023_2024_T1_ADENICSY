@@ -1,6 +1,6 @@
 <?php
 if (strlen($_SESSION['id'] == 0)) {
-    header('location:patient-logout.php');
+    header('location:emp-logout.php');
 } else {
 }
 ?>
