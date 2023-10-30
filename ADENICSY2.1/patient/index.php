@@ -209,15 +209,26 @@ if (strlen($_SESSION['id']) == 0) {
       </script>";
             }
         }
+
+        date_default_timezone_set('Asia/Manila');
+        $timestamp = date("Y-m-d H:i:s");
+
         // Cancel queueing for regular queueing
         if (isset($_POST['cancel-queue2'])) {
             // Check if the patient is in the regular queue
             $checkPatientQuery = "SELECT patient_id FROM queueing_list WHERE patient_id='$userid'";
             $checkPatientResult = mysqli_query($con, $checkPatientQuery);
 
+
             if (mysqli_num_rows($checkPatientResult) > 0) {
-                // Update the 'status' column to "Canceled" for regular queue
-                $updateQuery = "UPDATE queueing_list SET status = 'Canceled' WHERE patient_id = '$userid'";
+                // Get the highest 'queueing_number' for the given patient_id
+                $query = "SELECT MAX(queueing_number) AS max_queueing_number FROM queueing_list WHERE patient_id = '$userid'";
+                $result = mysqli_query($con, $query);
+                $row = mysqli_fetch_assoc($result);
+                $maxQueueingNumber = $row['max_queueing_number'];
+
+                // Update the 'status' column to "Canceled" for the record with the highest 'queueing_number'
+                $updateQuery = "UPDATE queueing_list SET time_arrived = '$timestamp', status = 'Canceled' WHERE patient_id = '$userid' AND queueing_number = '$maxQueueingNumber'";
                 mysqli_query($con, $updateQuery);
             }
 
@@ -231,8 +242,14 @@ if (strlen($_SESSION['id']) == 0) {
             $checkPatientResult2 = mysqli_query($con, $checkPatientQuery2);
 
             if (mysqli_num_rows($checkPatientResult2) > 0) {
-                // Update the 'status' column to "Canceled" for priority queue
-                $updateQuery2 = "UPDATE queueing_list_priority SET status = 'Canceled' WHERE patient_id = '$userid'";
+                // Get the highest 'queueing_number' for the given patient_id
+                $query = "SELECT MAX(queueing_number) AS max_queueing_number FROM queueing_list_priority WHERE patient_id = '$userid'";
+                $result = mysqli_query($con, $query);
+                $row = mysqli_fetch_assoc($result);
+                $maxQueueingNumber = $row['max_queueing_number'];
+
+                // Update the 'status' column to "Canceled" for the record with the highest 'queueing_number'
+                $updateQuery2 = "UPDATE queueing_list_priority SET time_arrived = '$timestamp', status = 'Canceled' WHERE patient_id = '$userid' AND queueing_number = '$maxQueueingNumber'";
                 mysqli_query($con, $updateQuery2);
             }
 
