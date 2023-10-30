@@ -42,7 +42,7 @@
                 <h5 class="navbar-brand text-white mb-0" style="color: #FFFFFF; font-weight: bold; ">Apelo Dental Clinic System</h5>
             </a>
             <!--button below is what appears when navbar collapses-->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navmenu">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -51,27 +51,9 @@
                     <li class="nav-item">
                         <a href="index.php" class="nav-link" style="color: #FFFFFF;">Home</a>
                     </li>
-                    <!-- <li class="nav-item">
-                        <a href="patient-notifications.php" class="nav-link" style="color: #FFFFFF;">Notification</a>
-                    </li> -->
-                    <!--Supposed Dropdown Notification 
-                        <li class="nav-item dropdown">
-                        <a class="nav-link dropdown" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Notifications
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#">Action</a></li>
-                            <li><a class="dropdown-item" href="#">Another action</a></li>
-                            <li><a class="dropdown-item" href="#">Something else here</a></li>
-                        </ul>
-                    </li> -->
                     <li class="nav-item">
                         <a href="patient-payment.php" class="nav-link" style="color: #FFFFFF;">Payments</a>
                     </li>
-                    <!-- For Clinic Visitations -->
-                    <!-- <li class="nav-item">
-                        <a href="#visitations" class="nav-link" style="color: #FFFFFF;">Visitations</a>
-                    </li> -->
                     <li class="nav-item">
                         <a href="patient-profile.php" class="nav-link" style="color: #FFFFFF;">Profile</a>
                     </li>
