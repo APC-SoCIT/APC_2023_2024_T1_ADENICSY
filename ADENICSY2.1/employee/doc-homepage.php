@@ -76,12 +76,7 @@ if (strlen($_SESSION['doctorid'] == 0)) {
             }
         } else {
             echo '<tr>';
-            echo '<td> ' . "No patient assigned to you." . '</td>';
-            echo '<td> ' . "" . '</td>';
-            echo '<td> ' . "" . '</td>';
-            echo '<td> ' . "" . '</td>';
-            echo '<td> ' . "" . '</td>';
-            echo '<td> ' . "" . '</td>';
+            echo '<td colspan="9">No patient assigned to you.</td>';
             echo '</tr>';
         }
         echo '</tbody>';
@@ -129,12 +124,7 @@ if (strlen($_SESSION['doctorid'] == 0)) {
             }
         } else {
             echo '<tr>';
-            echo '<td> ' . "No patient assigned to you." . '</td>';
-            echo '<td> ' . "" . '</td>';
-            echo '<td> ' . "" . '</td>';
-            echo '<td> ' . "" . '</td>';
-            echo '<td> ' . "" . '</td>';
-            echo '<td> ' . "" . '</td>';
+            echo '<td colspan="9">No patient assigned to you.</td>';
             echo '</tr>';
         }
         echo '</tbody>';

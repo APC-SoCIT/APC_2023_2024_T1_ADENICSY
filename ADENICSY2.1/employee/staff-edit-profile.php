@@ -13,7 +13,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
         if ($msg) {
             echo "<script>alert('Profile updated successfully');</script>";
-            echo "<script type='text/javascript'> document.location = 'staff-homepage.php'; </script>";
+            echo "<script type='text/javascript'> document.location = 'staff-emp-profile.php'; </script>";
         }
     }
 

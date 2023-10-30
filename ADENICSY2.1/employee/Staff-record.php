@@ -109,14 +109,7 @@ include 'employee-nav-staff.php';
                 }
             } else {
                 echo '<tr>';
-                echo '<td> ' . "No data available for this patient." . '</td>';
-                echo '<td> ' . "" . '</td>';
-                echo '<td> ' . "" . '</td>';
-                echo '<td> ' . "" . '</td>';
-                echo '<td> ' . "" . '</td>';
-                echo '<td> ' . "" . '</td>';
-                echo '<td> ' . "" . '</td>';
-                echo '<td> ' . "" . '</td>';
+                echo '<td colspan="9">No data available for this patient.</td>';
                 echo '</tr>';
             }
             echo '</tbody>';
