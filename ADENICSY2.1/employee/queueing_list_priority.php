@@ -224,7 +224,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
             function fetch_data()
             {
                 $output = '';
-                $con = mysqli_connect('localhost', 'root', '', 'loginsystem');
+                global $con;
                 $sql = "SELECT * FROM queueing_list_priority ORDER BY queueing_number ASC";
                 $result = mysqli_query($con, $sql);
                 while ($row = mysqli_fetch_array($result)) {
@@ -238,7 +238,8 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 <td>' . $row["contact"] . '</td>  
                 <td>' . $row["concern"] . '</td> 
                 <td>' . $row["preffDoctor"] . '</td>
-                <td>' . $formatted_time . '</td>  
+                <td>' . $formatted_time . '</td>
+                <td>' . $row["status"] . '</td>  
                 </tr>  
                           ';
                 }
@@ -254,7 +255,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 $obj_pdf->setFooterFont(array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
                 $obj_pdf->SetDefaultMonospacedFont('helvetica');
                 $obj_pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
-                $obj_pdf->SetMargins(PDF_MARGIN_LEFT, '10', PDF_MARGIN_RIGHT);
+                $obj_pdf->SetMargins(5, 10, 5, true);
                 $obj_pdf->setPrintHeader(false);
                 $obj_pdf->setPrintFooter(false);
                 $obj_pdf->SetAutoPageBreak(TRUE, 10);
@@ -266,13 +267,14 @@ if (strlen($_SESSION['staffid'] == 0)) {
             <h4 align="center">Queueing List for Priority Patients for ' . $date . '</h4><br /> 
       <table border="1" cellspacing="0" cellpadding="3">  
            <tr align="center">  
-                <th width="8%">Queue Number</th>
+                <th width="5%">QN</th>
                 <th width="5%">ID</th>  
                 <th width="18%">Name</th>  
-                <th width="15%">Contact</th>  
+                <th width="13%">Contact</th>  
                 <th width="20%">Concern</th>
                 <th width="20%">Preffered Dentist</th>
-                <th width="14%">Time Arrived</th>    
+                <th width="7%">Time</th>
+                <th width="12%">Status</th>       
            </tr>  
       ';
                 $content .= fetch_data();
