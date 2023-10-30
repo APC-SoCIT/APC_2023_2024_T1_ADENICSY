@@ -34,7 +34,11 @@
                     <li class="nav-item">
                         <a href="doc-homepage.php" class="nav-link" style="color: #FFFFFF; font-weight: bold;">Home</a>
                     </li>
-                    <a href="emp-profile.php" class="nav-link" style="color: #FFFFFF; font-weight: bold;">Profile</a>
+                    <li class="nav-item">
+                        <a href="emp-profile.php" class="nav-link" style="color: #FFFFFF; font-weight: bold;">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="queueing-dentist.php" class="nav-link" style="color: #FFFFFF; font-weight: bold;">Queueing</a>
                     </li>
                     <li class="nav-item">
                         <a href="emp-logout.php" class="nav-link" style="color: #FFFFFF; font-weight: bold;">Logout</a>
