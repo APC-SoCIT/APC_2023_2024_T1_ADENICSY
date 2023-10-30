@@ -335,7 +335,7 @@ if (strlen($_SESSION['id']) == 0) {
                 <!-- flex is used to contain items inside container in rows-->
                 <div class="row justify-content-around">
                     <div class="col-6">
-                        <h3 class="text-center fw-bold mb-3 text-primary ">Regular Patients</h3>
+                        <h3 class="text-center fw-bold mb-3 text-primary ">Regular</h3>
                         <?php
                         // Query to retrieve the highest queue number
                         $sql = "SELECT MAX(queue_number) AS max_queue FROM queue_num";
@@ -386,7 +386,7 @@ if (strlen($_SESSION['id']) == 0) {
                         </div>
                     </div>
                     <div class="col-6">
-                        <h3 class="text-center mb-3 fw-bold" style="color: #E75480">Priority Patients</h3>
+                        <h3 class="text-center mb-3 fw-bold" style="color: #E75480">Priority</h3>
                         <?php
                         // Query to retrieve the highest queue number
                         $sql = "SELECT MAX(queue_number) AS max_queue FROM queueing_num_priority";
