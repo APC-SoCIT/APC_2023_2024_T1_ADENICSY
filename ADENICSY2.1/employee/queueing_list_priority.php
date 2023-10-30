@@ -19,7 +19,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
             <h1 class="fw-bold text-center py-2" style="color: #ff2793; ">Priority Queueing List</h1>
             <div class="row">
                 <?php
-
+                ob_start();
                 // Handle reset button
                 if (isset($_POST['resetlist'])) {
                     $con->query("TRUNCATE TABLE queueing_list_priority");
@@ -31,70 +31,24 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 //fire query
                 $result = mysqli_query($con, $sql);
 
-                // Check if the form was submitted and update the time_arrived column for the selected row
-                // Check if the form was submitted and update the time_arrived column for the selected row
-                if (isset($_POST['id'])) {
-                    // Get the current timestamp
+
+                // Check if the form was submitted and update the time and status column
+                if (isset($_POST['id']) && isset($_POST['status'])) {
+                    $id = $_POST['id'];
+                    $status = $_POST['status'];
+
                     date_default_timezone_set('Asia/Manila');
                     $timestamp = date("Y-m-d H:i:s");
-                    // Update the timestamp in your database
-                    $id = $_POST['id'];
-                    $update_query = "UPDATE queueing_list_priority SET time_arrived = '$timestamp' WHERE queueing_number = '$id'";
-                    $update_result = mysqli_query($con, $update_query);
 
-                    // If the update was successful, return a success message
-                    if ($update_result) {
-                ?>
-                        <div class="modal fade" id="success-modal" tabindex="-1" role="dialog" aria-labelledby="success-modal-label" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="success-modal-label">Success!</h5>
-                                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>Time Arrived has been updated successfully.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <script>
-                            $(document).ready(function() {
-                                $('#success-modal').modal('show');
-                            });
-                        </script>
-                    <?php
-                    } else {
-                    ?>
-                        <div class="modal fade" id="error-modal" tabindex="-1" role="dialog" aria-labelledby="error-modal-label" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="error-modal-label">Error!</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>Error updating Time Arrived.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <script>
-                            $(document).ready(function() {
-                                $('#error-modal').modal('show');
-                            });
-                        </script>
-                <?php
-                    }
+                    // Update the timestamp and status in your database
+                    $update_query = "UPDATE queueing_list_priority SET time_arrived = '$timestamp', status = '$status' WHERE queueing_number = '$id'";
+                    $update_result = mysqli_query($con, $update_query);
                 }
+
 
                 // Create a Bootstrap table to display the data
                 echo '<table class="table table-primary table-striped">';
-                echo '<thead class="text-primary h4" >';
+                echo '<thead class="text-primary h4">';
                 echo '<tr>';
                 echo '<th>Queue</th>';
                 echo '<th>Patient ID</th>';
@@ -102,8 +56,8 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 echo '<th>Contact</th>';
                 echo '<th>Concern</th>';
                 echo '<th>Preffered Doctor</th>';
-                echo '<th>Time Arrived</th>';
-                echo '<th>Stamp</th>';
+                echo '<th>Time</th>';
+                echo '<th>Action</th>';
                 echo '<th>Status</th>';
                 echo '</tr>';
                 echo '</thead>';
@@ -121,11 +75,27 @@ if (strlen($_SESSION['staffid'] == 0)) {
                         echo '<td> ' . $row["preffDoctor"] . '</td>';
                         echo '<td> ' . $formatted_time . '</td>';
                         echo '<td>';
-                        echo '<form id="timestamp-form" method="post" action="">';
-                        echo '<input type="hidden" name="id" value="' . $row["queueing_number"] . '">';
-                        echo '<button class="timeStamped btn text-light" style="background-color:hotpink;" data-queueing-number="' . $row["queueing_number"] . '">Timestamp</button>';
-                        echo '</form>';
+                        echo '    <div class="btn-group status-dropdown">';
+                        echo '        <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="background-color:hotpink;"';
+
+                        // Check if the status is "Canceled" and disable the dropdown accordingly
+                        if ($row["status"] == "Canceled") {
+                            echo ' disabled';
+                        }
+
+                        echo '>';
+                        echo '            Status';
+                        echo '        </button>';
+                        echo '        <ul class="dropdown-menu">';
+                        echo '            <li><a class="dropdown-item status-item" href="#" data-id="' . $row["queueing_number"] . '">On-queued</a></li>';
+                        echo '            <li><a class="dropdown-item status-item" href="#" data-id="' . $row["queueing_number"] . '">Arrived</a></li>';
+                        echo '            <li><a class="dropdown-item status-item" href="#" data-id="' . $row["queueing_number"] . '">Done</a></li>';
+                        echo '            <li><a class="dropdown-item status-item" href="#" data-id="' . $row["queueing_number"] . '">Canceled</a></li>';
+                        echo '        </ul>';
+                        echo '    </div>';
+                        echo '    <input type="hidden" class="id-input" name="id" value="' . $row["queueing_number"] . '">';
                         echo '</td>';
+
                         echo '<td> ' . $row["status"] . '</td>';
 
                         echo '</tr>';
@@ -146,48 +116,72 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 echo '</tbody>';
                 echo '</table>';
 
-                $con->close();
                 ?>
             </div>
             <script>
-                const buttons = document.querySelectorAll('.timeStamped');
+                $(document).ready(function() {
+                    const statusItems = document.querySelectorAll('.status-item');
 
-                buttons.forEach((button) => {
-                    button.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const queueingNumber = this.dataset.queueingNumber;
-                        $('#confirm-timestamp-modal').modal('show');
-                        $('#confirm-timestamp-button').off('click').on('click', function() {
-                            $.ajax({
-                                type: 'POST',
-                                url: '',
-                                data: {
-                                    id: queueingNumber
-                                },
-                                success: function(response) {
-                                    location.reload();
-                                }
-                            });
+                    statusItems.forEach((item) => {
+                        item.addEventListener('click', function(event) {
+                            event.preventDefault(); // Prevent the default behavior of the link
+
+                            const selectedStatus = this.textContent.trim(); // Get the selected status
+                            const queueingNumber = this.getAttribute('data-id'); // Get the ID from the clicked status item
+
+                            // Update the modal body content
+                            const modalBody = document.querySelector('#confirm-status-modal .modal-body');
+                            modalBody.innerHTML = '<p>Are you sure you want to update the status to ' + selectedStatus + '?</p>';
+
+                            // Set the data-status and data-id attributes on the "Confirm" button
+                            const confirmButton = document.getElementById('confirm-status-button');
+                            confirmButton.setAttribute('data-status', selectedStatus);
+                            confirmButton.setAttribute('data-id', queueingNumber);
+
+                            $('#confirm-status-modal').modal('show');
+                        });
+                    });
+
+                    // Handle the "Confirm" button click event with AJAX
+                    $('#confirm-status-button').off('click').on('click', function() {
+                        const statusToUpdate = $(this).data('status'); // Get the status from the data attribute
+                        const queueingNumber = $(this).data('id'); // Get the ID from the data attribute
+
+                        // Log the values for debugging
+                        console.log('Status to update: ' + statusToUpdate);
+                        console.log('Queueing number: ' + queueingNumber);
+
+                        $.ajax({
+                            type: 'POST',
+                            url: 'queueing_list_priority.php', // Provide a valid URL
+                            data: {
+                                id: queueingNumber,
+                                status: statusToUpdate
+                            },
+                            success: function(response) {
+                                location.reload();
+                            }
                         });
                     });
                 });
             </script>
-            <!-- Confirm Timestamp Modal -->
-            <div class="modal fade" id="confirm-timestamp-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-timestamp-modal-label" aria-hidden="true">
+
+            <!-- Confirm Status Modal -->
+            <div class="modal fade" id="confirm-status-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-status-modal-label" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="confirm-timestamp-modal-label">Confirm Timestamp</h5>
+                            <h5 class="modal-title" id="confirm-status-modal-label">Confirm Status Update</h5>
                             <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
-                            <p>Are you sure you want to update the timestamp?</p>
+                            <!-- The selected status will be inserted here -->
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button id="confirm-timestamp-button" type="button" class="btn btn-primary">Confirm</button>
+                            <button id="confirm-status-button" type="button" class="btn btn-primary" data-status="" data-bs-dismiss="modal">Confirm</button>
                         </div>
                     </div>
                 </div>
