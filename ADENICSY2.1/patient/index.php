@@ -93,6 +93,10 @@ if (strlen($_SESSION['id']) == 0) {
             $contact = $_POST['contact'];
             $prefDoc = $_POST['prefDoc'];
 
+            // Get current date and time
+            date_default_timezone_set('Asia/Manila');
+            $timestamp = date("Y-m-d H:i:s");
+
             // Check if the user is already in the queue and has more than 2 'Canceled' statuses
             $checkCanceledQuery = "SELECT COUNT(*) AS cancel_count FROM queueing_list WHERE patient_id='$userid' AND status = 'Canceled'";
             $checkCanceledResult = mysqli_query($con, $checkCanceledQuery);
@@ -120,7 +124,7 @@ if (strlen($_SESSION['id']) == 0) {
             }
 
             // Add the patient to the queue
-            $msg1 = mysqli_query($con, "INSERT INTO queueing_list (patient_id, patient_name, concern, contact, preffDoctor) VALUES ('$userid', '$patientName', '$concern', '$contact', '$prefDoc')");
+            $msg1 = mysqli_query($con, "INSERT INTO queueing_list (patient_id, patient_name, concern, contact, preffDoctor, time_arrived) VALUES ('$userid', '$patientName', '$concern', '$contact', '$prefDoc', '$timestamp')");
 
             if ($msg1) {
                 $queueQuery = "SELECT queueing_number, patient_name FROM queueing_list WHERE patient_id='$userid' AND status != 'Canceled'";
@@ -156,6 +160,10 @@ if (strlen($_SESSION['id']) == 0) {
             $contact = $_POST['contact'];
             $prefDoc = $_POST['prefDoc'];
 
+            // Get current date and time
+            date_default_timezone_set('Asia/Manila');
+            $timestamp = date("Y-m-d H:i:s");
+
             // Check if the user is already in the queue and has more than 2 'Canceled' statuses
             $checkCanceledQuery = "SELECT COUNT(*) AS cancel_count FROM queueing_list_priority WHERE patient_id='$userid' AND status = 'Canceled'";
             $checkCanceledResult = mysqli_query($con, $checkCanceledQuery);
@@ -183,7 +191,7 @@ if (strlen($_SESSION['id']) == 0) {
             }
 
             // Add the patient to the queue
-            $msg2 = mysqli_query($con, "INSERT INTO queueing_list_priority (patient_id, patient_name, concern, contact, preffDoctor) VALUES ('$userid', '$patientName', '$concern', '$contact', '$prefDoc')");
+            $msg2 = mysqli_query($con, "INSERT INTO queueing_list_priority (patient_id, patient_name, concern, contact, preffDoctor, time_arrived) VALUES ('$userid', '$patientName', '$concern', '$contact', '$prefDoc', '$timestamp')");
 
             if ($msg2) {
                 $queueQuery2 = "SELECT queueing_number, patient_name FROM queueing_list_priority WHERE patient_id='$userid' AND status != 'Canceled'";

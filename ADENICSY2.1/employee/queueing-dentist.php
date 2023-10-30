@@ -36,8 +36,8 @@ if (strlen($_SESSION['doctorid'] == 0)) {
         echo '<th>Patient ID</th>';
         echo '<th>Patient Name</th>';
         echo '<th style="width: 250px;">Concern</th>';
-        echo '<th>Has Arrived?</th>';
-        echo '<th>Time Arrived</th>';
+        echo '<th>Status</th>';
+        echo '<th>Time</th>';
         echo '</tr>';
         echo '</thead>';
         echo '<tbody>';
@@ -50,7 +50,7 @@ if (strlen($_SESSION['doctorid'] == 0)) {
                 echo '<td> ' . $row["patient_id"] . '</td>';
                 echo '<td> ' . $row["patient_name"] . '</td>';
                 echo '<td> ' . $row["concern"] . '</td>';
-                echo '<td>' . ($formatted_time == '12:00 AM' ? 'No' : 'Yes') . '</td>';
+                echo '<td>' . $row["status"] . '</td>';
                 echo '<td>' . ($formatted_time == '12:00 AM' ? '' : $formatted_time) . '</td>';
                 echo '</tr>';
             }

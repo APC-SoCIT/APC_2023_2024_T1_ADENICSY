@@ -37,7 +37,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 $status = $_POST['status'];
 
                 date_default_timezone_set('Asia/Manila');
-                $timestamp = date("Y-m-d H:i:s");
+                $timestamp = date("Y-m-d H:i:s"); 
 
                 // Update the timestamp and status in your database
                 $update_query = "UPDATE queueing_list SET time_arrived = '$timestamp', status = '$status' WHERE queueing_number = '$id'";
