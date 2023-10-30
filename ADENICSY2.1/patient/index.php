@@ -79,7 +79,7 @@ if (strlen($_SESSION['id']) == 0) {
             $row5 = mysqli_fetch_assoc($result5);
             echo '<div class="container">You\'re in the queueing list for priority patients.<b> Your queueing number is ' . $row5["queueing_number"] . '</b> <button id="cancel-queue2" type="button submit" class="btn btn-danger btn-sm hover-button" name="cancel-queueing2">Cancel Queueing</button></div>';
         } else {
-            echo '<div class="container"><em>You\'re not in the queueing list</em></div>';
+            echo '<div class="container"><em>You\'re not on-queued</em></div>';
         }
 
 
