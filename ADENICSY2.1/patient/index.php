@@ -469,7 +469,7 @@ if (strlen($_SESSION['id']) == 0) {
                         // Time Availability of get queueing number
                         $current_time = strtotime(date('H:i'));
                         $start_time = strtotime('4:00');
-                        $end_time = strtotime('17:00');
+                        $end_time = strtotime('22:00');
 
                         if ($current_time >= $start_time && $current_time <= $end_time) {
                             // Query to retrieve the highest queue number
