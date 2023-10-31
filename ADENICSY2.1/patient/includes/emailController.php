@@ -58,7 +58,7 @@ function sendVerificationEmail($useremail, $token)
             <h1 style="color: #007BFF;">Welcome to Apelo Dental Clinic!</h1>
             <p>You\'re one step closer to becoming a patient of Apelo Dental Clinic.</p>
             <p style="font-size: 18px; font-weight: bold;">Please click the button below to verify your email:</p>
-            <a class="button" href="http://localhost/Githubclone/adenicsy2.1/patient/index.php?token=' . $token . '">Verify Email</a>
+            <a class="button" href="https://socitcloud.apc.edu.ph/~adenicsy/APC_2023_2024_T1_ADENICSY/ADENICSY2.1/patient/index.php?token=' . $token . '">Verify Email</a>
         </div>
         <div class="footer">
             <p>Contact Information:</p>
@@ -141,7 +141,7 @@ function sendPasswordResetEmail($useremail, $token)
         <div class="wrapper">
             <p>You have requested to reset your password.</p>
             <p style="font-size: 18px; font-weight: bold;">Click the button below to reset your password:</p>
-            <a class="button" href="http://localhost/Githubclone/adenicsy2.1/patient/reset-password.php?token=' . $token . '">Reset Password</a>
+            <a class="button" href="https://socitcloud.apc.edu.ph/~adenicsy/APC_2023_2024_T1_ADENICSY/ADENICSY2.1/patient/reset-password.php?token=' . $token . '">Reset Password</a>
         </div>
         <div class="footer">
             <p>Contact Information:</p>
