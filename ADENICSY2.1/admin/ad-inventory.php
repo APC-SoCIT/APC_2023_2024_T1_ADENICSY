@@ -48,6 +48,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
         $itemName = $_POST['edit-item-name'];
         $quantity = $_POST['edit-quantity'];
         $metric = $_POST['edit-metric'];
+
         switch ($metric) {
             case 'option1':
                 $metric = 'pcs';
@@ -72,13 +73,13 @@ if (strlen($_SESSION['adminid'] == 0)) {
         $criticalLevel = $_POST['edit-critical-level'];
 
         // Retrieve the first name of the staff from the session
-        $adminid = $_SESSION['adminid'];
+        $staffId = $_SESSION['adminid'];
         $staffFirstName = "";
 
         // Query the database to get the staff's first name
-        $query = "SELECT username FROM admin WHERE id = ?";
+        $query = "SELECT fname FROM employee WHERE id = ?";
         $stmt = mysqli_prepare($con, $query);
-        mysqli_stmt_bind_param($stmt, "s", $adminid);
+        mysqli_stmt_bind_param($stmt, "s", $staffId);
         mysqli_stmt_execute($stmt);
         mysqli_stmt_bind_result($stmt, $staffFirstName);
         mysqli_stmt_fetch($stmt);
@@ -87,21 +88,46 @@ if (strlen($_SESSION['adminid'] == 0)) {
         // Get the current timestamp
         $lastModifiedTime = date("Y-m-d H:i:s");
 
-        // Check if the item with the same name already exists
-        $checkItemQuery = "SELECT item_name FROM inventory1 WHERE item_name = ?";
+        // Check if the item name has changed
+        $checkItemQuery = "SELECT item_name FROM inventory1 WHERE id = ?";
         $stmt = mysqli_prepare($con, $checkItemQuery);
-        mysqli_stmt_bind_param($stmt, "s", $itemName);
+        mysqli_stmt_bind_param($stmt, "i", $itemId);
         mysqli_stmt_execute($stmt);
-        mysqli_stmt_store_result($stmt);
+        mysqli_stmt_bind_result($stmt, $existingItemName);
+        mysqli_stmt_fetch($stmt);
+        mysqli_stmt_close($stmt);
 
-        if (mysqli_stmt_num_rows($stmt) > 0) {
-            // Item with the same name already exists
-            echo '<script>alert("Item with the same name already exists. Please use a different name.");</script>';
+        if ($existingItemName != $itemName) {
+            // Item name has changed, check if the new name already exists
+            $checkItemQuery = "SELECT item_name FROM inventory1 WHERE item_name = ?";
+            $stmt = mysqli_prepare($con, $checkItemQuery);
+            mysqli_stmt_bind_param($stmt, "s", $itemName);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_store_result($stmt);
+
+            if (mysqli_stmt_num_rows($stmt) > 0) {
+                // Item with the same name already exists
+                echo '<script>alert("Item with the same name already exists. Please use a different name.");</script>';
+            } else {
+                // Item does not exist, update it into the database
+                $sql = "UPDATE inventory1 SET item_name = ?, quantity = ?, metric = ?, critical_level = ?, common_max_qty = ?, last_modified = ?, last_modified_date = ? WHERE id = ?";
+                $stmt2 = mysqli_prepare($con, $sql);
+                mysqli_stmt_bind_param($stmt2, "sssssssi", $itemName, $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime, $itemId);
+
+                if (mysqli_stmt_execute($stmt2)) {
+                    // Update successful
+                    echo '<script>alert("Item updated successfully!");</script>';
+                } else {
+                    // Update failed
+                    echo '<script>alert("Failed to update item. Please try again.");</script>';
+                }
+            }
+            mysqli_stmt_close($stmt);
         } else {
-            // Item does not exist, update it into the database
-            $sql = "UPDATE inventory1 SET item_name = ?, quantity = ?, metric = ?, critical_level = ?, common_max_qty = ?, last_modified = ?, last_modified_date = ? WHERE id = ?";
+            // Item name hasn't changed, update it without checking for name duplication
+            $sql = "UPDATE inventory1 SET quantity = ?, metric = ?, critical_level = ?, common_max_qty = ?, last_modified = ?, last_modified_date = ? WHERE id = ?";
             $stmt2 = mysqli_prepare($con, $sql);
-            mysqli_stmt_bind_param($stmt2, "sssssssi", $itemName, $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime, $itemId);
+            mysqli_stmt_bind_param($stmt2, "ssssssi", $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime, $itemId);
 
             if (mysqli_stmt_execute($stmt2)) {
                 // Update successful
@@ -111,25 +137,24 @@ if (strlen($_SESSION['adminid'] == 0)) {
                 echo '<script>alert("Failed to update item. Please try again.");</script>';
             }
         }
-        // Close the statement
-        mysqli_stmt_close($stmt);
     }
-    if (isset($_POST['delete-item'])) {
-        $itemId = $_POST['delete-item'];
+    if (isset($_POST['deleteItem'])) {
+        $itemId = $_POST['itemId2'];
 
+        // Debugging statement to check if the data is received
+        var_dump($itemId);
         // Perform the deletion in your database
         $deleteQuery = "DELETE FROM inventory1 WHERE id = ?";
         $stmt = $con->prepare($deleteQuery);
         $stmt->bind_param('i', $itemId);
-
         if ($stmt->execute()) {
-            echo "<script>alert('Item deleted successfully!');</script>";
+            echo "Item deleted successfully!";
         } else {
-            echo "<script>alert('Failed to delete item.');</script>";
+            echo "Failed to delete item.";
         }
-
         $stmt->close();
     }
+
     if (isset($_POST['add-item'])) {
         $itemName = $_POST['add-item-name'];
         $quantity = $_POST['add-quantity'];
@@ -425,8 +450,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                     echo '<th>Critical Level</th>';
                                     echo '<th>Last Modified By</th>';
                                     echo '<th>Last Modified Time</th>';
-                                    echo '<th>Update</th>';
-                                    echo '<th>Delete</th>';
+                                    echo '<th>Action</th>';
                                     echo '</tr>';
                                     echo '</thead>';
                                     echo '<tbody>';
@@ -447,16 +471,18 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                             echo '<td> ' . $row["last_modified"] . '</td>';
                                             echo '<td> ' . $formattedDate . '</td>';
                                             echo '<td>';
-                                            echo '<form id="edit-item-form" method="post" action="">';
-                                            echo '<input type="hidden" name="edit-item" value="' . $row["id"] . '">';
-                                            echo '<button class="edit-item-btn btn btn-primary" data-queueing-number="' . $row["id"] . '">Update</button>';
-                                            echo '</form>';
-                                            echo '</td>';
-                                            echo '<td>';
-                                            echo '<form id="delete-item-form-' . $row["id"] . '" method="post" action="">';
-                                            echo '<input type="hidden" name="delete-item" value="' . $row["id"] . '">';
-                                            echo '<button class="delete-item-btn btn btn-danger" data-queueing-number2="' . $row["id"] . '">Delete</button>';
-                                            echo '</form>';
+                                            echo '    <div class="btn-group status-dropdown">';
+                                            echo '        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"';
+                                            echo '>';
+                                            echo '            Action';
+                                            echo '        </button>';
+                                            echo '        <ul class="dropdown-menu">';
+                                            echo '            <li><a class="dropdown-item edit-item-btn" href="#" data-id="' . $row["id"] . '">Update</a></li>';
+                                            echo '            <li><a class="dropdown-item delete-item-btn" href="#" data-id="' . $row["id"] . '">Delete</a></li>';
+                                            echo '            <li><a class="dropdown-item suppliers-btn" href="#" data-id="' . $row["id"] . '">Suppliers</a></li>';
+                                            echo '        </ul>';
+                                            echo '    </div>';
+                                            echo '    <input type="hidden" class="id-input" name="id" value="' . $row["id"] . '">';
                                             echo '</td>';
                                             echo '</tr>';
                                         }
@@ -594,7 +620,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                            <button type="button" class="btn btn-danger confirm-delete" name="delete-item">Delete</button>
+                                            <button type="button" class="btn btn-danger confirm-delete" name="deleteItem" id="delete-button">Delete</button>
                                         </div>
                                     </div>
                                 </div>
@@ -607,7 +633,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                 $(document).ready(function() {
                                     $('.edit-item-btn').click(function(e) {
                                         e.preventDefault();
-                                        const itemId = $(this).data('queueing-number');
+                                        const itemId = $(this).data('id'); // Get the ID from the data-id attribute
 
                                         // Make an AJAX request to fetch the item data
                                         $.ajax({
@@ -627,7 +653,6 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                                         critical_level,
                                                         common_max_qty
                                                     } = response;
-
                                                     // Populate the form fields with the retrieved data
                                                     $('#edit-item-id').val(itemId);
                                                     $('#edit-item-name').val(item_name);
@@ -640,7 +665,6 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                                             $(this).prop('selected', false);
                                                         }
                                                     });
-
                                                     $('#edit-critical-level').val(critical_level);
                                                     $('#edit-common-max-qty').val(common_max_qty);
                                                     // Show the edit modal
@@ -678,7 +702,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                 $(document).ready(function() {
                                     $('.delete-item-btn').click(function(e) {
                                         e.preventDefault();
-                                        const itemId = $(this).data('queueing-number2');
+                                        const itemId = $(this).data('id'); // Get the ID from the data-id attribute
 
                                         // Make an AJAX request to fetch the item data
                                         $.ajax({
@@ -695,10 +719,8 @@ if (strlen($_SESSION['adminid'] == 0)) {
 
                                                     // Show the confirmation modal
                                                     $('#confirm-delete-modal').modal('show');
-
                                                     // Set the item name in the modal for confirmation
                                                     $('#delete-item-name').text(itemName);
-
                                                     // Set a data attribute to store the item ID for deletion
                                                     $('#confirm-delete-modal').attr('data-item-id', itemId);
                                                 } else {
@@ -711,12 +733,31 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                         });
                                     });
 
-                                    // Handle the delete confirmation
-                                    $('#confirm-delete-modal').on('click', '.confirm-delete', function() {
-                                        const itemId = $('#confirm-delete-modal').attr('data-item-id');
-
-                                        // Submit the delete form
-                                        $('#delete-item-form-' + itemId).submit();
+                                    // Add a click event handler for the "Delete" button in the modal
+                                    $('#delete-button').click(function() {
+                                        const itemId2 = $('#confirm-delete-modal').data('item-id');
+                                        console.log(itemId2)
+                                        // Make an AJAX request to delete the item
+                                        $.ajax({
+                                            type: 'POST',
+                                            url: 'ad-inventory.php', // Make sure this URL is correct
+                                            data: {
+                                                deleteItem: true,
+                                                itemId2: itemId2
+                                            },
+                                            success: function(response) {
+                                                if (response) {
+                                                    // Reload the page
+                                                    location.reload();
+                                                } else {
+                                                    console.error('Error deleting item.');
+                                                }
+                                                $('#confirm-delete-modal').modal('hide'); // Close the modal
+                                            },
+                                            error: function() {
+                                                console.error('AJAX request failed.');
+                                            }
+                                        });
                                     });
                                 });
                             </script>
