@@ -321,14 +321,14 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 if (mysqli_num_rows($checkExistingResult) > 0) {
                     // Dentist's schedule already exists for the specified date and time
                     echo "<script>alert('Dentist already exists for this date and time.');</script>";
-                    echo "<script type='text/javascript'> document.location = 'staff-queue.php'; </script>";
+                    echo "<script type='text/javascript'> document.location = 'Staff-queue.php'; </script>";
                 } else {
                     // Dentist's schedule doesn't exist, so add it
                     $msg1 = mysqli_query($con, "INSERT INTO d_calendar (d_name, d_code, s_time, e_time, date, availableSlot) VALUES ('$d_name', '$d_code', '$s_time', '$e_time', '$date', '$availSlots')");
 
                     if ($msg1) {
                         echo "<script>alert('Dentist Added successfully');</script>";
-                        echo "<script type='text/javascript'> document.location = 'staff-queue.php'; </script>";
+                        echo "<script type='text/javascript'> document.location = 'Staff-queue.php'; </script>";
                     }
                 }
             }

@@ -40,7 +40,7 @@ include 'employee-nav-staff.php';
                 echo '<tr>';
                 echo '<td> ' . $row["id"] . '</td>';
 
-                echo '<td><a href="staff-record.php?id=' . $row['id'] . '" class="h4 fw-bold" style="text-decoration: none;">' . $row['fname'] . " " .  $row["lname"] . '</a></td>';
+                echo '<td><a href="Staff-record.php?id=' . $row['id'] . '" class="h4 fw-bold" style="text-decoration: none;">' . $row['fname'] . " " .  $row["lname"] . '</a></td>';
                 echo '<td>' . "<strong>Birthdate: </strong>" . $row["birthday"] . "<br>" . "<strong>Age: </strong>" . $row["Age"] . "<br>" . "<strong>Contact No: </strong>" . $row["contactno"] . "<br>" . "<strong>Email: </strong>" . $row["email"] . '</td>';
                 echo '</tr>';
             }
