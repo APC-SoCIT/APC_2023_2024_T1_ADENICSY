@@ -479,7 +479,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                             echo '        <ul class="dropdown-menu">';
                                             echo '            <li><a class="dropdown-item edit-item-btn" href="#" data-id="' . $row["id"] . '">Update</a></li>';
                                             echo '            <li><a class="dropdown-item delete-item-btn" href="#" data-id="' . $row["id"] . '">Delete</a></li>';
-                                            echo '            <li><a class="dropdown-item suppliers-btn" href="#" data-id="' . $row["id"] . '">Suppliers</a></li>';
+                                            // echo '            <li><a class="dropdown-item suppliers-btn" href="#" data-id="' . $row["id"] . '">Suppliers</a></li>';
                                             echo '        </ul>';
                                             echo '    </div>';
                                             echo '    <input type="hidden" class="id-input" name="id" value="' . $row["id"] . '">';
