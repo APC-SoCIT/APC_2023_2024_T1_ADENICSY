@@ -173,12 +173,12 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                                     <div class="mb-3">
                                                         <label for="employeerole" class="form-label">Role</label>
                                                         <select class="form-select mb-3" id="employeerole" name="empRole" pattern="(Dentist|Staff)" required>
-                                                            <option value="Staff">Staff</option>
                                                             <option value="Dentist">Dentist</option>
+                                                            <option value="Staff">Staff</option>
                                                         </select>
                                                     </div>
                                                     <!-- Add the PRC ID input field conditionally -->
-                                                    <div class="mb-3" id="prcIdField" style="display: none;">
+                                                    <div class="mb-3" id="prcIdField">
                                                         <label for="prc_id" class="form-label">PRC ID</label>
                                                         <input type="text" class="form-control" id="prc_id" name="prc_id" minlength="7" maxlength="7" required>
                                                     </div>
@@ -208,10 +208,11 @@ if (strlen($_SESSION['adminid'] == 0)) {
             const prcIdField = document.getElementById('prcIdField');
 
             employeeroleSelect.addEventListener('change', function() {
+                const prcIdInput = document.getElementById('prc_id');
                 if (this.value === 'Dentist') {
-                    prcIdField.style.display = 'block';
+                    prcIdInput.disabled = false;
                 } else {
-                    prcIdField.style.display = 'none';
+                    prcIdInput.disabled = true;
                 }
             });
         </script>
