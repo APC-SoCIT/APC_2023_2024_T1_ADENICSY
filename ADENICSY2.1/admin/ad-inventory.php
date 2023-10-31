@@ -225,13 +225,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
             // Close the statement
             mysqli_stmt_close($stmt);
         }
-
-        // Close the checkItemQuery statement
-        mysqli_stmt_close($stmt);
     }
-
-
-
     ?>
     <!DOCTYPE html>
     <html lang="en">
