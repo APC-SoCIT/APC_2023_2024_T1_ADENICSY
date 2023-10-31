@@ -11,7 +11,7 @@ include 'employee-nav-staff.php';
 
 <div style="padding-top: 120px;">
     <h1 class='text-primary fw-bold ms-4 my-0 py-0'> Payment Records </h1>
-    <form class="ms-5 ps-5" action="Staff-search.php" method="GET">
+    <form class="ms-5 ps-5" action="Staff-record.php" method="GET">
         <input type="text" name="search" placeholder="Search" style="width:300px; height:40px; border-radius:20px; border: none; padding: 0 10px 0 29px; margin-top: 20px; box-shadow:1px 3px #888888;">
         <button type="submit" name="submit-search" class="text-primary" style="width:100px; height:40px; border-radius:20px; border: none; background-color: #E9C5FB; box-shadow:1px 3px #888888;"><b>Search</b></button>
     </form>
