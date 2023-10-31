@@ -29,7 +29,7 @@ include 'employee-nav-staff.php';
                 $date = $_POST['date'];
                 $procedure = $_POST['procedure'];
                 $amount = $_POST['amount'];
-                $dentist_id = $_POST['dentist-id'];
+                $dentist_id = (int)$_POST['dentist-id'];
                 $dentist_name = $_POST['dentist-name'];
                 $msg1 = mysqli_query($con, "insert into s_payment (s_date, s_procedure, s_amount, s_patiendID, added_by, s_modify, dentist_assigned_ID, dentist_assigned) VALUES ('$date', '$procedure', '$amount', '$patientID', '$staff_fname', '$staff_fname', '$dentist_id', '$dentist_name')");
 
