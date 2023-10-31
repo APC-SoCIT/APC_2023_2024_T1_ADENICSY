@@ -1,4 +1,5 @@
 <?php session_start();
+ob_start();
 include_once('../includes/config.php');
 if (strlen($_SESSION['staffid'] == 0)) {
     header('location:logout.php');
@@ -37,7 +38,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 $status = $_POST['status'];
 
                 date_default_timezone_set('Asia/Manila');
-                $timestamp = date("Y-m-d H:i:s"); 
+                $timestamp = date("Y-m-d H:i:s");
 
                 // Update the timestamp and status in your database
                 $update_query = "UPDATE queueing_list SET time_arrived = '$timestamp', status = '$status' WHERE queueing_number = '$id'";
@@ -255,32 +256,39 @@ if (strlen($_SESSION['staffid'] == 0)) {
             $obj_pdf->SetAutoPageBreak(TRUE, 10);
             $obj_pdf->SetFont('helvetica', '', 11);
             $obj_pdf->AddPage();
-            $date = date('F d Y'); // get current date
+            $date = date('F d Y'); // get the current date
             $content = '';
             $content .= '  
             <h4 align="center">Queueing List for Regular Patients for ' . $date . '</h4><br /> 
-      <table border="1" cellspacing="0" cellpadding="3">  
-           <tr align="center">  
-                <th width="5%">QN</th>
-                <th width="5%">ID</th>  
-                <th width="18%">Name</th>  
-                <th width="13%">Contact</th>  
-                <th width="20%">Concern</th>
-                <th width="20%">Preffered Dentist</th>
-                <th width="7%">Time</th>
-                <th width="12%">Status</th>       
-           </tr>  
-      ';
+            <table border="1" cellspacing="0" cellpadding="3">  
+                <tr align="center">  
+                    <th width="5%">QN</th>
+                    <th width="5%">ID</th>  
+                    <th width="18%">Name</th>  
+                    <th width="13%">Contact</th>  
+                    <th width="20%">Concern</th>
+                    <th width="20%">Preffered Dentist</th>
+                    <th width="7%">Time</th>
+                    <th width="12%">Status</th>       
+                </tr>  
+            ';
             $content .= fetch_data();
             $content .= '</table>';
             $obj_pdf->writeHTML($content);
 
-            $filename = 'Regular-QueueingList-' . $date . '.pdf'; // append date to filename
-            $obj_pdf->Output(__DIR__ . '/queueinglistspdf/' . $filename, 'F');
+            // Generate a unique filename for the PDF
+            $filename = 'Regular-QueueingList-' . date('Ymd') . '.pdf';
+
+            // Output the PDF as a data URI for download
+            $pdfData = $obj_pdf->Output($filename, 'S');
+
+            // Provide a link to download the PDF
+            echo '<a href="data:application/pdf;base64,' . base64_encode($pdfData) . '" download="' . $filename . '">Download Queueing List</a>';
         }
         ?>
         <form method="post">
-            <input type="submit" name="generate_pdf" class="btn btn-success mt-2" value="Download Queueing List" />
+            <input type="submit" name="generate_pdf" class="btn btn-success mt-2" value="Generate PDF" />
         </form>
-    </div>
-<?php } ?>
+    <?php
+    ob_end_flush();
+} ?>
