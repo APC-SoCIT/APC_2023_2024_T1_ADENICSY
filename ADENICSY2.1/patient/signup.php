@@ -186,10 +186,6 @@ if (isset($_POST['submit'])) {
                         <li>You are responsible for maintaining the confidentiality of your login credentials. Any activities that occur under your account are your responsibility.</li>
                         <li>You agree to use the Website in compliance with all applicable laws, regulations, and these terms and conditions.</li>
                         <li>You shall not engage in any activities that violate the rights of others, including but not limited to spamming, hacking, or distributing malicious software. </li>
-                        <li>All content and materials on this Website, including text, images, logos, and software, are owned by or licensed to us and are protected by intellectual property laws.</li>
-                        <li>You retain ownership of any content you submit to the Website, but you grant us a non-exclusive, worldwide, royalty-free license to use, modify, and distribute that content as necessary for the operation of the Website. </li>
-                        <li>We reserve the right to terminate or suspend your account and access to the Website at our discretion, with or without notice, for any violation of these terms and conditions. </li>
-                        <li>We may modify these terms and conditions at any time. Continued use of the Website after such modifications constitutes your acceptance of the revised terms. </li>
                         <li>For any questions, concerns, or inquiries related to these terms and conditions, please contact us at adenicsy@gmail.com. </li>
                     </ul>
                     <p>By registering on our website, you acknowledge that you have read, understood, and agreed to these terms and conditions. </p>
