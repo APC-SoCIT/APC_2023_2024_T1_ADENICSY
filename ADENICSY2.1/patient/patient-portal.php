@@ -69,7 +69,7 @@
                             </div>
                         </div>
                         <div class="col-xl-5 col-md-6">
-                            <div class="card bg-secondary text-white mb-4 custom-card">
+                            <div class="card bg-primary text-white mb-4 custom-card">
                                 <div class="card-body">Not Registered Yet? Sign up here!</div>
                                 <div class="card-footer d-flex align-items-center justify-content-center text-center">
                                     <a class="h2" href="signup.php">Sign up Here</a>
