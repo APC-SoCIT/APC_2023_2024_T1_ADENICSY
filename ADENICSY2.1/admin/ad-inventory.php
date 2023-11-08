@@ -322,7 +322,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                                 echo '<td> ' . $row["item_name"] . '</td>';
                                                 echo '<td> ' . $row["quantity"] . '</td>';
                                                 echo '<td> ' . $row["metric"] . '</td>';
-                                                echo '<td> ' . $row["critical_level"] . '</td>';
+                                                echo '<td> ' . $row["critical_level"] . '%' . '</td>';
                                                 echo '<td> ' . $row["last_modified"] . '</td>';
                                                 echo '<td> ' . $formattedDate . '</td>';
                                                 echo '</tr>';
@@ -397,7 +397,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                             echo '<td> ' . $row["item_name"] . '</td>';
                                             echo '<td> ' . $row["quantity"] . '</td>';
                                             echo '<td> ' . $row["metric"] . '</td>';
-                                            echo '<td> ' . $row["critical_level"] . '</td>';
+                                            echo '<td> ' . $row["critical_level"] . '%' . '</td>';
                                             echo '<td> ' . $row["last_modified"] . '</td>';
                                             echo '<td> ' . $formattedDate . '</td>';
                                             echo '</tr>';
@@ -461,7 +461,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                             echo '<td> ' . $row["item_name"] . '</td>';
                                             echo '<td> ' . $row["quantity"] . '</td>';
                                             echo '<td> ' . $row["metric"] . '</td>';
-                                            echo '<td> ' . $row["critical_level"] . '</td>';
+                                            echo '<td> ' . $row["critical_level"] . '%' . '</td>';
                                             echo '<td> ' . $row["last_modified"] . '</td>';
                                             echo '<td> ' . $formattedDate . '</td>';
                                             echo '<td>';
@@ -532,7 +532,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                                     </select>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="edit-critical-level" class="form-label">Critical Level:</label>
+                                                    <label for="edit-critical-level" class="form-label">Critical Level: (percentage)</label>
                                                     <input type="number" class="form-control" id="edit-critical-level" name="edit-critical-level" min="5" max="100" value="5" required>
                                                 </div>
                                                 <div class="mb-3">
@@ -582,7 +582,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                                     </select>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="add-critical-level" class="form-label">Critical Level:</label>
+                                                    <label for="add-critical-level" class="form-label">Critical Level: (percentage)</label>
                                                     <input type="number" class="form-control" id="add-critical-level" name="add-critical-level" min="5" max="100" value="10" required>
                                                 </div>
                                                 <div class="mb-3">
