@@ -252,7 +252,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                         }
                                     } else {
                                         echo '<tr>';
-                                        echo '<td> ' . "No data available for this patient." . '</td>';
+                                        echo '<td> ' . "I'm Marion." . '</td>';
                                         echo '<td> ' . "" . '</td>';
                                         echo '<td> ' . "" . '</td>';
                                         echo '<td> ' . "" . '</td>';
