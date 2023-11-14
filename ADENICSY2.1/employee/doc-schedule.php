@@ -74,9 +74,11 @@ if (strlen($_SESSION['doctorid'] == 0)) {
         <form method="get">
             <?php
             $current_date = isset($_GET['current_date']) ? $_GET['current_date'] : date('Y-m-d');
+            $start_of_current_week = date('Y-m-d', strtotime('last Sunday', strtotime($current_date)));
 
             if (isset($_GET['previous'])) {
-                $current_date = date('Y-m-d', strtotime($current_date . ' - 7 days'));
+                $start_of_previous_week = date('Y-m-d', strtotime($start_of_current_week . ' - 7 days'));
+                $current_date = $start_of_previous_week;
             } elseif (isset($_GET['next'])) {
                 $current_date = date('Y-m-d', strtotime($current_date . ' + 7 days'));
             }
@@ -90,9 +92,14 @@ if (strlen($_SESSION['doctorid'] == 0)) {
         <thead class="text-primary h4">
             <tr>
                 <?php
-                // Generating the headers for each day of the week based on the updated $current_date
                 for ($i = 0; $i < 7; $i++) {
-                    echo '<th>' . date('l', strtotime($current_date . ' + ' . $i . ' days')) . '</th>';
+                    $date_to_check = date('Y-m-d', strtotime($current_date . ' + ' . $i . ' days'));
+                    $current_system_date = date('Y-m-d');
+
+                    $css_class = ($date_to_check === $current_system_date) ? 'text-danger' : 'text-primary h4';
+                    $css_class .= ($date_to_check === $current_system_date) ? ' font-weight-bold' : '';
+
+                    echo '<th class="' . $css_class . '">' . date('l', strtotime($current_date . ' + ' . $i . ' days')) . '</th>';
                 }
                 ?>
             </tr>
@@ -100,20 +107,18 @@ if (strlen($_SESSION['doctorid'] == 0)) {
         <tbody>
             <tr>
                 <?php
-                // Loop through the week based on the updated $current_date
+                $date_for_display = date('l', strtotime($current_date));
                 for ($i = 0; $i < 7; $i++) {
-                    // Query to fetch schedule entries for the current day
                     $day_query = "SELECT * FROM d_calendar WHERE date = '$current_date'";
                     $day_result = $con->query($day_query);
 
-                    // Display schedule data for the day
                     echo '<td>';
+                    echo '<strong>' . date('M j', strtotime($current_date)) . '</strong><br>';
 
                     if ($day_result->num_rows > 0) {
                         $slots = $day_result->fetch_all(MYSQLI_ASSOC);
                         foreach ($slots as $slot) {
                             echo '<div>';
-                            echo '<strong>' . date('M j', strtotime($current_date)) . '</strong><br>';
                             echo 'Start Time: ' . $slot['s_time'] . '<br>';
                             echo 'End Time: ' . $slot['e_time'] . '<br>';
                             echo 'Available Slot: ' . $slot['availableSlot'] . '<br>';
@@ -128,7 +133,6 @@ if (strlen($_SESSION['doctorid'] == 0)) {
 
                     echo '</td>';
 
-                    // Move to the next day
                     $current_date = date('Y-m-d', strtotime($current_date . ' + 1 day'));
                 }
                 ?>
@@ -136,7 +140,6 @@ if (strlen($_SESSION['doctorid'] == 0)) {
         </tbody>
     </table>
 </div>
-
 
 
             <div>
