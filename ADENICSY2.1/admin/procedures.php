@@ -78,40 +78,89 @@ if (strlen($_SESSION['adminid'] == 0)) {
                         </div>
                         <div class="container">
                             <h1 class="mt-4">Procedures</h1>
-                            <div class="row px-2">
-                                <!-- Table -->
+                            <div class="row row-cols-1 row-cols-md-3 g-4">
                                 <?php
-                                // Output Form Entries from the Database
+                                // Output Procedures from the Database
                                 $sql = "SELECT * FROM procedures";
-                                // Fire query
+                                // Execute query
                                 $result = mysqli_query($con, $sql);
+
+                                if (mysqli_num_rows($result) > 0) {
+                                    while ($row = mysqli_fetch_assoc($result)) {
+                                        $procedureId = $row["id"];
+                                        $procedureName = $row["procedure_name"];
                                 ?>
-                                <table class="table table-striped pt-2">
-                                    <thead class="h4">
-                                        <tr>
-                                            <th>Procedure Name</th>
-                                            <th>Update</th>
-                                            <th>Remove</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php if (mysqli_num_rows($result) > 0) : ?>
-                                            <?php while ($row = mysqli_fetch_assoc($result)) : ?>
-                                                <tr>
-                                                    <td><?= $row["procedure_name"] ?></td>
-                                                    <td><a href="update-procedure.php?id=<?= $row["id"] ?>" class="btn btn-primary">Update</a></td>
-                                                    <td><a href="delete-procedure.php?id=<?= $row["id"] ?>" class="btn btn-danger">Remove</a></td>
-                                                </tr>
-                                            <?php endwhile; ?>
-                                        <?php else : ?>
-                                            <tr>
-                                                <td colspan="3">No data available.</td>
-                                            </tr>
-                                        <?php endif; ?>
-                                    </tbody>
-                                </table>
+                                        <div class="col">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <h5 class="card-title"><?= $procedureName ?></h5>
+                                                    <h6 class="card-subtitle mb-2 text-muted">Associated Items:</h6>
+                                                    <ul class="list-group list-group-flush">
+                                                        <?php
+                                                        $itemsQuery = "SELECT inventory1.item_name, procedure_items.quantity 
+                                                                        FROM procedure_items 
+                                                                        INNER JOIN inventory1 ON procedure_items.item_id = inventory1.id 
+                                                                        WHERE procedure_items.procedure_id = '$procedureId'";
+
+                                                        $itemsResult = mysqli_query($con, $itemsQuery);
+                                                        $items = [];
+
+                                                        while ($item = mysqli_fetch_assoc($itemsResult)) {
+                                                            $items[] = $item; // Store items in an array
+                                                        }
+
+                                                        $maxItemsToShow = 3;
+
+                                                        for ($i = 0; $i < $maxItemsToShow; $i++) {
+                                                            if (isset($items[$i])) {
+                                                                echo '<li class="list-group-item">' .
+                                                                    '<div class="d-flex justify-content-between">' .
+                                                                    '<span>' . $items[$i]["item_name"] . '</span>' .
+                                                                    '<span>Qty: ' . $items[$i]["quantity"] . '</span>' .
+                                                                    '</div>' .
+                                                                    '</li>';
+                                                            } else {
+                                                                // Add blank lines for the remaining spaces
+                                                                echo '<li class="list-group-item">&nbsp;</li>';
+                                                            }
+                                                        }
+                                                        ?>
+
+
+                                                    </ul>
+                                                    <div class="mt-3">
+                                                        <button class="btn btn-info view-details" data-id="<?= $procedureId ?>" data-name="<?= $procedureName ?>">View Details</button>
+                                                        <button class="btn btn-primary update-procedure ms-2" data-id="<?= $procedureId ?>" data-name="<?= $procedureName ?>">Update</button>
+                                                        <a href="#" class="btn btn-danger delete-procedure ms-2" data-id="<?= $procedureId ?>" data-name="<?= $procedureName ?>">Remove</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                <?php
+                                    }
+                                } else {
+                                    echo '<div class="col"><p>No procedures available.</p></div>';
+                                }
+                                ?>
                             </div>
 
+                            <!-- Details Modal -->
+                            <div class="modal fade" id="procedureDetailsModal" tabindex="-1" aria-labelledby="procedureDetailsModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="procedureDetailsModalLabel">Procedure Details</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <h5 id="procedureName"></h5>
+                                            <ul id="procedureItems" class="list-group">
+                                                <!-- Procedure items will be displayed here -->
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                 </main>
             </div>
@@ -160,112 +209,96 @@ if (strlen($_SESSION['adminid'] == 0)) {
                 </div>
             </div>
         </div>
+        <!-- Update Modal -->
+        <div class="modal fade" id="updateProcedureModal" tabindex="-1" aria-labelledby="updateProcedureModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateProcedureModalLabel">Update Procedure</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="updateProcedureForm">
+                            <input type="hidden" name="id" id="updateProcedureId" value="">
+                            <div class="mb-3">
+                                <label for="updateProcedureName" class="form-label">Procedure Name:</label>
+                                <input type="text" class="form-control" id="updateProcedureName" name="procedure_name" readonly>
+                            </div>
+
+                            <!-- Inventory Items Selection for Update -->
+                            <div class="mb-3">
+                                <label class="form-label">Select Inventory Items to Add:</label>
+                                <select class="form-select" id="updateSelectedItemDropdown">
+                                    <option value="">Select items here</option>
+                                    <!-- Populate inventory items here dynamically -->
+                                    <?php
+                                    // Fetch and display inventory items as options in the dropdown
+                                    $inventoryQuery = "SELECT * FROM inventory1";
+                                    $inventoryResult = mysqli_query($con, $inventoryQuery);
+
+                                    while ($inventoryRow = mysqli_fetch_assoc($inventoryResult)) {
+                                        echo '<option value="' . $inventoryRow["id"] . '">' . $inventoryRow["item_name"] . '</option>';
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+
+                            <!-- Display added items -->
+                            <div id="updateSelectedItemsContainer">
+                                <!-- Associated items will be displayed here for editing -->
+                            </div>
+
+                            <button type="submit" name="updateProcedure" class="btn btn-primary mt-3">Update</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="deleteProcedureModal" tabindex="-1" aria-labelledby="deleteProcedureModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteProcedureModalLabel">Confirmation</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <a href="#" id="confirmDelete" class="btn btn-danger">Confirm Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Modal -->
+        <div class="modal fade" id="procedureDetailsModal" tabindex="-1" aria-labelledby="procedureDetailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="procedureDetailsModalLabel">Procedure Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h5 id="procedureName"></h5>
+                        <ul id="procedureItems" class="list-group">
+                            <!-- Procedure items will be displayed here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Include jQuery library -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="../js/scripts.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
         <script src="../js/datatables-simple-demo.js"></script>
-
-        <!-- Add New Procedure Button Handler -->
-        <script>
-            $(document).ready(function() {
-                var selectedItems = {};
-
-                const addItemButton = document.querySelector('.add-procedure-btn');
-                addItemButton.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    // Show the add item modal
-                    $('#addProcedureModal').modal('show');
-                });
-
-                // Handle item selection from dropdown
-                $('#selectedItemDropdown').change(function() {
-                    var itemId = $(this).val();
-                    var itemName = $("#selectedItemDropdown option:selected").text();
-
-                    // Check if the item is already selected
-                    if (selectedItems[itemId]) {
-                        // Update the quantity only if it's greater than 0
-                        var newQuantity = parseInt($(this).val()) || 0;
-                        if (newQuantity > 0) {
-                            selectedItems[itemId].quantity = newQuantity;
-                        }
-                    } else {
-                        // Add the selected item to the list
-                        selectedItems[itemId] = {
-                            name: itemName,
-                            quantity: 1
-                        };
-                    }
-
-                    // Display the selected item below the dropdown
-                    displaySelectedItems();
-
-                    // Reset the dropdown value
-                    $(this).val('');
-                });
-
-                // Handle quantity adjustment
-                $('#selectedItemsContainer').on('input', '.quantity-input', function() {
-                    var itemId = $(this).data('item-id');
-                    var newQuantity = parseInt($(this).val()) || 0;
-
-                    // Update the quantity only if it's greater than 0
-                    if (newQuantity > 0) {
-                        selectedItems[itemId].quantity = newQuantity;
-                    }
-
-                    // Display the updated selected items
-                    displaySelectedItems();
-                });
-
-                // Function to display selected items
-                function displaySelectedItems() {
-                    var container = $('#selectedItemsContainer');
-                    container.empty();
-
-                    for (var itemId in selectedItems) {
-                        if (selectedItems.hasOwnProperty(itemId)) {
-                            var item = selectedItems[itemId];
-                            var listItem = $('<div class="mb-2 d-flex align-items-center">');
-
-                            // Add div for item name
-                            var itemNameDiv = $('<div class="w-75 pe-2">' + item.name + '</div>');
-                            listItem.append(itemNameDiv);
-
-                            // Add input field for quantity
-                            var quantityInput = $('<input type="number" class="form-control w-auto quantity-input" value="' + item.quantity + '">');
-                            quantityInput.data('item-id', itemId);
-                            listItem.append(quantityInput);
-
-                            container.append(listItem);
-                        }
-                    }
-                }
-
-                // Logic for the "Add Procedure" button
-                $('#add-procedure-button').click(function() {
-                    const procedureName = $('#procedure_name').val(); // Get procedure name
-
-                    // Update the hidden input field for selected items
-                    $('#selectedItemsData').val(JSON.stringify(selectedItems));
-
-                    $.ajax({
-                        type: 'POST',
-                        url: 'procedures.php',
-                        data: $('form').serialize(), // Serialize the entire form data
-                        success: function(response) {
-                            // Handle success
-                            alert('New Procedure added successfully!'); // Show an alert for success
-                        },
-                        error: function(xhr, status, error) {
-                            // Handle error
-                            alert('Failed adding new procedure!'); // Show an alert for success
-                        }
-                    });
-                });
-            });
-        </script>
+        <script src="procedures-handler.js"></script>
 
 
     </body>
