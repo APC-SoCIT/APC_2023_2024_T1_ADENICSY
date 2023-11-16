@@ -11,6 +11,10 @@
                       <div class="sb-nav-link-icon"><i class="fas fa-archive"></i></div>
                       Inventory
                   </a>
+                  <a class="nav-link" href="procedures.php">
+                      <div class="sb-nav-link-icon"><i class="fas fa-medkit"></i></div>
+                      Procedures
+                  </a>
 
                   <a class="nav-link" href="manage-users.php">
                       <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
