@@ -100,7 +100,7 @@ $(document).ready(function() {
             data: $('form').serialize(), // Serialize the entire form data
             success: function(response) {
                 // Handle success
-                alert('New Procedure added successfully!'); // Show an alert for success
+
             },
             error: function(xhr, status, error) {
                 // Handle error

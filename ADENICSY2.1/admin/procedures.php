@@ -6,28 +6,42 @@ if (strlen($_SESSION['adminid'] == 0)) {
     if (isset($_POST['addProcedure'])) {
         $procedureName = $_POST['procedure_name'];
 
-        // Insert procedure into procedures table
-        $insertProcedureQuery = "INSERT INTO procedures (procedure_name) VALUES ('$procedureName')";
-        mysqli_query($con, $insertProcedureQuery);
+        // Check if the procedure name already exists
+        $checkProcedureQuery = "SELECT COUNT(*) as count FROM procedures WHERE procedure_name = '$procedureName'";
+        $result = mysqli_query($con, $checkProcedureQuery);
+        $row = mysqli_fetch_assoc($result);
+        $procedureCount = $row['count'];
 
-        // Get the ID of the last inserted procedure
-        $procedureId = mysqli_insert_id($con);
-        // Fetch and decode the 'selected_items_data' sent in the POST request
-        $selectedItems = json_decode($_POST['selected_items_data'], true);
-
-        // Ensure it's an array or object before iterating through it
-        if (is_array($selectedItems) || is_object($selectedItems)) {
-            foreach ($selectedItems as $itemId => $itemDetails) {
-                $quantity = $itemDetails['quantity'];
-                // Insert associated items into procedure_items table
-                $insertProcedureItemQuery = "INSERT INTO procedure_items (procedure_id, item_id, quantity) VALUES ('$procedureId', '$itemId', '$quantity')";
-                mysqli_query($con, $insertProcedureItemQuery);
-            }
+        if ($procedureCount > 0) {
+            // Procedure name already exists, show an alert or take necessary action
+            echo "<script>alert('Procedure name already exists. Please nominate a unique one.');</script>";
         } else {
-            // Handle cases where selectedItems is not an array or object
-            // Log the error or take necessary actions
+            // Insert procedure into procedures table
+            $insertProcedureQuery = "INSERT INTO procedures (procedure_name) VALUES ('$procedureName')";
+            mysqli_query($con, $insertProcedureQuery);
+
+            // Get the ID of the last inserted procedure
+            $procedureId = mysqli_insert_id($con);
+            // Fetch and decode the 'selected_items_data' sent in the POST request
+            $selectedItems = json_decode($_POST['selected_items_data'], true);
+
+            // Ensure it's an array or object before iterating through it
+            if (is_array($selectedItems) || is_object($selectedItems)) {
+                foreach ($selectedItems as $itemId => $itemDetails) {
+                    $quantity = $itemDetails['quantity'];
+                    // Insert associated items into procedure_items table
+                    $insertProcedureItemQuery = "INSERT INTO procedure_items (procedure_id, item_id, quantity) VALUES ('$procedureId', '$itemId', '$quantity')";
+                    mysqli_query($con, $insertProcedureItemQuery);
+                }
+            } else {
+                // Handle cases where selectedItems is not an array or object
+                // Log the error or take necessary actions
+            }
+            // Echo success message
+            echo "<script>alert('Procedure added successfully.');</script>";
         }
     }
+
 ?>
     <!DOCTYPE html>
     <html lang="en">
@@ -69,7 +83,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
             <?php include_once('includes/sidebar.php'); ?>
             <div id="layoutSidenav_content">
                 <main>
-                    <div class="container" style="padding-top: 20px;">
+                    <div class="container" style="padding-top: 20px; padding-bottom: 50px;">
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <!-- Add New Procedures Button -->
                             <form method="post">
@@ -77,7 +91,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                             </form>
                         </div>
                         <div class="container">
-                            <h1 class="mt-4">Procedures</h1>
+                            <h1 class="mt-2">Procedures</h1>
                             <div class="row row-cols-1 row-cols-md-3 g-4">
                                 <?php
                                 // Output Procedures from the Database
