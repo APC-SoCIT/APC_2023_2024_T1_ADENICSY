@@ -259,6 +259,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 echo '<th>Critical Level</th>';
                 echo '<th>Last Modified By</th>';
                 echo '<th>Last Modified Time</th>';
+                echo '<th>Price</th>';
                 echo '<th>Action</th>';
                 echo '</tr>';
                 echo '</thead>';
@@ -277,6 +278,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
                         echo '<td> ' . $row["critical_level"] . '%' . '</td>';
                         echo '<td> ' . $row["last_modified"] . '</td>';
                         echo '<td> ' . $formattedDate . '</td>';
+                        echo '<td> ₱ ' . number_format($row["price"], 2) . '</td>';
                         echo '<td>';
                         echo '    <div class="btn-group status-dropdown">';
                         echo '        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"';

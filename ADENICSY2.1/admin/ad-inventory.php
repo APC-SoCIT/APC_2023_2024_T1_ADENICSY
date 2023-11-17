@@ -15,7 +15,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
         }
 
         // Assuming 'inventory1' is your table name
-        $sql = "SELECT item_name, quantity, metric, critical_level, common_max_qty FROM inventory1 WHERE id = ?";
+        $sql = "SELECT item_name, quantity, metric, critical_level, common_max_qty, price FROM inventory1 WHERE id = ?";
 
         $stmt = mysqli_prepare($con, $sql);
         mysqli_stmt_bind_param($stmt, "i", $itemId);
@@ -71,6 +71,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
         }
         $common_max_qty = $_POST['edit-common-max-qty'];
         $criticalLevel = $_POST['edit-critical-level'];
+        $price = $_POST['edit-price'];
 
         // Retrieve the first name of the staff from the session
         $staffId = $_SESSION['adminid'];
@@ -110,10 +111,9 @@ if (strlen($_SESSION['adminid'] == 0)) {
                 echo '<script>alert("Item with the same name already exists. Please use a different name.");</script>';
             } else {
                 // Item does not exist, update it into the database
-                $sql = "UPDATE inventory1 SET item_name = ?, quantity = ?, metric = ?, critical_level = ?, common_max_qty = ?, last_modified = ?, last_modified_date = ? WHERE id = ?";
+                $sql = "UPDATE inventory1 SET quantity = ?, metric = ?, critical_level = ?, common_max_qty = ?, last_modified = ?, last_modified_date = ?, price = ? WHERE id = ?";
                 $stmt2 = mysqli_prepare($con, $sql);
-                mysqli_stmt_bind_param($stmt2, "sssssssi", $itemName, $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime, $itemId);
-
+                mysqli_stmt_bind_param($stmt2, "sssssssi", $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime, $price, $itemId);
                 if (mysqli_stmt_execute($stmt2)) {
                     // Update successful
                     echo '<script>alert("Item updated successfully!");</script>';
@@ -125,9 +125,9 @@ if (strlen($_SESSION['adminid'] == 0)) {
             mysqli_stmt_close($stmt);
         } else {
             // Item name hasn't changed, update it without checking for name duplication
-            $sql = "UPDATE inventory1 SET quantity = ?, metric = ?, critical_level = ?, common_max_qty = ?, last_modified = ?, last_modified_date = ? WHERE id = ?";
+            $sql = "UPDATE inventory1 SET quantity = ?, metric = ?, critical_level = ?, common_max_qty = ?, last_modified = ?, last_modified_date = ?, price = ? WHERE id = ?";
             $stmt2 = mysqli_prepare($con, $sql);
-            mysqli_stmt_bind_param($stmt2, "ssssssi", $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime, $itemId);
+            mysqli_stmt_bind_param($stmt2, "sssssssi", $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime, $price, $itemId);
 
             if (mysqli_stmt_execute($stmt2)) {
                 // Update successful
@@ -181,6 +181,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
         }
         $criticalLevel = $_POST['add-critical-level'];
         $common_max_qty = $_POST['add-common-max-qty'];
+        $price = $_POST['add-price'];
 
         // Retrieve the first name of the staff from the session
         $adminid = $_SESSION['adminid'];
@@ -210,9 +211,9 @@ if (strlen($_SESSION['adminid'] == 0)) {
             echo '<script>alert("Item with the same name already exists. Please use a different name.");</script>';
         } else {
             // Item does not exist, insert it into the database
-            $sql = "INSERT INTO inventory1 (item_name, quantity, metric, critical_level, common_max_qty, last_modified, last_modified_date) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO inventory1 (item_name, quantity, metric, critical_level, common_max_qty, last_modified, last_modified_date, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = mysqli_prepare($con, $sql);
-            mysqli_stmt_bind_param($stmt, "sssssss", $itemName, $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime);
+            mysqli_stmt_bind_param($stmt, "sssssssd", $itemName, $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime, $price);
 
             if (mysqli_stmt_execute($stmt)) {
                 // Insert successful
@@ -435,7 +436,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                     $result = mysqli_query($con, $sql);
                                     // Create a Bootstrap table to display the data
                                     echo '<table class=" py-2 table table-light table-striped">';
-                                    echo '<thead class="text-primary h4">';
+                                    echo '<thead class="text-body h4">';
                                     echo '<tr>';
                                     echo '<th>ID</th>';
                                     echo '<th>Item Name</th>';
@@ -444,6 +445,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                     echo '<th>Critical Level</th>';
                                     echo '<th>Last Modified By</th>';
                                     echo '<th>Last Modified Time</th>';
+                                    echo '<th>Price</th>';
                                     echo '<th>Action</th>';
                                     echo '</tr>';
                                     echo '</thead>';
@@ -464,6 +466,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                             echo '<td> ' . $row["critical_level"] . '%' . '</td>';
                                             echo '<td> ' . $row["last_modified"] . '</td>';
                                             echo '<td> ' . $formattedDate . '</td>';
+                                            echo '<td> ₱ ' . number_format($row["price"], 2) . '</td>';
                                             echo '<td>';
                                             echo '    <div class="btn-group status-dropdown">';
                                             echo '        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"';
@@ -539,6 +542,10 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                                     <label for="edit-common-max-qty" class="form-label">Common Max Qty:</label>
                                                     <input type="number" class="form-control" id="edit-common-max-qty" name="edit-common-max-qty" min="0" value="1000" required>
                                                 </div>
+                                                <div class="mb-3">
+                                                    <label for="edit-price" class="form-label">Price:</label>
+                                                    <input type="number" class="form-control" id="edit-price" name="edit-price" step="0.01" min="0.00" value="0.00" placeholder="Enter price" required>
+                                                </div>
                                                 <input type="hidden" id="edit-item-id" name="edit-item-id">
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -588,6 +595,10 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                                 <div class="mb-3">
                                                     <label for="add-common-max-qty" class="form-label">Common Max Qty:</label>
                                                     <input type="number" class="form-control" id="add-common-max-qty" name="add-common-max-qty" min="0" value="1000" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="add-price" class="form-label">Price:</label>
+                                                    <input type="number" class="form-control" id="add-price" name="add-price" step="0.01" min="0.00" value="0.00" placeholder="Enter price" required>
                                                 </div>
                                                 <input type="hidden" id="add-item-id" name="add-item-id">
                                                 <div class="modal-footer">
@@ -645,7 +656,8 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                                         quantity,
                                                         metric,
                                                         critical_level,
-                                                        common_max_qty
+                                                        common_max_qty,
+                                                        price // Assuming 'price' is included in the response
                                                     } = response;
                                                     // Populate the form fields with the retrieved data
                                                     $('#edit-item-id').val(itemId);
@@ -661,6 +673,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                                     });
                                                     $('#edit-critical-level').val(critical_level);
                                                     $('#edit-common-max-qty').val(common_max_qty);
+                                                    $('#edit-price').val(price); // Set the value of the 'edit-price' field
                                                     // Show the edit modal
                                                     $('#edit-item-modal').modal('show');
                                                 } else {
