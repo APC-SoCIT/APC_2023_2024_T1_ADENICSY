@@ -78,7 +78,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
         $staffFirstName = "";
 
         // Query the database to get the staff's first name
-        $query = "SELECT fname FROM employee WHERE id = ?";
+        $query = "SELECT username FROM admin WHERE id = ?";
         $stmt = mysqli_prepare($con, $query);
         mysqli_stmt_bind_param($stmt, "s", $staffId);
         mysqli_stmt_execute($stmt);
@@ -111,9 +111,9 @@ if (strlen($_SESSION['adminid'] == 0)) {
                 echo '<script>alert("Item with the same name already exists. Please use a different name.");</script>';
             } else {
                 // Item does not exist, update it into the database
-                $sql = "UPDATE inventory1 SET quantity = ?, metric = ?, critical_level = ?, common_max_qty = ?, last_modified = ?, last_modified_date = ?, price = ? WHERE id = ?";
+                $sql = "UPDATE inventory1 SET item_name = ?, quantity = ?, metric = ?, critical_level = ?, common_max_qty = ?, last_modified = ?, last_modified_date = ?, price = ? WHERE id = ?";
                 $stmt2 = mysqli_prepare($con, $sql);
-                mysqli_stmt_bind_param($stmt2, "sssssssi", $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime, $price, $itemId);
+                mysqli_stmt_bind_param($stmt2, "ssssssssi", $itemName, $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime, $price, $itemId);
                 if (mysqli_stmt_execute($stmt2)) {
                     // Update successful
                     echo '<script>alert("Item updated successfully!");</script>';
@@ -132,6 +132,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
             if (mysqli_stmt_execute($stmt2)) {
                 // Update successful
                 echo '<script>alert("Item updated successfully!");</script>';
+                echo '<script>window.location.href="ad-inventory.php"</script>';
             } else {
                 // Update failed
                 echo '<script>alert("Failed to update item. Please try again.");</script>';
@@ -141,16 +142,15 @@ if (strlen($_SESSION['adminid'] == 0)) {
     if (isset($_POST['deleteItem'])) {
         $itemId = $_POST['itemId2'];
 
-        // Debugging statement to check if the data is received
-        var_dump($itemId);
         // Perform the deletion in your database
         $deleteQuery = "DELETE FROM inventory1 WHERE id = ?";
         $stmt = $con->prepare($deleteQuery);
         $stmt->bind_param('i', $itemId);
         if ($stmt->execute()) {
-            echo "Item deleted successfully!";
+            echo '<script>alert("Item deleted successfully!");</script>';
+            echo '<script>window.location.href="ad-inventory.php"</script>';
         } else {
-            echo "Failed to delete item.";
+            echo 'Failed to delete item';
         }
         $stmt->close();
     }
@@ -218,6 +218,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
             if (mysqli_stmt_execute($stmt)) {
                 // Insert successful
                 echo '<script>alert("Item added successfully!");</script>';
+                echo '<script>window.location.href="ad-inventory.php"</script>';
             } else {
                 // Insert failed
                 echo '<script>alert("Failed to add item. Please try again.");</script>';
@@ -753,13 +754,10 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                                 itemId2: itemId2
                                             },
                                             success: function(response) {
-                                                if (response) {
-                                                    // Reload the page
-                                                    location.reload();
-                                                } else {
-                                                    console.error('Error deleting item.');
-                                                }
-                                                $('#confirm-delete-modal').modal('hide'); // Close the modal
+                                                // Show a success message
+                                                alert('Item deleted successfully!');
+                                                // Reload the page
+                                                location.reload();
                                             },
                                             error: function() {
                                                 console.error('AJAX request failed.');

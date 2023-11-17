@@ -109,6 +109,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 if (mysqli_stmt_execute($stmt2)) {
                     // Update successful
                     echo '<script>alert("Item updated successfully!");</script>';
+                    echo '<script>window.location.href="inventory.php"</script>';
                 } else {
                     // Update failed
                     echo '<script>alert("Failed to update item. Please try again.");</script>';
@@ -124,6 +125,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
             if (mysqli_stmt_execute($stmt2)) {
                 // Update successful
                 echo '<script>alert("Item updated successfully!");</script>';
+                echo '<script>window.location.href="inventory.php"</script>';
             } else {
                 // Update failed
                 echo '<script>alert("Failed to update item. Please try again.");</script>';
@@ -218,6 +220,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
             if (mysqli_stmt_execute($stmt)) {
                 // Insert successful
                 echo '<script>alert("Item added successfully!");</script>';
+                echo '<script>window.location.href="inventory.php"</script>';
             } else {
                 // Insert failed
                 echo '<script>alert("Failed to add item. Please try again.");</script>';
@@ -548,13 +551,10 @@ if (strlen($_SESSION['staffid'] == 0)) {
                                 itemId2: itemId2
                             },
                             success: function(response) {
-                                if (response) {
-                                    // Reload the page
-                                    location.reload();
-                                } else {
-                                    console.error('Error deleting item.');
-                                }
-                                $('#confirm-delete-modal').modal('hide'); // Close the modal
+                                // Show a success message
+                                alert('Item deleted successfully!');
+                                // Reload the page
+                                location.reload();
                             },
                             error: function() {
                                 console.error('AJAX request failed.');
