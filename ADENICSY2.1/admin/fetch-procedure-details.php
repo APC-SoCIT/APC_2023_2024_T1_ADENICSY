@@ -7,13 +7,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $procedureId = $_POST['procedure_id'];
 
         // Fetch procedure details by ID
-        $procedureQuery = "SELECT procedure_name FROM procedures WHERE id = '$procedureId'";
+        $procedureQuery = "SELECT id, procedure_name FROM procedures WHERE id = '$procedureId'";
         $procedureResult = mysqli_query($con, $procedureQuery);
 
         $procedureDetails = array();
 
         if ($procedureResult) {
             $row = mysqli_fetch_assoc($procedureResult);
+            $procedureDetails['id'] = $row['id']; // Include the procedure ID
             $procedureDetails['name'] = $row['procedure_name'];
 
             // Fetch associated items for the procedure
