@@ -240,50 +240,47 @@ $(document).ready(function() {
         $(this).parent().remove();
     });
     
-// Function to handle the form submission for updating the procedure
+// Logic for the "Update Procedure" button
 $('#updateProcedureForm').submit(function(e) {
     e.preventDefault();
 
-    var procedureId = $('#updateProcedureId').val();
-    var procedureName = $('#updateProcedureName').val();
+    const procedureId = $('#updateProcedureId').val();
+    const procedureName = $('#updateProcedureName').val();
 
-    var items = [];
-
-    // Iterate over each item container and extract item_id and quantity
+    // Store the selected items in an array
+    const items = [];
     $('#updateSelectedItemsContainer .d-flex').each(function() {
-        var itemId = $(this).data('item-id');
-        var quantity = $(this).find('.quantity-input').val();
+        const itemId = $(this).data('item-id');
+        const quantity = $(this).find('.quantity-input').val();
 
-        // Push the item to the items array if both itemId and quantity are present
         if (itemId && quantity) {
             items.push({ 'item_id': itemId, 'quantity': quantity });
         }
     });
 
-    var formData = {
-        'id': procedureId,
-        'procedure_name': procedureName,
-        'items': items
-    };
+    // Convert items array to JSON string
+    const itemsData = JSON.stringify(items);
 
-    // AJAX call to update the procedure details in the backend
     $.ajax({
         type: 'POST',
-        url: 'update-procedure.php', // Backend endpoint to update procedure
-        data: JSON.stringify(formData), // Send data as JSON string
-        contentType: 'application/json', // Set content type to JSON
+        url: 'update-procedure.php',
+        data: {
+            'id': procedureId,
+            'procedure_name': procedureName,
+            'items': itemsData // Send JSON string instead of an array
+        },
         success: function(response) {
-            alert('Procedure updated successfully!');
-            // Optionally close modal or update UI
+            const data = JSON.parse(response);
+            if (data.success) {
+                alert('Procedure updated successfully!');
+                // Optionally close modal or update UI
+            } else {
+                alert('Failed to update procedure!');
+            }
         },
         error: function(xhr, status, error) {
             alert('Failed to update procedure!');
         }
     });
 });
-
-
-
-
-
 });

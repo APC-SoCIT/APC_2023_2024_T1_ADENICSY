@@ -261,6 +261,7 @@ if (strlen($_SESSION['adminid'] == 0)) {
                             <div id="updateSelectedItemsContainer">
                                 <!-- Associated items will be displayed here for editing -->
                             </div>
+                            <input type="hidden" name="id" id="updateProcedureId" value="">
 
                             <button type="submit" name="updateProcedure" class="btn btn-primary mt-3">Update</button>
                         </form>
