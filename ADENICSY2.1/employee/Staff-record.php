@@ -77,6 +77,7 @@ include 'employee-nav-staff.php';
             $result = mysqli_query($con, $sql);
             $queryResults = mysqli_num_rows($result);
 
+
             echo '<table class="table table-primary table-striped">';
             echo '<thead class="text-primary h4">';
             echo '<tr>';
@@ -95,13 +96,22 @@ include 'employee-nav-staff.php';
 
             if ($queryResults > 0) {
                 while ($row = mysqli_fetch_assoc($result)) {
+                    // Check if 'procedures' column is empty or NULL
+                    $procedures = $row["procedures"];
+                    $balance = $row["s_balance"];
+                    $s_total = $row["s_total"];
+                    if (empty($procedures) || is_null($procedures)) {
+                        $procedures = 'Paid through staff';
+                        $balance = "NA";
+                        $s_total = "NA";
+                    }
                     echo '<tr>';
                     echo '<td>' . $row["s_payID"] . '</td>';
                     echo '<td>' . $row["s_date"] . '</td>';
-                    echo '<td>' . $row["procedures"] . '</td>';
-                    echo '<td>' . $row["s_total"] . '</td>';
+                    echo '<td>' . $procedures . '</td>';
+                    echo '<td>' . $s_total . '</td>';
                     echo '<td>' . $row["s_amount"] . '</td>';
-                    echo '<td>' . $row["s_balance"] . '</td>';
+                    echo '<td>' . $balance . '</td>';
                     echo '<td>' . $row["dentist_assigned"] . '</td>';
                     echo '<td>' . $row["s_modify"] . '</td>';
                     echo '<td class="text-center">';
