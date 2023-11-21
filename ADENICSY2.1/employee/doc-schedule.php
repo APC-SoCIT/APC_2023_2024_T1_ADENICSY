@@ -92,14 +92,15 @@ if (strlen($_SESSION['doctorid'] == 0)) {
         <thead class="text-primary h4">
             <tr>
                 <?php
+                // Start the loop from Sunday
                 for ($i = 0; $i < 7; $i++) {
-                    $date_to_check = date('Y-m-d', strtotime($current_date . ' + ' . $i . ' days'));
+                    $date_to_check = date('Y-m-d', strtotime($start_of_current_week . ' + ' . $i . ' days'));
                     $current_system_date = date('Y-m-d');
 
                     $css_class = ($date_to_check === $current_system_date) ? 'text-danger' : 'text-primary h4';
                     $css_class .= ($date_to_check === $current_system_date) ? ' font-weight-bold' : '';
 
-                    echo '<th class="' . $css_class . '">' . date('l', strtotime($current_date . ' + ' . $i . ' days')) . '</th>';
+                    echo '<th class="' . $css_class . '">' . date('l', strtotime($date_to_check)) . '</th>';
                 }
                 ?>
             </tr>
@@ -107,7 +108,9 @@ if (strlen($_SESSION['doctorid'] == 0)) {
         <tbody>
             <tr>
                 <?php
-                $date_for_display = date('l', strtotime($current_date));
+                // Reset current date to the start of the week
+                $current_date = $start_of_current_week;
+
                 for ($i = 0; $i < 7; $i++) {
                     $day_query = "SELECT * FROM d_calendar WHERE date = '$current_date'";
                     $day_result = $con->query($day_query);
@@ -140,6 +143,7 @@ if (strlen($_SESSION['doctorid'] == 0)) {
         </tbody>
     </table>
 </div>
+
 
 
             <div>
