@@ -73,11 +73,11 @@ $query = mysqli_query($con, "select * from patient where id='$userid'");
                             <i class="fas fa-bell" style="font-size: 1.5rem; color: #FFFFFF;"></i>
                             <?php
                             // Query to check if $userid exists in queueing_list
-                            $queueingListQuery = "SELECT COUNT(*) AS count_queueing_list FROM queueing_list WHERE patient_id = $userid";
+                            $queueingListQuery = "SELECT COUNT(*) AS count_queueing_list FROM queueing_list WHERE patient_id = $userid AND status != 'Canceled'";
                             $queueingListResult = mysqli_query($con, $queueingListQuery);
 
                             // Query to check if $userid exists in queueing_list_priority
-                            $queueingListPriorityQuery = "SELECT COUNT(*) AS count_queueing_list_priority FROM queueing_list_priority WHERE patient_id = $userid";
+                            $queueingListPriorityQuery = "SELECT COUNT(*) AS count_queueing_list_priority FROM queueing_list_priority WHERE patient_id = $userid AND status != 'Canceled'";
                             $queueingListPriorityResult = mysqli_query($con, $queueingListPriorityQuery);
 
                             // Check if there are results for queueing_list
