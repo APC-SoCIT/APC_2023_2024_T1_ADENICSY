@@ -99,7 +99,8 @@ $(document).ready(function() {
             url: 'procedures.php',
             data: $('form').serialize(), // Serialize the entire form data
             success: function(response) {
-                // Handle success
+                alert('Procedure added successfully!'); // Show an alert for success
+                location.reload();
 
             },
             error: function(xhr, status, error) {
