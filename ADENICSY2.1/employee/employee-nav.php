@@ -56,7 +56,7 @@ if (isset($_SESSION['doctorid']) && strlen($_SESSION['doctorid']) > 0) {
                 <ul class="navbar-nav ms-auto h5">
                     <li class="nav-item">
                         <div class="dropdown ms-auto">
-                            <button class="btn btn-secondary navbar-btn dropdown-toggle" aria-labelledby="navbarDropdownMenuLink" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="btn btn-secondary navbar-btn dropdown-toggle" aria-labelledby="navbarDropdownMenuLink" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-bell"></i>
                                 <?php
                                 $num_rows_regular = 0;
@@ -81,7 +81,7 @@ if (isset($_SESSION['doctorid']) && strlen($_SESSION['doctorid']) > 0) {
                                 $total_notifications = $num_rows_regular + $num_rows_priority;
                                 ?>
                                 <span class="badge rounded-pill badge-notification bg-danger" id="notificationBadge"><?php echo $total_notifications; ?></span>
-                            </button>
+                            </a>
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown">
                                 <?php if ($num_rows_regular > 0) { ?>
                                     <h6 class="dropdown-header">Regular Queueing Notifications</h6>
@@ -92,6 +92,8 @@ if (isset($_SESSION['doctorid']) && strlen($_SESSION['doctorid']) > 0) {
                                             echo '<a class="dropdown-item notification-link" href="queueing-dentist.php">' . $patient_name . ' has canceled the appointment</a>';
                                         } else if ($status == 'On-queued') {
                                             echo '<a class="dropdown-item notification-link" href="queueing-dentist.php">' . $patient_name . ' prefers you as a dentist</a>';
+                                        } else if ($status == 'Arrived') {
+                                            echo '<a class="dropdown-item notification-link" href="queueing-dentist-priority.php">' . $patient_name . ' arrives at the Dental Clinic</a>';
                                         } else {
                                             echo '<a class="dropdown-item notification-link" href="queueing-dentist.php">' . 'No new notification' . '</a>';
                                         }
@@ -107,11 +109,15 @@ if (isset($_SESSION['doctorid']) && strlen($_SESSION['doctorid']) > 0) {
                                             echo '<a class="dropdown-item notification-link" href="queueing-dentist-priority.php">' . $patient_name . ' has canceled the appointment</a>';
                                         } else if ($status == 'On-queued') {
                                             echo '<a class="dropdown-item notification-link" href="queueing-dentist-priority.php">' . $patient_name . ' prefers you as a dentist</a>';
-                                        } else {
+                                        } else if ($status == 'Arrived') {
+                                            echo '<a class="dropdown-item notification-link" href="queueing-dentist-priority.php">' . $patient_name . ' arrives at the Dental Clinic</a>';
+                                        }else {
                                             echo '<a class="dropdown-item notification-link" href="queueing-dentist-priority.php">' . 'No new notification' . '</a>';
                                         }
                                     } ?>
                                 <?php } ?>
+                                <!-- Mark All as Read button -->
+            <button class="dropdown-item" onclick="markAllNotificationsAsRead()">Mark All as Read</button>
                             </div>
                         </div>
                     </li>
@@ -132,36 +138,15 @@ if (isset($_SESSION['doctorid']) && strlen($_SESSION['doctorid']) > 0) {
         </div>
     </nav>
     <script>
-        $(document).ready(function () {
-            // Function to update the notification count
-            function updateNotificationCount() {
-                $.ajax({
-                    url: 'check_notification.php',
-                    method: 'GET',
-                    dataType: 'json', // Expect JSON response
-                    success: function (data) {
-                        // Update the badge count with the fetched data
-                        $('#notificationBadge').text(data.count);
-                    },
-                    error: function (error) {
-                        console.error('Error fetching notification count:', error);
-                    }
-                });
-            }
+    function markAllNotificationsAsRead() {
+        // Assuming you have a variable named 'total_notifications' that holds the count
+        var totalNotificationsElement = document.getElementById('notificationBadge');
+        
+        // Set the count to zero
+        totalNotificationsElement.innerText = '0';
+    }
+</script>
 
-            // Initial update
-            updateNotificationCount();
-
-            // Periodically update the notification count (e.g., every 60 seconds)
-            setInterval(updateNotificationCount, 60000);
-
-            // Add a click event listener to the notification links
-            $('.notification-link').on('click', function () {
-                // Set the badge count to zero
-                $('#notificationBadge').text('0');
-            });
-        });
-    </script>
 </body>
 
 </html>
