@@ -202,7 +202,7 @@ $(document).ready(function() {
                         '<div class="w-75 pe-2">' +
                         '<span>' + item.item_name + '</span>' + // Display item name as text
                         '</div>' +
-                        '<input type="number" class="form-control w-auto quantity-input" name="quantity[]" value="' + item.quantity + '">' +
+                        '<input type="number" class="form-control w-auto quantity-input" name="quantity[]" value="' + item.quantity + '" min="1">' +
                         '<button type="button" class="btn btn-danger btn-sm ms-2 remove-item-btn" data-item-id="' + item.item_id + '">-</button>' +
                         '</div>';
                 });
@@ -228,7 +228,7 @@ $(document).ready(function() {
             // Add the selected item to the list
             var listItem = $('<div class="mb-2 d-flex align-items-center" data-item-id="' + itemId + '">');
             listItem.html('<div class="w-75 pe-2">' + itemName + '</div>' +
-                '<input type="number" class="form-control w-auto quantity-input" name="quantity[]" value="1">' +
+                '<input type="number" class="form-control w-auto quantity-input" name="quantity[]" value="1" min="1">' +
                 '<button type="button" class="btn btn-danger btn-sm ms-2 remove-item-btn" data-item-id="' + itemId + '">-</button>');
 
             $('#updateSelectedItemsContainer').append(listItem);
