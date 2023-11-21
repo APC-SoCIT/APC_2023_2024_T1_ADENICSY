@@ -41,6 +41,9 @@
                         <a href="queueing-dentist.php" class="nav-link" style="color: #FFFFFF; font-weight: bold;">Queueing</a>
                     </li>
                     <li class="nav-item">
+                        <a href="doc-schedule.php" class="nav-link" style="color: #FFFFFF; font-weight: bold;">Schedule</a>
+                    </li>
+                    <li class="nav-item">
                         <a href="emp-logout.php" class="nav-link" style="color: #FFFFFF; font-weight: bold;">Logout</a>
                     </li>
                 </ul>
