@@ -10,13 +10,26 @@ if (strlen($_SESSION['id'] == 0)) {
         $contact = $_POST['contact'];
         $userid = $_SESSION['id'];
         $msg = mysqli_query($con, "update patient set fname='$fname',lname='$lname',contactno='$contact' where id='$userid'");
-
-        if ($msg) {
-            echo "<script>alert('Profile updated successfully');</script>";
-            echo "<script type='text/javascript'> document.location = 'patient-profile.php'; </script>";
-        }
     }
+    if ($msg) {
+        $modalScript = "
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var myModal = new bootstrap.Modal(document.getElementById('myModal'));
 
+                    function closeModal() {
+                        myModal.hide();
+                        window.location.href = 'edit-profile.php'; // Redirect if needed
+                    }
+
+                    myModal.show();
+                    setTimeout(closeModal, 2000); // Close modal after 2 seconds
+                });
+            </script>
+        ";
+
+        echo $modalScript;
+    }
 
 
 ?>
@@ -97,6 +110,37 @@ if (strlen($_SESSION['id'] == 0)) {
         <script src="assets/demo/chart-bar-demo.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
         <script src="js/datatables-simple-demo.js"></script>
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var myModal = new bootstrap.Modal(document.getElementById('myModal'));
+
+
+                function closeModal() {
+                    myModal.hide();
+                    window.location.href = 'staff-emp-profile.php';
+                }
+
+                showModal();
+            });
+        </script>
+                <div class='modal' id='myModal'>
+                    <div class='modal-dialog'>
+                        <div class='modal-content'>
+                            <div class='modal-header'>
+                                <h5 class='modal-title'>Success</h5>
+
+                            </div>
+                            <div class='modal-body'>
+                                <p>Your profile has been updated successfully.</p>
+                            </div>
+                            <div class='modal-footer'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
     </body>
 
     </html>

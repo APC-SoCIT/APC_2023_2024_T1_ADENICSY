@@ -121,8 +121,9 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                                     <!-- Assign the value of the row's  ID to the UID that will be sent to next page -->
                                                     <a href="employee-user-profile.php?uid=<?php echo $row['id']; ?>">
                                                         <i class="fas fa-edit"></i></a>
-                                                    <a href="manage-employee.php?id=<?php echo $row['id']; ?>" onClick="return confirm('Do you really want to delete');">
-                                                        <i class="fa fa-trash" aria-hidden="true"></i></a>
+                                                        <a href="manage-employee.php" class="delete-btn" data-employee-id="<?php echo $row['id']; ?>">
+    <i class="fa fa-trash" aria-hidden="true"></i>
+</a>
                                                 </td>
                                             </tr>
                                         <?php $cnt = $cnt + 1;
@@ -136,6 +137,24 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                 </button>
 
                                 <!-- Modal -->
+                                <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Do you really want to delete this employee?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="confirmDeleteBtn">Confirm Delete</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
                                 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
@@ -216,6 +235,29 @@ if (strlen($_SESSION['adminid'] == 0)) {
                 }
             });
         </script>
+       <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+
+        deleteButtons.forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                const employeeId = button.getAttribute('data-employee-id');
+
+                // Trigger the delete confirmation modal
+                $('#deleteConfirmationModal').modal('show');
+
+                // Add a click event listener to the modal's confirm button
+                $('#confirmDeleteBtn').on('click', function () {
+                    window.location.href = 'manage-employee.php?id=' + employeeId;
+                });
+            });
+        });
+    });
+</script>
     </body>
 
     </html>

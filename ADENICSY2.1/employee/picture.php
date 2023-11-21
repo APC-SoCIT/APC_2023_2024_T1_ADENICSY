@@ -35,13 +35,19 @@ if (strlen($_SESSION['doctorid'] == 0)) {
                         // Save the image information to the database
                         $sql = "INSERT INTO pictures (name, type, size, path, caption, patiendID) VALUES ('$name', '$type', '$size', '$path', '$caption', '$userid')";
                         mysqli_query($con, $sql);
+
+                        // Trigger the Bootstrap modal after file upload success
+                        echo "<script>
+                                $(document).ready(function() {
+                                    $('#successModal').modal('show');
+                                });
+                            </script>";
                     } else {
                         echo "Failed to move the uploaded file.";
                     }
                 } else {
                     echo "Invalid file uploaded.";
                 }
-                header('Location: picture.php?uid=' . $userid);
             }
             ?>
             <!-- HTML form for uploading an image -->
@@ -105,6 +111,19 @@ if (strlen($_SESSION['doctorid'] == 0)) {
             }
                 ?>
 
+                </div>
+                <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="successModalLabel">Success</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                File uploaded successfully!
+                            </div>
+                        </div>
+                    </div>
                 </div>
     </body>
 <?php
