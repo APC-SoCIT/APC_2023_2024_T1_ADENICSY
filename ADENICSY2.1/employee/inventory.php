@@ -109,6 +109,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 if (mysqli_stmt_execute($stmt2)) {
                     // Update successful
                     echo '<script>alert("Item updated successfully!");</script>';
+                    echo '<script>window.location.href="inventory.php"</script>';
                 } else {
                     // Update failed
                     echo '<script>alert("Failed to update item. Please try again.");</script>';
@@ -124,6 +125,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
             if (mysqli_stmt_execute($stmt2)) {
                 // Update successful
                 echo '<script>alert("Item updated successfully!");</script>';
+                echo '<script>window.location.href="inventory.php"</script>';
             } else {
                 // Update failed
                 echo '<script>alert("Failed to update item. Please try again.");</script>';
@@ -182,6 +184,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
         $criticalLevel = $_POST['add-critical-level'];
         $common_max_qty = $_POST['add-common-max-qty'];
+        $price = $_POST['add-price'];
 
         // Retrieve the first name of the staff from the session
         $staffId = $_SESSION['staffid'];
@@ -211,13 +214,14 @@ if (strlen($_SESSION['staffid'] == 0)) {
             echo '<script>alert("Item with the same name already exists. Please use a different name.");</script>';
         } else {
             // Item does not exist, insert it into the database
-            $sql = "INSERT INTO inventory1 (item_name, quantity, metric, critical_level, common_max_qty, last_modified, last_modified_date) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO inventory1 (item_name, quantity, metric, critical_level, common_max_qty, last_modified, last_modified_date, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = mysqli_prepare($con, $sql);
-            mysqli_stmt_bind_param($stmt, "sssssss", $itemName, $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime);
+            mysqli_stmt_bind_param($stmt, "sssssssd", $itemName, $quantity, $metric, $criticalLevel, $common_max_qty, $staffFirstName, $lastModifiedTime, $price);
 
             if (mysqli_stmt_execute($stmt)) {
                 // Insert successful
                 echo '<script>alert("Item added successfully!");</script>';
+                echo '<script>window.location.href="inventory.php"</script>';
             } else {
                 // Insert failed
                 echo '<script>alert("Failed to add item. Please try again.");</script>';
@@ -259,6 +263,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 echo '<th>Critical Level</th>';
                 echo '<th>Last Modified By</th>';
                 echo '<th>Last Modified Time</th>';
+                echo '<th>Price</th>';
                 echo '<th>Action</th>';
                 echo '</tr>';
                 echo '</thead>';
@@ -277,6 +282,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
                         echo '<td> ' . $row["critical_level"] . '%' . '</td>';
                         echo '<td> ' . $row["last_modified"] . '</td>';
                         echo '<td> ' . $formattedDate . '</td>';
+                        echo '<td> ₱ ' . number_format($row["price"], 2) . '</td>';
                         echo '<td>';
                         echo '    <div class="btn-group status-dropdown">';
                         echo '        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"';
@@ -392,6 +398,10 @@ if (strlen($_SESSION['staffid'] == 0)) {
                                 <div class="mb-3">
                                     <label for="add-common-max-qty" class="form-label">Common Max Qty:</label>
                                     <input type="number" class="form-control" id="add-common-max-qty" name="add-common-max-qty" min="0" value="1000" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="add-price" class="form-label">Price:</label>
+                                    <input type="number" class="form-control" id="add-price" name="add-price" step="0.01" min="0.00" value="0.00" placeholder="Enter price" required>
                                 </div>
                                 <input type="hidden" id="add-item-id" name="add-item-id">
                                 <div class="modal-footer">
@@ -546,13 +556,10 @@ if (strlen($_SESSION['staffid'] == 0)) {
                                 itemId2: itemId2
                             },
                             success: function(response) {
-                                if (response) {
-                                    // Reload the page
-                                    location.reload();
-                                } else {
-                                    console.error('Error deleting item.');
-                                }
-                                $('#confirm-delete-modal').modal('hide'); // Close the modal
+                                // Show a success message
+                                alert('Item deleted successfully!');
+                                // Reload the page
+                                location.reload();
                             },
                             error: function() {
                                 console.error('AJAX request failed.');

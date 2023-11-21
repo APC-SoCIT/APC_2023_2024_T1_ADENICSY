@@ -27,11 +27,10 @@ include 'employee-nav-staff.php';
             if (isset($_POST['submit'])) {
                 // Get the form data
                 $date = $_POST['date'];
-                $procedure = $_POST['procedure'];
                 $amount = $_POST['amount'];
                 $dentist_id = (int)$_POST['dentist-id'];
                 $dentist_name = $_POST['dentist-name'];
-                $msg1 = mysqli_query($con, "insert into s_payment (s_date, s_procedure, s_amount, s_patiendID, added_by, s_modify, dentist_assigned_ID, dentist_assigned) VALUES ('$date', '$procedure', '$amount', '$patientID', '$staff_fname', '$staff_fname', '$dentist_id', '$dentist_name')");
+                $msg1 = mysqli_query($con, "insert into s_payment (s_date, s_amount, s_patiendID, added_by, s_modify, dentist_assigned_ID, dentist_assigned) VALUES ('$date', '$amount', '$patientID', '$staff_fname', '$staff_fname', '$dentist_id', '$dentist_name')");
 
                 if ($msg1) {
                     echo "<script>alert('Payment Details Added Successfully');</script>";
@@ -68,18 +67,27 @@ include 'employee-nav-staff.php';
                 echo '<h4 class="text-dark fw-bold">Total Remaining Balance: ' . $totalRemainingBalance . '</h4>';
             }
 
-            $sql = "SELECT * FROM s_payment WHERE s_patiendID='$patientID'";
+            $sql = "SELECT s.s_payID, s.s_date, s.s_total, s.s_amount, s.s_balance, s.dentist_assigned, s.s_modify, s.discount_type, s.deducted_discount, GROUP_CONCAT(p.procedure_name SEPARATOR ', ') AS procedures
+                    FROM s_payment s 
+                    LEFT JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
+                    LEFT JOIN procedures p ON pp.procedure_id = p.id 
+                    WHERE s.s_patiendID = '$patientID'
+                    GROUP BY s.s_payID";
+
             $result = mysqli_query($con, $sql);
             $queryResults = mysqli_num_rows($result);
-            // Create a Bootstrap table to display the data
+
+
             echo '<table class="table table-primary table-striped">';
             echo '<thead class="text-primary h4">';
             echo '<tr>';
             echo '<th>ID</th>';
             echo '<th>Date</th>';
-            echo '<th>Procedure</th>';
+            echo '<th>Procedures</th>';
             echo '<th>Total Cost</th>';
             echo '<th>Paid Amount</th>';
+            echo '<th>Discount Type</th>';
+            echo '<th>Discount Amount</th>';
             echo '<th>Balance</th>';
             echo '<th>Assigned Dentist</th>';
             echo '<th>Modified by</th>';
@@ -87,23 +95,41 @@ include 'employee-nav-staff.php';
             echo '</tr>';
             echo '</thead>';
             echo '<tbody>';
+
             if ($queryResults > 0) {
                 while ($row = mysqli_fetch_assoc($result)) {
+                    // Check if 'procedures' column is empty or NULL
+                    $procedures = $row["procedures"];
+                    $balance = $row["s_balance"];
+                    $s_total = $row["s_total"];
+                    $discount_type = $row["discount_type"];
+                    $deducted_discount = $row["deducted_discount"];
+                    if (empty($procedures) || is_null($procedures)) {
+                        $procedures = 'Paid through staff';
+                        $balance = "NA";
+                        $s_total = "NA";
+                        $discount_type = "NA";
+                        $deducted_discount = "NA";
+                    }
                     echo '<tr>';
-                    echo '<td> ' . $row["s_payID"] . '</td>';
-                    echo '<td> ' . $row["s_date"] . '</td>';
-                    echo '<td> ' . $row["s_procedure"] . '</td>';
-                    echo '<td> ' . $row["s_total"] . '</td>';
-                    echo '<td> ' . $row["s_amount"] . '</td>';
-                    echo '<td> ' . $row["s_balance"] . '</td>';
-                    echo '<td> ' . $row["dentist_assigned"] . '</td>';
-                    echo '<td> ' . $row["s_modify"] . '</td>';
+                    echo '<td>' . $row["s_payID"] . '</td>';
+                    echo '<td>' . $row["s_date"] . '</td>';
+                    echo '<td>' . $procedures . '</td>';
+                    echo '<td>' . $s_total . '</td>';
+                    echo '<td>' . $row["s_amount"] . '</td>';
+                    echo '<td>' . $discount_type . '</td>';
+                    echo '<td>' . $deducted_discount . '</td>';
+                    echo '<td>' . $balance . '</td>';
+                    echo '<td>' . $row["dentist_assigned"] . '</td>';
+                    echo '<td>' . $row["s_modify"] . '</td>';
                     echo '<td class="text-center">';
+
                     if ($row["s_amount"]) {
                         echo '<button type="button" class="btn btn-primary" disabled>Update</button>';
                     } else {
                         echo '<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal" data-payid="' . $row["s_payID"] . '" data-dentistassigned="' . $row["dentist_assigned"] . '" data-total="' . $row["s_total"] . '" data-balance="' . $row["s_amount"] . '">Update</button>';
                     }
+
                     echo '</td>';
                     echo '</tr>';
                 }
@@ -153,10 +179,10 @@ include 'employee-nav-staff.php';
                             </div>
                             <div class="form-group mb-3">
                                 <label for="newBalance">Paid Amount</label>
-                                <input type="number" class="form-control" id="newBalance" name="newBalance" min="1" pattern="[0-9]+">
+                                <input type="number" class="form-control" id="newBalance" name="newBalance" min="0" step="0.01">
                             </div>
 
-                            <div class="modal-footer">
+                            <div class=" modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                 <button type="submit" class="btn btn-primary" name="updatebalance">Update</button>
                             </div>
@@ -211,12 +237,8 @@ include 'employee-nav-staff.php';
                             <input type="date" class="form-control" id="date" name="date" required>
                         </div>
                         <div class="mb-3">
-                            <label for="name" class="form-label">Procedure</label>
-                            <input type="text" class="form-control" id="procedure" name="procedure" required>
-                        </div>
-                        <div class="mb-3">
                             <label for="note" class="form-label">Paid Amount</label>
-                            <input type="number" class="form-control" id="amount" name="amount" required min="1">
+                            <input type="number" class="form-control" id="amount" name="amount" required min="1" step="0.01">
                         </div>
                         <div class="mb-3">
                             <label for="dentist" class="form-label">Assigned Dentist</label>
