@@ -67,7 +67,7 @@ include 'employee-nav-staff.php';
                 echo '<h4 class="text-dark fw-bold">Total Remaining Balance: ' . $totalRemainingBalance . '</h4>';
             }
 
-            $sql = "SELECT s.s_payID, s.s_date, s.s_total, s.s_amount, s.s_balance, s.dentist_assigned, s.s_modify, GROUP_CONCAT(p.procedure_name SEPARATOR ', ') AS procedures
+            $sql = "SELECT s.s_payID, s.s_date, s.s_total, s.s_amount, s.s_balance, s.dentist_assigned, s.s_modify, s.discount_type, s.deducted_discount, GROUP_CONCAT(p.procedure_name SEPARATOR ', ') AS procedures
                     FROM s_payment s 
                     LEFT JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
                     LEFT JOIN procedures p ON pp.procedure_id = p.id 
@@ -86,6 +86,8 @@ include 'employee-nav-staff.php';
             echo '<th>Procedures</th>';
             echo '<th>Total Cost</th>';
             echo '<th>Paid Amount</th>';
+            echo '<th>Discount Type</th>';
+            echo '<th>Discount Amount</th>';
             echo '<th>Balance</th>';
             echo '<th>Assigned Dentist</th>';
             echo '<th>Modified by</th>';
@@ -100,10 +102,14 @@ include 'employee-nav-staff.php';
                     $procedures = $row["procedures"];
                     $balance = $row["s_balance"];
                     $s_total = $row["s_total"];
+                    $discount_type = $row["discount_type"];
+                    $deducted_discount = $row["deducted_discount"];
                     if (empty($procedures) || is_null($procedures)) {
                         $procedures = 'Paid through staff';
                         $balance = "NA";
                         $s_total = "NA";
+                        $discount_type = "NA";
+                        $deducted_discount = "NA";
                     }
                     echo '<tr>';
                     echo '<td>' . $row["s_payID"] . '</td>';
@@ -111,6 +117,8 @@ include 'employee-nav-staff.php';
                     echo '<td>' . $procedures . '</td>';
                     echo '<td>' . $s_total . '</td>';
                     echo '<td>' . $row["s_amount"] . '</td>';
+                    echo '<td>' . $discount_type . '</td>';
+                    echo '<td>' . $deducted_discount . '</td>';
                     echo '<td>' . $balance . '</td>';
                     echo '<td>' . $row["dentist_assigned"] . '</td>';
                     echo '<td>' . $row["s_modify"] . '</td>';

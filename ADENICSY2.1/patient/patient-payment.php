@@ -72,12 +72,20 @@ if (strlen($_SESSION['id'] == 0)) {
 
                 if ($queryResults > 0) {
                     while ($row = mysqli_fetch_assoc($result)) {
+                        $procedures = $row["procedures"];
+                        $balance = $row["s_balance"];
+                        $s_total = $row["s_total"];
+                        if (empty($procedures) || is_null($procedures)) {
+                            $procedures = 'Paid through staff';
+                            $balance = "NA";
+                            $s_total = "NA";
+                        }
                         echo '<tr>';
                         echo '<td>' . $row["s_date"] . '</td>';
-                        echo '<td>' . $row["procedures"] . '</td>';
-                        echo '<td>' . $row["s_total"] . '</td>';
+                        echo '<td>' . $procedures . '</td>';
+                        echo '<td>' . $s_total . '</td>';
                         echo '<td>' . $row["s_amount"] . '</td>';
-                        echo '<td>' . $row["s_balance"] . '</td>';
+                        echo '<td>' . $balance . '</td>';
                         echo '<td>' . $row["dentist_assigned"] . '</td>';
                         echo '<td>' . $row["s_modify"] . '</td>';
                         echo '</tr>';
