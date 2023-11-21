@@ -155,6 +155,8 @@ $(document).ready(function() {
         e.preventDefault();
     
         // Collect form data
+
+        const userId = $('#userIdHidden').val();
         const date = $('#date').val();
         const proceduresData = [];
 
@@ -188,6 +190,7 @@ $(document).ready(function() {
 
         // Create an object with the collected data
         const postData = {
+            userId,
             date,
             proceduresData,
             totalItemCost,
@@ -208,6 +211,8 @@ $(document).ready(function() {
             success: function (response) {
                 console.log('Data sent successfully');
                 // Handle success response if needed
+                // Close the modal after successful submission
+                $('#exampleModal').modal('hide');
             },
             error: function (xhr, status, error) {
                 console.error('Error:', error);

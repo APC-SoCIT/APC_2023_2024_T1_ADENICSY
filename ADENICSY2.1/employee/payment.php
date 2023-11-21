@@ -3,12 +3,72 @@ include_once('../includes/config.php');
 if (strlen($_SESSION['doctorid'] == 0)) {
     header('location:emp-logout.php');
 } else {
+    //get the ID from the button 
+    $userid = $_GET['uid'];
+    $docID = $_SESSION['doctorid'];
+    $sql1 = "SELECT fname, lname FROM employee WHERE id = $docID";
+    $result1 = mysqli_query($con, $sql1);
+    $row1 = mysqli_fetch_assoc($result1);
+    $dentist_fname = $row1['fname'] . " " . $row1['lname'];
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['userId'], $_POST['date'], $_POST['proceduresData'], $_POST['totalItemCost'], $_POST['usedItems'], $_POST['professionalFee'], $_POST['discountType'], $_POST['discountPercentage'], $_POST['totalProcedureCost'])) {
+        // Get the form data
+        $userid = $_POST['userId'];
+        $date = $_POST['date'];
+        $amount = $_POST['totalProcedureCost'];
+        // Other form data...
+
+        // Process AJAX data
+        $discountType = $_POST['discountType'];
+        $discountPercentage = $_POST['discountPercentage'];
+        $totalItemCost = $_POST['totalItemCost'];
+        $professionalFee = $_POST['professionalFee'];
+        $totalProcedureCost = $_POST['totalProcedureCost'];
+        $proceduresData = $_POST['proceduresData']; // Assuming proceduresData is an array of procedure IDs
+
+        // Calculate deducted discount based on discountPercentage and totalProcedureCost
+        $deductedDiscount = ($discountPercentage / 100) * $totalProcedureCost;
+
+        // SQL query to insert data into s_payment table
+        $insertPaymentQuery = "INSERT INTO s_payment (s_date, s_total, s_patiendID, added_by, dentist_assigned_ID, dentist_assigned, discount_type, discount_percent, total_item_cost, professional_fee, deducted_discount) 
+        VALUES ('$date', '$amount', '$userid', '$dentist_fname', '$docID', '$dentist_fname', '$discountType', '$discountPercentage', '$totalItemCost', '$professionalFee', '$deductedDiscount')";
+
+        $msg1 = mysqli_query($con, $insertPaymentQuery);
+
+        if ($msg1) {
+            $lastInsertedId = mysqli_insert_id($con); // Get the last inserted ID for the payment
+
+            // Insert procedures into payment_procedures table for the created payment ID
+            foreach ($proceduresData as $procedureId) {
+                $insertProcedureQuery = "INSERT INTO payment_procedures (payment_id, procedure_id) VALUES ('$lastInsertedId', '$procedureId')";
+                mysqli_query($con, $insertProcedureQuery);
+            }
+
+            // Insert data from usedItems into items_used table for the created payment ID
+            foreach ($_POST['usedItems'] as $usedItem) {
+                $itemId = $usedItem['itemId'];
+                $quantity = $usedItem['quantity'];
+                $price = $usedItem['price'];
+
+                // Insert into items_used table
+                $insertUsedItemQuery = "INSERT INTO items_used (s_payment_id, item_id, quantity, price) VALUES ('$lastInsertedId', '$itemId', '$quantity', '$price')";
+                mysqli_query($con, $insertUsedItemQuery);
+
+                // Deduct the quantity from inventory1 table
+                $updateInventoryQuery = "UPDATE inventory1 SET quantity = quantity - $quantity WHERE id = $itemId";
+                mysqli_query($con, $updateInventoryQuery);
+            }
+
+            echo "<script>alert('Payment Details Added Successfully');</script>";
+            echo "<script type='text/javascript'> document.location = 'payment.php?uid=" . $userid . "'; </script>";
+        } else {
+            // Handle case if not all necessary fields are received
+            echo "Incomplete data received";
+        }
+    }
 }
-?>
-<?php
+
 include 'employee-nav.php';
-//get the ID from the button 
-$userid = $_GET['uid'];
 ?>
 <html>
 
@@ -20,9 +80,14 @@ $userid = $_GET['uid'];
         <h1 class="text-primary text-center fw-bold pb-3">Payment Details</h1>
         <?php
         // Output the payment details of the patient
-        //Output Form Entries from the Database
-        $sql = "SELECT * FROM s_payment WHERE s_patiendID = $userid";
-        //fire query
+        // Fetch payment details along with associated procedures for the patient
+        $sql = "SELECT s.s_date, s.s_total, s.added_by, s.dentist_assigned, GROUP_CONCAT(p.procedure_name SEPARATOR ', ') AS procedures
+        FROM s_payment s 
+        INNER JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
+        INNER JOIN procedures p ON pp.procedure_id = p.id 
+        WHERE s.s_patiendID = $userid
+        GROUP BY s.s_payID";
+
         $result = mysqli_query($con, $sql);
 
         // Create a Bootstrap table to display the data
@@ -30,7 +95,7 @@ $userid = $_GET['uid'];
         echo '<thead class="text-primary h4">';
         echo '<tr>';
         echo '<th>Date</th>';
-        echo '<th>Procedure</th>';
+        echo '<th>Procedures</th>';
         echo '<th>Amount</th>';
         echo '<th>Inputted by</th>';
         echo '<th>Assigned Dentist</th>';
@@ -40,47 +105,21 @@ $userid = $_GET['uid'];
         if (mysqli_num_rows($result) > 0) {
             while ($row = mysqli_fetch_assoc($result)) {
                 echo '<tr>';
-                echo '<td> ' . $row["s_date"] . '</td>';
-                echo '<td> ' . $row["s_procedure"] . '</td>';
-                echo '<td> ' . $row["s_total"] . '</td>';
-                echo '<td> ' . $row["added_by"] . '</td>';
-                echo '<td> ' . $row["dentist_assigned"] . '</td>';
+                echo '<td>' . $row["s_date"] . '</td>';
+                echo '<td>' . $row["procedures"] . '</td>';
+                echo '<td>' . $row["s_total"] . '</td>';
+                echo '<td>' . $row["added_by"] . '</td>';
+                echo '<td>' . $row["dentist_assigned"] . '</td>';
                 echo '</tr>';
             }
         } else {
             echo '<tr class="table-light">';
-            echo '<td> ' . "No data available for this patient." . '</td>';
-            echo '<td> ' . "" . '</td>';
-            echo '<td> ' . "" . '</td>';
-            echo '<td> ' . "" . '</td>';
+            echo '<td colspan="5">' . "No payment data available for this patient." . '</td>';
             echo '</tr>';
         }
         echo '</tbody>';
         echo '</table>';
 
-        ?>
-        <?php
-        $docID = $_SESSION['doctorid'];
-        // Retrieve the username of the doctor logged in 
-        $sql1 = "SELECT fname, lname FROM employee WHERE id = $docID";
-        // Fire Query
-        $result1 = mysqli_query($con, $sql1);
-        $row1 = mysqli_fetch_assoc($result1);
-        $dentist_fname = $row1['fname'] . " " . $row1['lname'];
-
-        // Submiting the form for new payment details
-        if (isset($_POST['submit'])) {
-            // Get the form data
-            $date = $_POST['date'];
-            $procedure = $_POST['procedure'];
-            $amount = $_POST['amount'];
-            $msg1 = mysqli_query($con, "insert into s_payment (s_date, s_procedure, s_total, s_patiendID, added_by, dentist_assigned_ID, dentist_assigned) VALUES ('$date', '$procedure', '$amount', '$userid', '$dentist_fname', '$docID', '$dentist_fname')");
-
-            if ($msg1) {
-                echo "<script>alert('Payment Details Added Successfully');</script>";
-                echo "<script type='text/javascript'> document.location = 'payment.php?uid=" . $userid . "'; </script>";
-            }
-        }
         ?>
     </div>
     <!-- Add New Payment -->
@@ -103,10 +142,9 @@ $userid = $_GET['uid'];
                     <h5 class="modal-title" id="exampleModalLabel">Add Payment</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
-                <!-- Initial Stage -->
-                <div class="modal-body" id="initialStage">
-                    <form name="initialForm" method="POST" class="needs-validation" novalidate>
+                <form name="initialForm" method="POST" class="needs-validation" novalidate>
+                    <!-- Initial Stage -->
+                    <div class="modal-body" id="initialStage">
                         <!-- Your form fields -->
                         <div class="mb-3">
                             <label for="date" class="form-label">Date</label>
@@ -159,74 +197,73 @@ $userid = $_GET['uid'];
                         <div id="additionalItemsContainer">
                             <!-- Selected additional items will appear here -->
                         </div>
-                    </form>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" id="nextButton">Next</button>
-                    </div>
-                    </form>
-                </div>
-
-                <!-- Cost Breakdown for Items  and Fees Stage -->
-                <div class="modal-body" id="costBreakdownStage" style="display: none;">
-                    <label for="costBreakdown" class="form-label fw-bold">Item's Cost Breakdown</label>
-                    <div id="costBreakdown" class="mb-3">
-                        <!-- Cost breakdown will appear here -->
-                    </div>
-                    <div class="mb-3">
-                        <label for="professionalFee" class="form-label">Professional Fee</label>
-                        <div class="input-group w-25 text-center">
-                            <button class="btn btn-outline-secondary" type="button" id="decreaseProfessionalFee">-</button>
-                            <input type="number" class="form-control text-center w-50" id="professionalFee" value="500" min="500">
-                            <button class="btn btn-outline-secondary" type="button" id="increaseProfessionalFee">+</button>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" id="nextButton">Next</button>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="discountType" class="form-label">Discount</label>
-                        <div class="input-group">
-                            <select class="form-select" id="discountType">
-                                <option value="none">None</option>
-                                <option value="seniorCitizen">Senior Citizen</option>
-                                <option value="pwd">PWD</option>
-                                <option value="other">Other</option>
-                            </select>
-                            <input type="text" class="form-control" id="otherDiscount" placeholder="Enter Discount" style="display: none;">
-                            <input type="number" class="form-control text-center" id="discountPercentage" min="0" max="100" value="0">
-                            <span class="input-group-text">%</span>
+                    <!-- Cost Breakdown for Items  and Fees Stage -->
+                    <div class="modal-body" id="costBreakdownStage" style="display: none;">
+                        <label for="costBreakdown" class="form-label fw-bold">Item's Cost Breakdown</label>
+                        <div id="costBreakdown" class="mb-3">
+                            <!-- Cost breakdown will appear here -->
+                        </div>
+                        <div class="mb-3">
+                            <label for="professionalFee" class="form-label">Professional Fee</label>
+                            <div class="input-group w-25 text-center">
+                                <button class="btn btn-outline-secondary" type="button" id="decreaseProfessionalFee">-</button>
+                                <input type="number" class="form-control text-center w-50" id="professionalFee" value="500" min="500">
+                                <button class="btn btn-outline-secondary" type="button" id="increaseProfessionalFee">+</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="discountType" class="form-label">Discount</label>
+                            <div class="input-group">
+                                <select class="form-select" id="discountType">
+                                    <option value="none">None</option>
+                                    <option value="seniorCitizen">Senior Citizen</option>
+                                    <option value="pwd">PWD</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                <input type="text" class="form-control" id="otherDiscount" placeholder="Enter Discount" style="display: none;">
+                                <input type="number" class="form-control text-center" id="discountPercentage" min="0" max="100" value="0">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <!-- Back to the initial stage -->
+                            <button type="button" class="btn btn-secondary" id="backButton">Back</button>
+                            <!-- Submit the form at this stage -->
+                            <button type="button" class="btn btn-primary" id="nextButton2">Next</button>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <!-- Back to the initial stage -->
-                        <button type="button" class="btn btn-secondary" id="backButton">Back</button>
-                        <!-- Submit the form at this stage -->
-                        <button type="submit" class="btn btn-primary" id="nextButton2">Next</button>
+                    <!-- Total Cost Breakdown Stage -->
+                    <div class="modal-body" id="totalCostBreakdownStage" style="display: none;">
+                        <label for="costBreakdown" class="form-label fw-bold">Total Cost Breakdown</label>
+                        <!-- The cost breakdown display area -->
+                        <div id="costBreakdown" class="mb-3">
+                            <!-- Existing or dynamically populated cost breakdown items -->
+                        </div>
+                        <div class="mb-3">
+                            <div>Total Item Cost:</div>
+                            <div id="totalItemCost"></div>
+                            <div>Professional Fee:</div>
+                            <div id="displayProfessionalFee"></div>
+                            <div>Deducted Discount:</div>
+                            <div id="displayDeductedDiscount"></div>
+                        </div>
+                        <hr>
+                        <div><strong>Total Procedure Cost:</strong></div>
+                        <div id="displayTotalProcedureCost"></div>
+                        <input type="hidden" id="userIdHidden" name="userId" value="<?php echo $userid; ?>">
+                        <div class="modal-footer">
+                            <!-- Back to the initial stage -->
+                            <button type="button" class="btn btn-secondary" id="backButton2">Back</button>
+                            <!-- Submit the form at this stage -->
+                            <button class="btn btn-primary" type="submit" id="submitPaymentDetailsID">Done</button>
+                        </div>
                     </div>
-                </div>
-                <!-- Total Cost Breakdown Stage -->
-                <div class="modal-body" id="totalCostBreakdownStage" style="display: none;">
-                    <label for="costBreakdown" class="form-label fw-bold">Total Cost Breakdown</label>
-                    <!-- The cost breakdown display area -->
-                    <div id="costBreakdown" class="mb-3">
-                        <!-- Existing or dynamically populated cost breakdown items -->
-                    </div>
-                    <div class="mb-3">
-                        <div>Total Item Cost:</div>
-                        <div id="totalItemCost"></div>
-                        <div>Professional Fee:</div>
-                        <div id="displayProfessionalFee"></div>
-                        <div>Deducted Discount:</div>
-                        <div id="displayDeductedDiscount"></div>
-                    </div>
-                    <hr>
-                    <div><strong>Total Procedure Cost:</strong></div>
-                    <div id="displayTotalProcedureCost"></div>
-                    <div class="modal-footer">
-                        <!-- Back to the initial stage -->
-                        <button type="button" class="btn btn-secondary" id="backButton2">Back</button>
-                        <!-- Submit the form at this stage -->
-                        <button class="btn btn-primary" name="submit" type="submit">Done</button>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
