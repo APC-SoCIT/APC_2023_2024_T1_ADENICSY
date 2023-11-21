@@ -154,46 +154,65 @@ $(document).ready(function() {
     $('form[name="initialForm"]').submit(function(e) {
         e.preventDefault();
     
-        var date = $('#date').val();
-        var procedures = $('#procedure').val();
-        var selectedItems = getSelectedItems(); // Function to retrieve selected items
-        var additionalItems = getAdditionalItems(); // Function to retrieve additional items
-        var professionalFee = $('#professionalFee').val(); // Assuming this input field holds the professional fee
-        var discountType = $('#discountType').val(); // Assuming this input field holds the discount type
-        var discountPercentage = $('#discountPercentage').val(); // Assuming this input field holds the discount percentage
+        // Collect form data
+        const date = $('#date').val();
+        const proceduresData = [];
 
-        console.log(
-            date + '\n' +
-            procedures + '\n' +
-            selectedItems + '\n' +
-            additionalItems + '\n' +
-            professionalFee + '\n' +
-            discountType + '\n' +
-            discountPercentage
-          );
+        $('#chosenProceduresList .selected-procedure').each(function() {
+            const procedureId = $(this).find('.remove-procedure-btn').data('procedure-id');
+            
+            proceduresData.push(procedureId);
+        });
+        const usedItems = [];
+        $('.item-info').each(function () {
+            const itemId = $(this).data('item-id');
+            const quantity = $(this).data('quantity');
+            const price = $(this).data('price');
+
+            usedItems.push({ itemId, quantity, price });
+        });
+        const professionalFee = parseInt($('#professionalFee').val(), 10);
+        const totalItemCostText = $('#displayTotalItemCost').text();
+        const totalItemCost = parseFloat(totalItemCostText.replace('₱ ', ''));
+        let discountType ="";
+        if ($('#discountType').val() === 'other') {
+            discountType = $('#otherDiscount').val();
+        } else {
+            discountType = $('#discountType option:selected').text();
+        }
+
+        const discountPercentage = parseInt($('#discountPercentage').val(), 10);
+        const totalProcedureCostText = $('#displayTotalProcedureCostValue').text();
+        const totalProcedureCost = parseFloat(totalProcedureCostText.replace('₱ ', ''));
+
+
+        // Create an object with the collected data
+        const postData = {
+            date,
+            proceduresData,
+            totalItemCost,
+            usedItems,
+            professionalFee,
+            discountType,
+            discountPercentage,
+            totalProcedureCost,
+        };
+        console.log(postData);
           
-    
-        // AJAX request to send form data to PHP
+
+        // Send data to the PHP script using AJAX
         $.ajax({
             type: 'POST',
-            url: 'payment.php',
-            data: {
-                date: date,
-                procedures: procedures,
-                selectedItems: selectedItems,
-                additionalItems: additionalItems,
-                professionalFee: professionalFee,
-                discountType: discountType,
-                discountPercentage: discountPercentage
+            url: 'payment.php', // Replace with your PHP script URL
+            data: postData,
+            success: function (response) {
+                console.log('Data sent successfully');
+                // Handle success response if needed
             },
-            success: function(response) {
-                // Handle success, if needed
-                console.log(response);
+            error: function (xhr, status, error) {
+                console.error('Error:', error);
+                // Handle error if needed
             },
-            error: function(xhr, status, error) {
-                // Handle error
-                console.error(error);
-            }
         });
     });
     
@@ -250,7 +269,7 @@ $(document).ready(function() {
                         var itemCost = price * quantity;
                         totalCost += itemCost;
 
-                        var itemCostHTML = `<div class="d-flex justify-content-between">${itemName} (${quantity})<span>₱ ${itemCost.toFixed(2)}</span></div>`;
+                        var itemCostHTML = `<div class="d-flex justify-content-between item-info" data-item-id="${itemId}" data-price="${price}" data-quantity="${quantity}">${itemName} (${quantity})<span>₱ ${itemCost.toFixed(2)}</span></div>`;
                         $('#costBreakdown').append(itemCostHTML);
 
                         itemsProcessed++;
@@ -344,7 +363,7 @@ $(document).ready(function() {
         let professionalFee = parseFloat($('#professionalFee').val());
         let { deductedDiscount, selectedDiscount, discountPercentage } = calculateDeductedDiscount(extractedTotalItemCost, professionalFee);
 
-        $('#totalItemCost').html(`<div class="text-end">₱ ${extractedTotalItemCost.toFixed(2)}</div>`);
+        $('#totalItemCost').html(`<div class="text-end" id="displayTotalItemCost">₱ ${extractedTotalItemCost.toFixed(2)}</div>`);
         $('#displayProfessionalFee').html(`<div class="text-end">₱ ${professionalFee.toFixed(2)}</div>`);
         $('#displayDeductedDiscount').html(`<div class="text-end">(${selectedDiscount}: ${discountPercentage}%) ₱ ${deductedDiscount.toFixed(2)}</div>`);
 
@@ -371,7 +390,7 @@ $(document).ready(function() {
     // Function to calculate and display total procedure cost
     function calculateAndDisplayTotalProcedureCost(totalCost, professionalFee, deductedDiscount) {
         let totalProcedureCost = totalCost + professionalFee - deductedDiscount;
-        $('#displayTotalProcedureCost').html(`<div class="text-end">₱ ${totalProcedureCost.toFixed(2)}</div>`);
+        $('#displayTotalProcedureCost').html(`<div class="text-end" id="displayTotalProcedureCostValue">₱ ${totalProcedureCost.toFixed(2)}</div>`);
     }
 
     // JavaScript to handle showing/hiding the "Other" procedure input field
