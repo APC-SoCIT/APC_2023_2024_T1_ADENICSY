@@ -161,10 +161,10 @@ include 'employee-nav-staff.php';
                             </div>
                             <div class="form-group mb-3">
                                 <label for="newBalance">Paid Amount</label>
-                                <input type="number" class="form-control" id="newBalance" name="newBalance" min="1" pattern="[0-9]+">
+                                <input type="number" class="form-control" id="newBalance" name="newBalance" min="0" step="0.01">
                             </div>
 
-                            <div class="modal-footer">
+                            <div class=" modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                 <button type="submit" class="btn btn-primary" name="updatebalance">Update</button>
                             </div>
@@ -220,7 +220,7 @@ include 'employee-nav-staff.php';
                         </div>
                         <div class="mb-3">
                             <label for="note" class="form-label">Paid Amount</label>
-                            <input type="number" class="form-control" id="amount" name="amount" required min="1">
+                            <input type="number" class="form-control" id="amount" name="amount" required min="1" step="0.01">
                         </div>
                         <div class="mb-3">
                             <label for="dentist" class="form-label">Assigned Dentist</label>
