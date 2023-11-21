@@ -80,12 +80,17 @@ include 'employee-nav.php';
         <?php
         // Output the payment details of the patient
         // Fetch payment details along with associated procedures for the patient
-        $sql = "SELECT s.s_date, s.s_total, s.added_by, s.dentist_assigned, GROUP_CONCAT(p.procedure_name SEPARATOR ', ') AS procedures
+        $sql = "SELECT s.s_date, 
+        IFNULL(GROUP_CONCAT(p.procedure_name SEPARATOR ', '), 'Paid through staff') AS procedures,
+        s.s_total, 
+        s.added_by, 
+        s.dentist_assigned
         FROM s_payment s 
-        INNER JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
-        INNER JOIN procedures p ON pp.procedure_id = p.id 
+        LEFT JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
+        LEFT JOIN procedures p ON pp.procedure_id = p.id 
         WHERE s.s_patiendID = $userid
         GROUP BY s.s_payID";
+
 
         $result = mysqli_query($con, $sql);
 

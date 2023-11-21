@@ -38,11 +38,7 @@ if (strlen($_SESSION['id'] == 0)) {
                 ?>
                 <div class="row justify-content-between pb-2">
                     <div class="col-4">
-                        <h3 class="">Total Balance: ₱<?php if ($totalbalance > 0) {
-                                                            echo $totalbalance;
-                                                        } else {
-                                                            echo '0.00';
-                                                        } ?></h3>
+                        <h3 class="">Total Balance: ₱<?php echo $totalbalance; ?></h3>
                     </div>
                     <div class="col-4 d-grid justify-content-end">
                         <a href="patient-payment.php" class="btn btn-primary btn-block hover-button" role="button" aria-pressed="true">Refresh Page</a>
@@ -52,8 +48,8 @@ if (strlen($_SESSION['id'] == 0)) {
                 <?php
                 $sql = "SELECT s.s_date, s.s_total, s.s_amount, s.s_balance, s.dentist_assigned, s.s_modify, GROUP_CONCAT(p.procedure_name SEPARATOR ', ') AS procedures
                         FROM s_payment s 
-                        INNER JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
-                        INNER JOIN procedures p ON pp.procedure_id = p.id 
+                        LEFT JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
+                        LEFT JOIN procedures p ON pp.procedure_id = p.id 
                         WHERE s.s_patiendID = '$userid'
                         GROUP BY s.s_payID";
 
