@@ -19,39 +19,56 @@ if (strlen($_SESSION['adminid']) == 0) {
             // Decode the JSON string to an array
             $items = json_decode($itemsData, true);
 
-            // Update procedure name
-            $updateProcedureQuery = "UPDATE procedures SET procedure_name=? WHERE id=?";
-            $updateProcedureStmt = mysqli_prepare($con, $updateProcedureQuery);
-            mysqli_stmt_bind_param($updateProcedureStmt, "si", $procedureName, $procedureId);
-            $procedureUpdated = mysqli_stmt_execute($updateProcedureStmt);
+            // Begin a transaction
+            mysqli_autocommit($con, false);
 
-            // Update item quantities
-            $updateItemsQuery = "UPDATE procedure_items SET quantity=? WHERE procedure_id=? AND item_id=?";
-            $updateItemsStmt = mysqli_prepare($con, $updateItemsQuery);
+            // Delete existing items associated with the procedure
+            $deleteItemsQuery = "DELETE FROM procedure_items WHERE procedure_id=?";
+            $deleteItemsStmt = mysqli_prepare($con, $deleteItemsQuery);
+            mysqli_stmt_bind_param($deleteItemsStmt, "i", $procedureId);
+            $itemsDeleted = mysqli_stmt_execute($deleteItemsStmt);
 
-            $allItemsUpdated = true;
+            if (!$itemsDeleted) {
+                // Rollback and exit if deletion fails
+                mysqli_rollback($con);
+                echo json_encode(array("error" => "Error deleting existing items!"));
+                exit();
+            }
+
+            // Insert new items and quantities
+            $insertItemsQuery = "INSERT INTO procedure_items (procedure_id, item_id, quantity) VALUES (?, ?, ?)";
+            $insertItemsStmt = mysqli_prepare($con, $insertItemsQuery);
+
+            $allItemsInserted = true;
             foreach ($items as $item) {
                 $itemId = $item['item_id'];
                 $quantity = $item['quantity'];
 
-                mysqli_stmt_bind_param($updateItemsStmt, "iii", $quantity, $procedureId, $itemId);
-                $itemUpdated = mysqli_stmt_execute($updateItemsStmt);
+                // Cast quantity to integer
+                $quantity = intval($quantity);
 
-                if (!$itemUpdated) {
-                    error_log("Error updating item with ID: $itemId");
-                    $allItemsUpdated = false; // Set flag if any item fails to update
+                mysqli_stmt_bind_param($insertItemsStmt, "iii", $procedureId, $itemId, $quantity);
+                $itemInserted = mysqli_stmt_execute($insertItemsStmt);
+
+                if (!$itemInserted) {
+                    $allItemsInserted = false; // Set flag if any item fails to insert
                 }
             }
 
-            if ($procedureUpdated && $allItemsUpdated) {
+            if ($allItemsInserted) {
+                // Commit the transaction if all inserts are successful
+                mysqli_commit($con);
                 echo json_encode(array("success" => true));
             } else {
-                echo json_encode(array("error" => "Error updating procedure details!"));
+                // Rollback if any item insertion fails
+                mysqli_rollback($con);
+                echo json_encode(array("error" => "Error inserting new items!"));
             }
 
             // Close prepared statements and release resources
-            mysqli_stmt_close($updateProcedureStmt);
-            mysqli_stmt_close($updateItemsStmt);
+            mysqli_stmt_close($deleteItemsStmt);
+            mysqli_stmt_close($insertItemsStmt);
+            mysqli_autocommit($con, true);
         } else {
             echo json_encode(array("error" => "Invalid data received!"));
         }

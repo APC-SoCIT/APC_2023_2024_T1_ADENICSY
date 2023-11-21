@@ -17,13 +17,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $procedureDetails['id'] = $row['id']; // Include the procedure ID
             $procedureDetails['name'] = $row['procedure_name'];
 
-            // Fetch associated items for the procedure
-            $itemsQuery = "SELECT inventory1.item_name, procedure_items.quantity FROM procedure_items INNER JOIN inventory1 ON procedure_items.item_id = inventory1.id WHERE procedure_items.procedure_id = '$procedureId'";
+            // Fetch associated items for the procedure along with item_id
+            $itemsQuery = "SELECT inventory1.id as item_id, inventory1.item_name, procedure_items.quantity 
+                            FROM procedure_items 
+                            INNER JOIN inventory1 ON procedure_items.item_id = inventory1.id 
+                            WHERE procedure_items.procedure_id = '$procedureId'";
             $itemsResult = mysqli_query($con, $itemsQuery);
 
             $items = array();
             while ($item = mysqli_fetch_assoc($itemsResult)) {
                 $items[] = array(
+                    'item_id' => $item['item_id'], // Include the item ID
                     'item_name' => $item['item_name'],
                     'quantity' => $item['quantity']
                 );

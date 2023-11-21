@@ -187,6 +187,7 @@ $(document).ready(function() {
         },
         success: function(response) {
             var data = JSON.parse(response);
+            console.log(data);
             
             // Update modal fields with current procedure details
             $('#updateProcedureId').val(data.id); // Procedure ID
@@ -196,7 +197,7 @@ $(document).ready(function() {
             var itemsList = '';
             if (data.items.length > 0) {
                 data.items.forEach(function(item) {
-                    itemsList += '<div class="mb-2 d-flex align-items-center">' +
+                    itemsList += '<div class="mb-2 d-flex align-items-center" data-item-id="' + item.item_id + '" data-quantity="' + item.quantity + '">' +
                         '<div class="w-75 pe-2">' +
                         '<span>' + item.item_name + '</span>' + // Display item name as text
                         '</div>' +
@@ -272,7 +273,9 @@ $('#updateProcedureForm').submit(function(e) {
         success: function(response) {
             const data = JSON.parse(response);
             if (data.success) {
+                $('#updateProcedureModal').modal('hide');
                 alert('Procedure updated successfully!');
+                location.reload();
                 // Optionally close modal or update UI
             } else {
                 alert('Failed to update procedure!');
