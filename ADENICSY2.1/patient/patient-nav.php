@@ -1,3 +1,7 @@
+<?php
+$userid = $_SESSION['id'];
+$query = mysqli_query($con, "select * from patient where id='$userid'");
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,6 +17,11 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <!-- Include Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .nav-link:hover {
             font-weight: bold;
@@ -29,6 +38,17 @@
         .hover-button:hover {
             transform: scale(1.05);
             font-weight: 500;
+        }
+
+        .small-badge {
+            font-size: 0.6rem;
+            /* Adjust the font size */
+            height: 1rem;
+            /* Set the height */
+            min-width: 1rem;
+            /* Set the minimum width */
+            padding: 0.1rem 0.3rem;
+            /* Adjust padding for the badge */
         }
     </style>
 </head>
@@ -47,7 +67,135 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navmenu">
-                <ul class="navbar-nav ms-auto fs-5"> <!-- ms-auto is to make the nav tab on right side -->
+                <ul class="navbar-nav ms-auto h5">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link position-relative" href="#" id="bellDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-bell" style="font-size: 1.5rem; color: #FFFFFF;"></i>
+                            <?php
+                            // Query to check if $userid exists in queueing_list
+                            $queueingListQuery = "SELECT COUNT(*) AS count_queueing_list FROM queueing_list WHERE patient_id = $userid";
+                            $queueingListResult = mysqli_query($con, $queueingListQuery);
+
+                            // Query to check if $userid exists in queueing_list_priority
+                            $queueingListPriorityQuery = "SELECT COUNT(*) AS count_queueing_list_priority FROM queueing_list_priority WHERE patient_id = $userid";
+                            $queueingListPriorityResult = mysqli_query($con, $queueingListPriorityQuery);
+
+                            // Check if there are results for queueing_list
+                            if ($queueingListResult && $queueingListPriorityResult) {
+                                $queueingListRow = mysqli_fetch_assoc($queueingListResult);
+                                $queueingListPriorityRow = mysqli_fetch_assoc($queueingListPriorityResult);
+
+                                // If the user is found in either of the tables
+                                if ($queueingListRow['count_queueing_list'] > 0 || $queueingListPriorityRow['count_queueing_list_priority'] > 0) { ?>
+                                    <span id="notificationBadge" class="badge rounded-pill badge-notification bg-danger small-badge position-absolute top-20 start-90 translate-middle">
+                                        <?php
+                                        // Query to retrieve the highest queue number for the dropdown from regular queue
+                                        $regularDropdownQuery = "SELECT MAX(queue_number) AS max_regular_queue FROM queue_num";
+                                        $regularDropdownResult = mysqli_query($con, $regularDropdownQuery);
+
+                                        if ($regularDropdownResult) {
+                                            $regularDropdownRow = mysqli_fetch_assoc($regularDropdownResult);
+                                            $max_regular_queue = $regularDropdownRow["max_regular_queue"];
+                                        } else {
+                                            $max_regular_queue = 0;
+                                        }
+
+                                        // Query to retrieve the highest queue number for the dropdown from priority queue
+                                        $priorityDropdownQuery = "SELECT MAX(queue_number) AS max_priority_queue FROM queueing_num_priority";
+                                        $priorityDropdownResult = mysqli_query($con, $priorityDropdownQuery);
+
+                                        if ($priorityDropdownResult) {
+                                            $priorityDropdownRow = mysqli_fetch_assoc($priorityDropdownResult);
+                                            $max_priority_queue = $priorityDropdownRow["max_priority_queue"];
+                                        } else {
+                                            $max_priority_queue = 0;
+                                        }
+
+
+
+                                        $totalUnreadNotifications = $max_regular_queue + $max_priority_queue;
+
+                                        // Output the total number within the span
+                                        echo $totalUnreadNotifications; ?>
+                                    </span>
+                            <?php
+                                }
+                            }
+                            ?>
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="bellDropdown">
+                            <?php
+                            $patientId = $userid; // Assuming $userid contains the patient's ID
+
+                            // Regular queue status query
+                            $regularQueueStatusQuery = "SELECT queueing_number, status FROM queueing_list WHERE patient_id = $patientId AND status != 'canceled'";
+                            $regularQueueStatusResult = mysqli_query($con, $regularQueueStatusQuery);
+
+                            // Priority queue status query
+                            $priorityQueueStatusQuery = "SELECT queueing_number, status FROM queueing_list_priority WHERE patient_id = $patientId AND status != 'canceled'";
+                            $priorityQueueStatusResult = mysqli_query($con, $priorityQueueStatusQuery);
+                            if ($regularQueueStatusResult) {
+                                while ($row = mysqli_fetch_assoc($regularQueueStatusResult)) {
+                                    $queueNumber = $row['queueing_number'];
+                                    $status = $row['status'];
+                                    // Add conditions based on the status
+                                    if ($status == 'Done') {
+                                        // If the status is 'done', the patient will no longer receive notifications
+                                        echo "<div class='dropdown-item'>";
+                                        echo "Thank You for choosing Apelo Dental Clinic.";
+                                        echo "</div>";
+                                    } elseif ($queueNumber == $max_regular_queue) {
+                                        echo "<div class='dropdown-item'>";
+                                        echo "Your regular queueing number ($queueNumber) is in the current queue.";
+                                        echo "</div>";
+                                    } elseif ($queueNumber < $max_regular_queue) {
+                                        echo "<div class='dropdown-item'>";
+                                        echo "Your regular queueing number ($queueNumber) is beyond the current queue.";
+                                        echo "</div>";
+                                    } elseif ($queueNumber > $max_regular_queue - 5) {
+                                        $nextPatients = $queueNumber - $max_regular_queue;
+                                        echo "<div class='dropdown-item'>";
+                                        echo "Your regular queueing number ($queueNumber) is not yet on queue. You are among the next $nextPatients patient/s.";
+                                        echo "</div>";
+                                    }
+                                }
+                            } else {
+                                echo "<div class='dropdown-item'>Unable to fetch regular queue status</div>";
+                            }
+                            // Process priority queue status
+                            if ($priorityQueueStatusResult) {
+                                while ($row = mysqli_fetch_assoc($priorityQueueStatusResult)) {
+                                    $queueNumber = $row['queueing_number'];
+                                    $status = $row['status'];
+                                    // Add conditions based on the status
+                                    if ($status == 'Done') {
+                                        // If the status is 'done', the patient will no longer receive notifications
+                                        echo "<div class='dropdown-item'>";
+                                        echo "Thank you for choosing Apelo Dental Clinic";
+                                        echo "</div>";
+                                    } elseif ($queueNumber == $max_priority_queue) {
+                                        echo "<div class='dropdown-item'>";
+                                        echo "Your priority queueing number ($queueNumber) is in the current queue.";
+                                        echo "</div>";
+                                    } elseif ($queueNumber < $max_priority_queue) {
+                                        echo "<div class='dropdown-item'>";
+                                        echo "Your priority queueing number ($queueNumber) is beyond the current queue.";
+                                        echo "</div>";
+                                    } elseif ($queueNumber > $max_priority_queue - 5) {
+                                        $nextPatients = $queueNumber - $max_priority_queue;
+                                        echo "<div class='dropdown-item'>";
+                                        echo "Your priority queueing number ($queueNumber) is not yet on queue. You are among the next $nextPatients patient/s.";
+                                        echo "</div>";
+                                    }
+                                }
+                            } else {
+                                echo "<div class='dropdown-item'>Unable to fetch priority queue status</div>";
+                            }
+                            ?>
+                            <!-- "Mark All as Read" button -->
+                            <a class="dropdown-item" href="#" id="markAllReadBtn">Mark All as Read</a>
+                        </div>
+                    </li>
                     <li class="nav-item">
                         <a href="index.php" class="nav-link" style="color: #FFFFFF;">Home</a>
                     </li>
@@ -64,7 +212,32 @@
             </div>
         </div>
     </nav>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <!-- Add this script at the end of your HTML file or within the <head> section -->
+    <script>
+        $(document).ready(function() {
+            // Function to update the notification badge count
+            function updateNotificationBadge(count) {
+                $('#notificationBadge').text(count);
+            }
+
+            // Function to mark all notifications as read
+            function markAllNotificationsAsRead() {
+                // Perform the logic to mark notifications as read on the server-side
+                // ...
+
+                // Update the notification badge count to zero
+                updateNotificationBadge(0);
+            }
+
+            // Event listener for the "Mark All as Read" button
+            $('#markAllReadBtn').on('click', function(e) {
+                e.preventDefault();
+
+                // Hide the notification badge span
+                $('#notificationBadge').hide();
+            });
+        });
+    </script>
 </body>
 
 </html>
