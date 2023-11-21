@@ -29,10 +29,11 @@ if (strlen($_SESSION['id'] == 0)) {
             <div class="px-5-lg">
                 <?php
                 $userid = $_SESSION['id'];
-                $sql1 = "SELECT SUM(s_balance) AS totalbalance FROM s_payment WHERE s_patiendID='$userid'";
+                $sql1 = "SELECT SUM(CAST(s_balance AS DECIMAL(10, 2))) AS totalbalance FROM s_payment WHERE s_patiendID='$userid'";
                 $result1 = mysqli_query($con, $sql1);
                 $row1 = mysqli_fetch_assoc($result1);
                 $totalbalance = $row1['totalbalance'];
+
 
                 ?>
                 <div class="row justify-content-between pb-2">
@@ -49,52 +50,51 @@ if (strlen($_SESSION['id'] == 0)) {
                 </div>
 
                 <?php
-                $sql = "SELECT s.s_date, s.s_procedure, s.s_total, s.s_amount, s.s_balance, s.dentist_assigned, e.PRC_ID
-        FROM s_payment s
-        LEFT JOIN employee e ON s.dentist_assigned_ID = e.id
-        WHERE s.s_patiendID = '$userid'";
+                $sql = "SELECT s.s_date, s.s_total, s.s_amount, s.s_balance, s.dentist_assigned, s.s_modify, GROUP_CONCAT(p.procedure_name SEPARATOR ', ') AS procedures
+                        FROM s_payment s 
+                        INNER JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
+                        INNER JOIN procedures p ON pp.procedure_id = p.id 
+                        WHERE s.s_patiendID = '$userid'
+                        GROUP BY s.s_payID";
+
                 $result = mysqli_query($con, $sql);
                 $queryResults = mysqli_num_rows($result);
-                // Create a Bootstrap table to display the data
-                echo '<table class="table table-hover bg-primary text-white">';
-                echo '<thead class="text-white h4">';
+
+                echo '<table class="table table-primary table-striped">';
+                echo '<thead class="text-primary h4">';
                 echo '<tr>';
                 echo '<th>Date</th>';
-                echo '<th>Procedure</th>';
-                echo '<th>Total Procedure Cost</th>';
-                echo '<th>Amount Paid</th>';
+                echo '<th>Procedures</th>';
+                echo '<th>Total Cost</th>';
+                echo '<th>Paid Amount</th>';
                 echo '<th>Balance</th>';
                 echo '<th>Assigned Dentist</th>';
-                echo '<th>PRC ID</th>';
+                echo '<th>Updated by</th>';
                 echo '</tr>';
                 echo '</thead>';
                 echo '<tbody>';
+
                 if ($queryResults > 0) {
                     while ($row = mysqli_fetch_assoc($result)) {
-                        echo '<tr class="table-light">';
-                        echo '<td> ' . $row["s_date"] . '</td>';
-                        echo '<td> ' . $row["s_procedure"] . '</td>';
-                        echo '<td> ' . $row["s_total"] . '</td>';
-                        echo '<td> ' . $row["s_amount"] . '</td>';
-                        echo '<td> ' . $row["s_balance"] . '</td>';
-                        echo '<td> ' . $row["dentist_assigned"] . '</td>';
-                        echo '<td> ' . $row["PRC_ID"] . '</td>'; // Display the PRC ID
+                        echo '<tr>';
+                        echo '<td>' . $row["s_date"] . '</td>';
+                        echo '<td>' . $row["procedures"] . '</td>';
+                        echo '<td>' . $row["s_total"] . '</td>';
+                        echo '<td>' . $row["s_amount"] . '</td>';
+                        echo '<td>' . $row["s_balance"] . '</td>';
+                        echo '<td>' . $row["dentist_assigned"] . '</td>';
+                        echo '<td>' . $row["s_modify"] . '</td>';
                         echo '</tr>';
                     }
-                    // Output data with no result
                 } else {
-                    echo '<tr class="table-light">';
-                    echo '<td> ' . "No data available for this patient." . '</td>';
-                    echo '<td> ' . "" . '</td>';
-                    echo '<td> ' . "" . '</td>';
-                    echo '<td> ' . "" . '</td>';
-                    echo '<td> ' . "" . '</td>';
+                    echo '<tr>';
+                    echo '<td colspan="7">No data available for this patient.</td>';
                     echo '</tr>';
                 }
                 echo '</tbody>';
                 echo '</table>';
-                ?>
 
+                ?>
 
             </div>
         </section>

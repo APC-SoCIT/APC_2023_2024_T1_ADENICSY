@@ -213,6 +213,10 @@ $(document).ready(function() {
                 // Handle success response if needed
                 // Close the modal after successful submission
                 $('#exampleModal').modal('hide');
+
+                // Display an alert and refresh the page
+                alert('Payment Details Added Successfully');
+                location.reload(); // Refresh the page
             },
             error: function (xhr, status, error) {
                 console.error('Error:', error);

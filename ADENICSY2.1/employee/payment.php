@@ -60,7 +60,6 @@ if (strlen($_SESSION['doctorid'] == 0)) {
             }
 
             echo "<script>alert('Payment Details Added Successfully');</script>";
-            echo "<script type='text/javascript'> document.location = 'payment.php?uid=" . $userid . "'; </script>";
         } else {
             // Handle case if not all necessary fields are received
             echo "Incomplete data received";

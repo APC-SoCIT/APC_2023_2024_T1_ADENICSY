@@ -68,16 +68,22 @@ include 'employee-nav-staff.php';
                 echo '<h4 class="text-dark fw-bold">Total Remaining Balance: ' . $totalRemainingBalance . '</h4>';
             }
 
-            $sql = "SELECT * FROM s_payment WHERE s_patiendID='$patientID'";
+            $sql = "SELECT s.s_payID, s.s_date, s.s_total, s.s_amount, s.s_balance, s.dentist_assigned, s.s_modify, GROUP_CONCAT(p.procedure_name SEPARATOR ', ') AS procedures
+                    FROM s_payment s 
+                    INNER JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
+                    INNER JOIN procedures p ON pp.procedure_id = p.id 
+                    WHERE s.s_patiendID = '$patientID'
+                    GROUP BY s.s_payID";
+
             $result = mysqli_query($con, $sql);
             $queryResults = mysqli_num_rows($result);
-            // Create a Bootstrap table to display the data
+
             echo '<table class="table table-primary table-striped">';
             echo '<thead class="text-primary h4">';
             echo '<tr>';
             echo '<th>ID</th>';
             echo '<th>Date</th>';
-            echo '<th>Procedure</th>';
+            echo '<th>Procedures</th>';
             echo '<th>Total Cost</th>';
             echo '<th>Paid Amount</th>';
             echo '<th>Balance</th>';
@@ -87,23 +93,26 @@ include 'employee-nav-staff.php';
             echo '</tr>';
             echo '</thead>';
             echo '<tbody>';
+
             if ($queryResults > 0) {
                 while ($row = mysqli_fetch_assoc($result)) {
                     echo '<tr>';
-                    echo '<td> ' . $row["s_payID"] . '</td>';
-                    echo '<td> ' . $row["s_date"] . '</td>';
-                    echo '<td> ' . $row["s_procedure"] . '</td>';
-                    echo '<td> ' . $row["s_total"] . '</td>';
-                    echo '<td> ' . $row["s_amount"] . '</td>';
-                    echo '<td> ' . $row["s_balance"] . '</td>';
-                    echo '<td> ' . $row["dentist_assigned"] . '</td>';
-                    echo '<td> ' . $row["s_modify"] . '</td>';
+                    echo '<td>' . $row["s_payID"] . '</td>';
+                    echo '<td>' . $row["s_date"] . '</td>';
+                    echo '<td>' . $row["procedures"] . '</td>';
+                    echo '<td>' . $row["s_total"] . '</td>';
+                    echo '<td>' . $row["s_amount"] . '</td>';
+                    echo '<td>' . $row["s_balance"] . '</td>';
+                    echo '<td>' . $row["dentist_assigned"] . '</td>';
+                    echo '<td>' . $row["s_modify"] . '</td>';
                     echo '<td class="text-center">';
+
                     if ($row["s_amount"]) {
                         echo '<button type="button" class="btn btn-primary" disabled>Update</button>';
                     } else {
                         echo '<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal" data-payid="' . $row["s_payID"] . '" data-dentistassigned="' . $row["dentist_assigned"] . '" data-total="' . $row["s_total"] . '" data-balance="' . $row["s_amount"] . '">Update</button>';
                     }
+
                     echo '</td>';
                     echo '</tr>';
                 }
