@@ -23,10 +23,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $items = array();
                 while ($item = mysqli_fetch_assoc($itemsResult)) {
-                    $items[] = array(
-                        'item_name' => $item['item_name'],
-                        'quantity' => $item['quantity']
-                    );
+                    $itemName = $item['item_name'];
+                    $itemQuantity = $item['quantity'];
+
+                    // Get item ID for the item name
+                    $itemIdQuery = "SELECT id FROM inventory1 WHERE item_name = '$itemName'";
+                    $itemIdResult = mysqli_query($con, $itemIdQuery);
+
+                    if ($itemIdResult && mysqli_num_rows($itemIdResult) > 0) {
+                        $itemIdRow = mysqli_fetch_assoc($itemIdResult);
+                        $itemId = $itemIdRow['id'];
+
+                        $items[] = array(
+                            'item_name' => $itemName,
+                            'item_id' => $itemId, // Include the item ID
+                            'quantity' => $itemQuantity
+                        );
+                    }
                 }
 
                 $procedureDetails[$procedureId]['items'] = $items;
@@ -41,4 +54,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 } else {
     echo json_encode(array('error' => 'Invalid request method'));
 }
-?>
