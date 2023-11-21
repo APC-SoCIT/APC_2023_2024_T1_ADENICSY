@@ -19,7 +19,7 @@ if (strlen($_SESSION['id'] == 0)) {
 
                     function closeModal() {
                         myModal.hide();
-                        window.location.href = 'edit-profile.php'; // Redirect if needed
+                        window.location.href = 'patient-profile.php'; // Redirect if needed
                     }
 
                     myModal.show();
@@ -113,7 +113,7 @@ if (strlen($_SESSION['id'] == 0)) {
 
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', function() {
                 var myModal = new bootstrap.Modal(document.getElementById('myModal'));
 
 
@@ -125,21 +125,21 @@ if (strlen($_SESSION['id'] == 0)) {
                 showModal();
             });
         </script>
-                <div class='modal' id='myModal'>
-                    <div class='modal-dialog'>
-                        <div class='modal-content'>
-                            <div class='modal-header'>
-                                <h5 class='modal-title'>Success</h5>
+        <div class='modal' id='myModal'>
+            <div class='modal-dialog'>
+                <div class='modal-content'>
+                    <div class='modal-header'>
+                        <h5 class='modal-title'>Success</h5>
 
-                            </div>
-                            <div class='modal-body'>
-                                <p>Your profile has been updated successfully.</p>
-                            </div>
-                            <div class='modal-footer'>
-                            </div>
-                        </div>
+                    </div>
+                    <div class='modal-body'>
+                        <p>Your profile has been updated successfully.</p>
+                    </div>
+                    <div class='modal-footer'>
                     </div>
                 </div>
+            </div>
+        </div>
 
     </body>
 
