@@ -12,8 +12,23 @@ if (strlen($_SESSION['doctorid'] == 0)) {
         $msg = mysqli_query($con, "update employee set fname='$fname',lname='$lname',contactno='$contact' where id='$userid'");
 
         if ($msg) {
-            echo "<script>alert('Profile updated successfully');</script>";
-            echo "<script type='text/javascript'> document.location = 'edit-profile.php'; </script>";
+            $modalScript = "
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var myModal = new bootstrap.Modal(document.getElementById('myModal'));
+
+                        function closeModal() {
+                            myModal.hide();
+                            window.location.href = 'edit-profile.php'; // Redirect if needed
+                        }
+
+                        myModal.show();
+                        setTimeout(closeModal, 2000); // Close modal after 2 seconds
+                    });
+                </script>
+            ";
+
+            echo $modalScript;
         }
     }
 
@@ -37,31 +52,7 @@ if (strlen($_SESSION['doctorid'] == 0)) {
     </head>
 
     <body class="sb-nav-fixed" style="background-color: hwb(325 9% 62% / 0.336);">
-        <nav class="navbar navbar-expand-lg navbar-dark pt-2 fixed-top" style="background-color: #4B0082;">
-            <div class="container">
-                <ul class="text-center ">
-                    <a href="#" class="navbar-brand fs-3 h2 fw-bold" style="color: #EE82EE;">ADENICSY</a>
-                    <h6 class="text-white mb-0" style="color: #FFFFFF; font-weight: bold;">Apelo Dental Clinic System</h6>
-                </ul>
-                <!--button below is what appears when navbar collapses-->
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <div class="collapse navbar-collapse" id="navmenu">
-                    <ul class="navbar-nav ms-auto h5"> <!-- ms-auto is to make the nav tab on right side -->
-                        <li class="nav-item">
-                            <a href="doc-homepage.php" class="nav-link" style="color: #FFFFFF; font-weight: bold;">Home</a>
-                        </li>
-                        <a href="emp-profile.php" class="nav-link" style="color: #FFFFFF; font-weight: bold;">Profile</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="emp-logout.php" class="nav-link" style="color: #FFFFFF; font-weight: bold;">Logout</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+        <?php include_once('employee-nav.php'); ?>
         <main>
             <div class="container-fluid px-4" style="padding-top: 70px;">
 
@@ -122,6 +113,37 @@ if (strlen($_SESSION['doctorid'] == 0)) {
         <script src="assets/demo/chart-bar-demo.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
         <script src="js/datatables-simple-demo.js"></script>
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var myModal = new bootstrap.Modal(document.getElementById('myModal'));
+
+
+                function closeModal() {
+                    myModal.hide();
+                    window.location.href = 'edit-profile.php';
+                }
+
+                showModal();
+            });
+        </script>
+        <div class='modal' id='myModal'>
+            <div class='modal-dialog'>
+                <div class='modal-content'>
+                    <div class='modal-header'>
+                        <h5 class='modal-title'>Success</h5>
+
+                    </div>
+                    <div class='modal-body'>
+                        <p>Your profile has been updated successfully.</p>
+                    </div>
+                    <div class='modal-footer'>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </body>
 
     </html>

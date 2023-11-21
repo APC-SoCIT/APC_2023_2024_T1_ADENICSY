@@ -78,8 +78,8 @@ if (strlen($_SESSION['staffid'] == 0)) {
                     echo '    <div class="btn-group status-dropdown">';
                     echo '        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"';
 
-                    // Check if the status is "Canceled" and disable the dropdown accordingly
-                    if ($row["status"] == "Canceled") {
+                    // Check if the status is "Cancelled" and disable the dropdown accordingly
+                    if ($row["status"] == "Cancelled") {
                         echo ' disabled';
                     }
 
@@ -87,10 +87,10 @@ if (strlen($_SESSION['staffid'] == 0)) {
                     echo '            Status';
                     echo '        </button>';
                     echo '        <ul class="dropdown-menu">';
-                    echo '            <li><a class="dropdown-item status-item" href="#" data-id="' . $row["queueing_number"] . '">On-queued</a></li>';
+                    echo '            <li><a class="dropdown-item status-item" href="#" data-id="' . $row["queueing_number"] . '">in-queued</a></li>';
                     echo '            <li><a class="dropdown-item status-item" href="#" data-id="' . $row["queueing_number"] . '">Arrived</a></li>';
                     echo '            <li><a class="dropdown-item status-item" href="#" data-id="' . $row["queueing_number"] . '">Done</a></li>';
-                    echo '            <li><a class="dropdown-item status-item" href="#" data-id="' . $row["queueing_number"] . '">Canceled</a></li>';
+                    echo '            <li><a class="dropdown-item status-item" href="#" data-id="' . $row["queueing_number"] . '">Cancelled</a></li>';
                     echo '        </ul>';
                     echo '    </div>';
                     echo '    <input type="hidden" class="id-input" name="id" value="' . $row["queueing_number"] . '">';
