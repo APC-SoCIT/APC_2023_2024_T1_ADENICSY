@@ -84,7 +84,7 @@ if (strlen($_SESSION['doctorid'] == 0)) {
                                     </tr>
                                     <tr>
                                         <th>Password</th>
-                                        <td colspan="3"><?php echo $result['password']; ?> <a class="btn btn-sm btn-primary float-end" href="change-password.php">Change password</a></td>
+                                        <td colspan="3"><a class="btn btn-sm btn-primary float-end" href="change-password.php">Change password</a></td>
                                     </tr>
                                     <tr>
                                         <th>Reg. Date</th>
