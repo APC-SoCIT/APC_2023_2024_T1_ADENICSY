@@ -94,20 +94,24 @@ $userid = $_GET['uid'];
     </div>
 
     </div>
+    <!-- 3 stages modal -->
     <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg"> <!-- Adjust modal size if needed -->
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Add Payment</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <!-- Form -->
-                    <form name="submit" method="POST">
+
+                <!-- Initial Stage -->
+                <div class="modal-body" id="initialStage">
+                    <form name="initialForm" method="POST" class="needs-validation" novalidate>
+                        <!-- Your form fields -->
                         <div class="mb-3">
                             <label for="date" class="form-label">Date</label>
-                            <input type="date" class="form-control" id="date" name="date" required>
+                            <input type="date" class="form-control" id="date" name="date" value="<?php echo date('Y-m-d'); ?>" required>
+                            <div class="invalid-feedback">Please provide a valid date.</div>
                         </div>
                         <div class="mb-3">
                             <label for="procedure" class="form-label">Procedure</label>
@@ -124,14 +128,18 @@ $userid = $_GET['uid'];
                                 ?>
                             </select>
                         </div>
+                        <label for="chosenProceduresListDisplay" class="form-label fw-bold">Selected Procedures:</label>
+
                         <div id="chosenProceduresList" class="mb-3">
                             <!-- Selected Procedures -->
                         </div>
+                        <hr class="my-3">
+                        <label for="selectedItemsContainerDisplay" class="form-label fw-bold">Used Item:</label>
                         <div id="selectedItemsContainer" class="mb-3">
                             <!-- Associated items will be displayed here based on selected procedures -->
                         </div>
                         <div class="mb-3">
-                            <label for="additionalItem" class="form-label">Add Additional Item</label>
+                            <label for="additionalItem" class="form-label">Add Used Item</label>
                             <select class="form-select" id="additionalItem" required>
                                 <option value="">Select items from inventory</option>
                                 <!-- Populate inventory items dynamically -->
@@ -146,12 +154,78 @@ $userid = $_GET['uid'];
                                 ?>
                             </select>
                         </div>
-                        <button type="button" class="btn btn-primary mb-3" id="addItemToProcedure">Add Item to Procedure</button>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button class="btn btn-primary" name="submit" type="submit">Done</button>
+                        <label for="additionalUsedItemDisplay" class="form-label fw-bold">Additional Used Items:</label>
+                        <!-- Additional Item Display Container -->
+                        <div id="additionalItemsContainer">
+                            <!-- Selected additional items will appear here -->
                         </div>
                     </form>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary" id="nextButton">Next</button>
+                    </div>
+                    </form>
+                </div>
+
+                <!-- Cost Breakdown for Items  and Fees Stage -->
+                <div class="modal-body" id="costBreakdownStage" style="display: none;">
+                    <label for="costBreakdown" class="form-label fw-bold">Item's Cost Breakdown</label>
+                    <div id="costBreakdown" class="mb-3">
+                        <!-- Cost breakdown will appear here -->
+                    </div>
+                    <div class="mb-3">
+                        <label for="professionalFee" class="form-label">Professional Fee</label>
+                        <div class="input-group w-25 text-center">
+                            <button class="btn btn-outline-secondary" type="button" id="decreaseProfessionalFee">-</button>
+                            <input type="number" class="form-control text-center w-50" id="professionalFee" value="500" min="500">
+                            <button class="btn btn-outline-secondary" type="button" id="increaseProfessionalFee">+</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="discountType" class="form-label">Discount</label>
+                        <div class="input-group">
+                            <select class="form-select" id="discountType">
+                                <option value="none">None</option>
+                                <option value="seniorCitizen">Senior Citizen</option>
+                                <option value="pwd">PWD</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <input type="text" class="form-control" id="otherDiscount" placeholder="Enter Discount" style="display: none;">
+                            <input type="number" class="form-control text-center" id="discountPercentage" min="0" max="100" value="0">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <!-- Back to the initial stage -->
+                        <button type="button" class="btn btn-secondary" id="backButton">Back</button>
+                        <!-- Submit the form at this stage -->
+                        <button type="submit" class="btn btn-primary" id="nextButton2">Next</button>
+                    </div>
+                </div>
+                <!-- Total Cost Breakdown Stage -->
+                <div class="modal-body" id="totalCostBreakdownStage" style="display: none;">
+                    <label for="costBreakdown" class="form-label fw-bold">Total Cost Breakdown</label>
+                    <!-- The cost breakdown display area -->
+                    <div id="costBreakdown" class="mb-3">
+                        <!-- Existing or dynamically populated cost breakdown items -->
+                    </div>
+                    <div class="mb-3">
+                        <div>Total Item Cost:</div>
+                        <div id="totalItemCost"></div>
+                        <div>Professional Fee:</div>
+                        <div id="displayProfessionalFee"></div>
+                        <div>Deducted Discount:</div>
+                        <div id="displayDeductedDiscount"></div>
+                    </div>
+                    <hr>
+                    <div><strong>Total Procedure Cost:</strong></div>
+                    <div id="displayTotalProcedureCost"></div>
+                    <div class="modal-footer">
+                        <!-- Back to the initial stage -->
+                        <button type="button" class="btn btn-secondary" id="backButton2">Back</button>
+                        <!-- Submit the form at this stage -->
+                        <button class="btn btn-primary" name="submit" type="submit">Done</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -161,152 +235,7 @@ $userid = $_GET['uid'];
     <script src="../js/scripts.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
     <script src="../js/datatables-simple-demo.js"></script>
-    <script>
-        $(document).ready(function() {
-            var selectedProcedures = {}; // Track selected procedures and associated items
-
-            $('#procedure').change(function() {
-                var selectedProcedure = $(this).val();
-
-                // Ensure selectedProcedure is not empty before making the AJAX call
-                if (selectedProcedure && selectedProcedure.length > 0) {
-                    // Check if the procedure is already added
-                    if (!selectedProcedures.hasOwnProperty(selectedProcedure)) {
-                        // AJAX call to fetch associated items for the newly added procedure
-                        $.ajax({
-                            type: 'POST',
-                            url: 'fetch_associated_items.php',
-                            data: {
-                                selectedProcedures: selectedProcedure
-                            },
-                            success: function(response) {
-                                var data = JSON.parse(response);
-
-                                // Store the procedure and its associated items
-                                selectedProcedures[selectedProcedure] = data[selectedProcedure];
-
-                                // Render items in the modal
-                                renderSelectedItems();
-                            },
-                            error: function(xhr, status, error) {
-                                console.error(xhr);
-                                console.error(status);
-                                console.error(error);
-                            }
-                        });
-                    } else {
-                        // Procedure already exists, just render the items
-                        renderSelectedItems();
-                    }
-                }
-            });
-
-            // Function to render selected items in the modal
-            function renderSelectedItems() {
-                console.log('Rendering selected items...');
-                $('#selectedItemsContainer').empty();
-
-                var aggregatedItems = {};
-
-                for (var procedureId in selectedProcedures) {
-                    if (selectedProcedures.hasOwnProperty(procedureId)) {
-                        var procedure = selectedProcedures[procedureId];
-
-                        if (procedure.items.length > 0) {
-                            procedure.items.forEach(function(item) {
-                                var itemId = item.item_name + '-' + item.quantity; // Generate a unique ID
-
-                                if (!aggregatedItems.hasOwnProperty(itemId)) {
-                                    aggregatedItems[itemId] = {
-                                        item_name: item.item_name,
-                                        quantity: parseInt(item.quantity)
-                                    };
-                                } else {
-                                    aggregatedItems[itemId].quantity += parseInt(item.quantity);
-                                }
-                            });
-                        }
-                    }
-                }
-                console.log('Aggregated items:', aggregatedItems);
-
-                var itemsList = '';
-                for (var itemId in aggregatedItems) {
-                    if (aggregatedItems.hasOwnProperty(itemId)) {
-                        var aggregatedItem = aggregatedItems[itemId];
-                        itemsList += '<div class="mb-2 d-flex align-items-center">' +
-                            '<div class="w-75 pe-2">' +
-                            '<span>' + aggregatedItem.item_name + '</span>' +
-                            '</div>' +
-                            '<input type="number" class="form-control w-auto quantity-input" name="quantity[]" value="' + aggregatedItem.quantity + '">' +
-                            '<button type="button" class="btn btn-danger btn-sm ms-2 remove-item-btn" data-item-id="' + itemId + '">-</button>' +
-                            '</div>';
-                    }
-                }
-
-                $('#selectedItemsContainer').html(itemsList);
-            }
-
-
-
-
-            // Adding an item from dropdown to the associated items list for the procedure
-            $('#additionalItem').change(function() {
-                var itemId = $(this).val();
-                var itemName = $("#additionalItem option:selected").text();
-
-                // Check if the selected value is not empty and the item is not already associated with the procedure
-                if (itemId !== "" && $('#updateSelectedItemsContainer').find("[data-item-id='" + itemId + "']").length === 0) {
-                    // Add the selected item to the list
-                    var listItem = $('<div class="mb-2 d-flex align-items-center" data-item-id="' + itemId + '">');
-                    listItem.html('<div class="w-75 pe-2">' + itemName + '</div>' +
-                        '<input type="number" class="form-control w-auto quantity-input" name="quantity[]" value="1">' +
-                        '<button type="button" class="btn btn-danger btn-sm ms-2 remove-item-btn" data-item-id="' + itemId + '">-</button>');
-
-                    $('#updateSelectedItemsContainer').append(listItem);
-                }
-
-                // Reset the dropdown value
-                $(this).val('');
-            });
-
-
-
-            // Function to handle the removal of associated items
-            $('#selectedItemsContainer').on('click', '.remove-item-btn', function() {
-                $(this).parent().remove();
-            });
-
-
-            $('form[name="submit"]').submit(function(e) {
-                e.preventDefault();
-
-                var date = $('#date').val();
-                var procedures = $('#procedure').val();
-                var amount = $('#amount').val();
-
-                // Submitting the form with selected procedures and other data
-                $.ajax({
-                    type: 'POST',
-                    url: 'submit_payment.php',
-                    data: {
-                        date: date,
-                        procedures: procedures,
-                        amount: amount
-                    },
-                    success: function(response) {
-                        // Handle success
-                        console.log(response);
-                        // Redirect or perform actions as needed
-                    },
-                    error: function(xhr, status, error) {
-                        // Handle error
-                        console.error(error);
-                    }
-                });
-            });
-        });
-    </script>
+    <script src="payment-js-handler.js"></script>
 </body>
 
 </html>
