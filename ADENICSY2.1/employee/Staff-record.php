@@ -27,11 +27,10 @@ include 'employee-nav-staff.php';
             if (isset($_POST['submit'])) {
                 // Get the form data
                 $date = $_POST['date'];
-                $procedure = $_POST['procedure'];
                 $amount = $_POST['amount'];
                 $dentist_id = (int)$_POST['dentist-id'];
                 $dentist_name = $_POST['dentist-name'];
-                $msg1 = mysqli_query($con, "insert into s_payment (s_date, s_procedure, s_amount, s_patiendID, added_by, s_modify, dentist_assigned_ID, dentist_assigned) VALUES ('$date', '$procedure', '$amount', '$patientID', '$staff_fname', '$staff_fname', '$dentist_id', '$dentist_name')");
+                $msg1 = mysqli_query($con, "insert into s_payment (s_date, s_amount, s_patiendID, added_by, s_modify, dentist_assigned_ID, dentist_assigned) VALUES ('$date', '$amount', '$patientID', '$staff_fname', '$staff_fname', '$dentist_id', '$dentist_name')");
 
                 if ($msg1) {
                     echo "<script>alert('Payment Details Added Successfully');</script>";
@@ -70,8 +69,8 @@ include 'employee-nav-staff.php';
 
             $sql = "SELECT s.s_payID, s.s_date, s.s_total, s.s_amount, s.s_balance, s.dentist_assigned, s.s_modify, GROUP_CONCAT(p.procedure_name SEPARATOR ', ') AS procedures
                     FROM s_payment s 
-                    INNER JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
-                    INNER JOIN procedures p ON pp.procedure_id = p.id 
+                    LEFT JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
+                    LEFT JOIN procedures p ON pp.procedure_id = p.id 
                     WHERE s.s_patiendID = '$patientID'
                     GROUP BY s.s_payID";
 
@@ -218,10 +217,6 @@ include 'employee-nav-staff.php';
                         <div class="mb-3">
                             <label for="date" class="form-label">Date</label>
                             <input type="date" class="form-control" id="date" name="date" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Procedure</label>
-                            <input type="text" class="form-control" id="procedure" name="procedure" required>
                         </div>
                         <div class="mb-3">
                             <label for="note" class="form-label">Paid Amount</label>
