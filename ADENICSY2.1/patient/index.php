@@ -54,10 +54,6 @@ if (strlen($_SESSION['id']) == 0) {
                     <div class="row">
                         <div class="col-xl-5 col-md-6">
                             <div class="h4">Welcome Back, <em><?php echo $result['fname'] . " " . $result['lname']; ?></em></div>
-                            <div class="card-footer d-flex align-items-center justify-content-between">
-                                <!-- <a class="small text-white stretched-link" href="profile.php">View Profile</a> -->
-                                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -355,7 +351,7 @@ if (strlen($_SESSION['id']) == 0) {
         </div>
         <!-- Available Numbers -->
         <section>
-            <h1 class="text-center mb-3 text-primary fw-bold">Current Number</h1>
+            <h1 class="text-center pt-3 text-primary fw-bold">Current Number</h1>
             <div class="container pb-5">
                 <!-- flex is used to contain items inside container in rows-->
                 <div class="row justify-content-around">
@@ -469,7 +465,7 @@ if (strlen($_SESSION['id']) == 0) {
                         // Time Availability of get queueing number
                         $current_time = strtotime(date('H:i'));
                         $start_time = strtotime('4:00');
-                        $end_time = strtotime('22:00');
+                        $end_time = strtotime('24:00');
 
                         if ($current_time >= $start_time && $current_time <= $end_time) {
                             // Query to retrieve the highest queue number
