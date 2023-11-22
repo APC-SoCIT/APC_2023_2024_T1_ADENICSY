@@ -34,7 +34,7 @@ if (isset($_SESSION['doctorid']) && strlen($_SESSION['doctorid']) > 0) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-MHvZTKu17BqG3sdBYuEJi07V7z4f4U+W9XU/4Pl78d/6TfT6xOx6ENQRiE/fN76yMn94Ppxh9zKjNYBJZbxYIQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI/tT8QIep7LRnN8fKyX6Ls1aZcUeaL9RQf8d4NQ=" crossorigin="anonymous"></script>
-     <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI/tT8QIep7LRnN8fKyX6Ls1aZcUeaL9RQf8d4NQ=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI/tT8QIep7LRnN8fKyX6Ls1aZcUeaL9RQf8d4NQ=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js" crossorigin="anonymous"></script>
 </head>
 
@@ -42,12 +42,12 @@ if (isset($_SESSION['doctorid']) && strlen($_SESSION['doctorid']) > 0) {
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark pt-2 fixed-top" style="background-color: #4B0082;">
         <div class="container">
-        <ul class="text-center">
-            <a href="doc-homepage.php" class="navbar-brand fs-3 h2 fw-bold" style="color: #EE82EE;">ADENICSY</a>
-            <a href="doc-homepage.php" style="text-decoration: none;">
-                <h6 class="text-white mb-0" style="color: #FFFFFF; font-weight: bold;">Apelo Dental Clinic System</h6>
-            </a>
-        </ul>
+            <ul class="text-center">
+                <a href="doc-homepage.php" class="navbar-brand fs-3 h2 fw-bold" style="color: #EE82EE;">ADENICSY</a>
+                <a href="doc-homepage.php" style="text-decoration: none;">
+                    <h6 class="text-white mb-0" style="color: #FFFFFF; font-weight: bold;">Apelo Dental Clinic System</h6>
+                </a>
+            </ul>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -89,11 +89,11 @@ if (isset($_SESSION['doctorid']) && strlen($_SESSION['doctorid']) > 0) {
                                         $patient_name = $row['patient_name'];
                                         $status = $row['status'];
                                         if ($status == 'Canceled') {
-                                            echo '<a class="dropdown-item notification-link" href="queueing-dentist.php">' . $patient_name . ' has canceled the appointment</a>';
+                                            echo '<a class="dropdown-item notification-link" href="queueing-dentist.php">' . $patient_name . '</br>' .  ' has canceled the appointment</a>';
                                         } else if ($status == 'On-queued') {
-                                            echo '<a class="dropdown-item notification-link" href="queueing-dentist.php">' . $patient_name . ' prefers you as a dentist</a>';
+                                            echo '<a class="dropdown-item notification-link" href="queueing-dentist.php">' . $patient_name . '</br>' . ' prefers you as a dentist</a>';
                                         } else if ($status == 'Arrived') {
-                                            echo '<a class="dropdown-item notification-link" href="queueing-dentist-priority.php">' . $patient_name . ' arrives at the Dental Clinic</a>';
+                                            echo '<a class="dropdown-item notification-link" href="queueing-dentist-priority.php">' . $patient_name . '</br>' . ' arrives at the Dental Clinic</a>';
                                         } else {
                                             echo '<a class="dropdown-item notification-link" href="queueing-dentist.php">' . 'No new notification' . '</a>';
                                         }
@@ -106,18 +106,18 @@ if (isset($_SESSION['doctorid']) && strlen($_SESSION['doctorid']) > 0) {
                                         $patient_name = $row['patient_name'];
                                         $status = $row['status'];
                                         if ($status == 'Canceled') {
-                                            echo '<a class="dropdown-item notification-link" href="queueing-dentist-priority.php">' . $patient_name . ' has canceled the appointment</a>';
+                                            echo '<a class="dropdown-item notification-link" href="queueing-dentist-priority.php">' . $patient_name . '</br>' . ' has canceled the appointment</a>';
                                         } else if ($status == 'On-queued') {
-                                            echo '<a class="dropdown-item notification-link" href="queueing-dentist-priority.php">' . $patient_name . ' prefers you as a dentist</a>';
+                                            echo '<a class="dropdown-item notification-link" href="queueing-dentist-priority.php">' . $patient_name . '</br>' . ' prefers you as a dentist</a>';
                                         } else if ($status == 'Arrived') {
                                             echo '<a class="dropdown-item notification-link" href="queueing-dentist-priority.php">' . $patient_name . ' arrives at the Dental Clinic</a>';
-                                        }else {
+                                        } else {
                                             echo '<a class="dropdown-item notification-link" href="queueing-dentist-priority.php">' . 'No new notification' . '</a>';
                                         }
                                     } ?>
                                 <?php } ?>
                                 <!-- Mark All as Read button -->
-            <button class="dropdown-item" onclick="markAllNotificationsAsRead()">Mark All as Read</button>
+                                <button class="dropdown-item" onclick="markAllNotificationsAsRead()">Mark All as Read</button>
                             </div>
                         </div>
                     </li>
@@ -141,14 +141,14 @@ if (isset($_SESSION['doctorid']) && strlen($_SESSION['doctorid']) > 0) {
         </div>
     </nav>
     <script>
-    function markAllNotificationsAsRead() {
-        // Assuming you have a variable named 'total_notifications' that holds the count
-        var totalNotificationsElement = document.getElementById('notificationBadge');
-        
-        // Set the count to zero
-        totalNotificationsElement.innerText = '0';
-    }
-</script>
+        function markAllNotificationsAsRead() {
+            // Assuming you have a variable named 'total_notifications' that holds the count
+            var totalNotificationsElement = document.getElementById('notificationBadge');
+
+            // Set the count to zero
+            totalNotificationsElement.innerText = '0';
+        }
+    </script>
 
 </body>
 
