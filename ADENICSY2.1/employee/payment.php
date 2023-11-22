@@ -4,7 +4,8 @@ if (strlen($_SESSION['doctorid'] == 0)) {
     header('location:emp-logout.php');
 } else {
     //get the ID from the button 
-    $userid = $_GET['uid'];
+    $patientid = $_GET['uid'];
+
     $docID = $_SESSION['doctorid'];
     $sql1 = "SELECT fname, lname FROM employee WHERE id = $docID";
     $result1 = mysqli_query($con, $sql1);
@@ -13,7 +14,7 @@ if (strlen($_SESSION['doctorid'] == 0)) {
 
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['userId'], $_POST['date'], $_POST['proceduresData'], $_POST['totalItemCost'], $_POST['usedItems'], $_POST['professionalFee'], $_POST['discountType'], $_POST['discountPercentage'], $_POST['totalProcedureCost'])) {
         // Get the form data
-        $userid = $_POST['userId'];
+        $userid2 = $_POST['userId'];
         $date = $_POST['date'];
         $amount = $_POST['totalProcedureCost'];
         // Other form data...
@@ -31,7 +32,7 @@ if (strlen($_SESSION['doctorid'] == 0)) {
 
         // SQL query to insert data into s_payment table
         $insertPaymentQuery = "INSERT INTO s_payment (s_date, s_total, s_patiendID, added_by, dentist_assigned_ID, dentist_assigned, discount_type, discount_percent, total_item_cost, professional_fee, deducted_discount) 
-        VALUES ('$date', '$amount', '$userid', '$dentist_fname', '$docID', '$dentist_fname', '$discountType', '$discountPercentage', '$totalItemCost', '$professionalFee', '$deductedDiscount')";
+        VALUES ('$date', '$amount', '$userid2', '$dentist_fname', '$docID', '$dentist_fname', '$discountType', '$discountPercentage', '$totalItemCost', '$professionalFee', '$deductedDiscount')";
 
         $msg1 = mysqli_query($con, $insertPaymentQuery);
 
@@ -68,12 +69,13 @@ if (strlen($_SESSION['doctorid'] == 0)) {
 }
 
 include 'employee-nav.php';
+
 ?>
 <html>
 
 <body style="padding-top: 120px; padding-bottom: 60px;">
     <div class="container">
-        <a class="btn btn-primary" href="record.php?id=<?php echo $userid; ?>" role="button"><i class="fa fa-arrow-left"></i> Back to Patient's Info</a>
+        <a class="btn btn-primary" href="record.php?id=<?php echo $patientid; ?>" role="button"><i class="fa fa-arrow-left"></i> Back to Patient's Info</a>
     </div>
     <div class="container">
         <h1 class="text-primary text-center fw-bold pb-3">Payment Details</h1>
@@ -88,11 +90,11 @@ include 'employee-nav.php';
         FROM s_payment s 
         LEFT JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
         LEFT JOIN procedures p ON pp.procedure_id = p.id 
-        WHERE s.s_patiendID = $userid
+        WHERE s.s_patiendID = $patientid
         GROUP BY s.s_payID";
 
-
         $result = mysqli_query($con, $sql);
+
 
         // Create a Bootstrap table to display the data
         echo '<table class="table table-primary table-striped">';
@@ -259,7 +261,7 @@ include 'employee-nav.php';
                         <hr>
                         <div><strong>Total Procedure Cost:</strong></div>
                         <div id="displayTotalProcedureCost"></div>
-                        <input type="hidden" id="userIdHidden" name="userId" value="<?php echo $userid; ?>">
+                        <input type="hidden" id="userIdHidden" name="userId" value="<?php echo $patientid; ?>">
                         <div class="modal-footer">
                             <!-- Back to the initial stage -->
                             <button type="button" class="btn btn-secondary" id="backButton2">Back</button>

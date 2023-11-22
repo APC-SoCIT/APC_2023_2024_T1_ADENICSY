@@ -155,7 +155,7 @@ $query = mysqli_query($con, "select * from patient where id='$userid'");
                                     } elseif ($queueNumber > $max_regular_queue - 5) {
                                         $nextPatients = $queueNumber - $max_regular_queue;
                                         echo "<div class='dropdown-item'>";
-                                        echo "Your regular queueing number ($queueNumber) is not yet on queue. You are among the next $nextPatients patient/s.";
+                                        echo "Your regular queueing number ($queueNumber) is not yet on queue. </br> You are among the next $nextPatients patient/s.";
                                         echo "</div>";
                                     }
                                 }
@@ -184,7 +184,7 @@ $query = mysqli_query($con, "select * from patient where id='$userid'");
                                     } elseif ($queueNumber > $max_priority_queue - 5) {
                                         $nextPatients = $queueNumber - $max_priority_queue;
                                         echo "<div class='dropdown-item'>";
-                                        echo "Your priority queueing number ($queueNumber) is not yet on queue. You are among the next $nextPatients patient/s.";
+                                        echo "Your priority queueing number ($queueNumber) is not yet on queue. </br> You are among the next $nextPatients patient/s.";
                                         echo "</div>";
                                     }
                                 }
