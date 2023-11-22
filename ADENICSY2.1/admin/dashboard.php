@@ -126,19 +126,24 @@ if (strlen($_SESSION['adminid'] == 0)) {
                         </div>
                         <hr>
                         <div class="chart-container py-2">
-                            <h2>Quantity of Items</h2>
+                            <h2>Top 7 in Inventory Item Composition</h2>
                             <div class="chart py-3">
                                 <canvas id="inventoryChart"></canvas>
                             </div>
 
-                            <h2>Supplies/Items</h2>
+                            <h2>Critical Level Items</h2>
                             <div class="chart py-3">
                                 <canvas id="runningOutChart"></canvas>
                             </div>
 
-                            <h2>Denstist Catered Patients</h2>
+                            <h2>Top 5 Dentist based on served patients</h2>
                             <div class="chart py-3">
                                 <canvas id="patientsChart"></canvas>
+                            </div>
+
+                            <h2>Fast Moving Items</h2>
+                            <div class="chart py-3">
+                                <canvas id="fastMovingItems"></canvas>
                             </div>
 
                             <h2>Number of Appointments<h2>
@@ -146,16 +151,147 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                         <canvas id="appointmentsChart"></canvas>
                                     </div>
                         </div>
+                        <?php
+                        // Get Item's Quantity Composition in Inventory
+                        $query = "SELECT item_name, quantity 
+                                FROM inventory1 
+                                ORDER BY quantity 
+                                DESC LIMIT 6";
+
+                        $result = mysqli_query($con, $query);
+
+                        // Check if the query executed successfully
+                        if ($result) {
+                            $labels = [];
+                            $data = [];
+
+                            // Fetch data and construct arrays for labels and data
+                            while ($row = mysqli_fetch_assoc($result)) {
+                                $labels[] = $row['item_name'];
+                                $data[] = $row['quantity'];
+                            }
+
+                            // Construct the Chart.js object using PHP variables
+                            $inventoryData = [
+                                'labels' => $labels,
+                                'datasets' => [
+                                    [
+                                        'data' => $data,
+                                        'backgroundColor' => ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#9C27B0', '#29CFb9', '#4ED41E', '#ED346F', '#70511']
+                                    ]
+                                ]
+                            ];
+                        } else {
+                            // Handle query error if needed
+                            echo "Error executing query: " . mysqli_error($con);
+                        }
+
+                        // Query to select the top 5 dentists based on the number of patients they've catered to
+                        $query2 = "SELECT dentist_assigned, COUNT(s_patiendID) AS patients_count 
+                                    FROM s_payment 
+                                    GROUP BY dentist_assigned 
+                                    ORDER BY patients_count DESC 
+                                    LIMIT 5";
+
+                        $result2 = mysqli_query($con, $query2);
+
+                        if ($result2) {
+                            $labels = [];
+                            $data = [];
+
+                            while ($row = mysqli_fetch_assoc($result2)) {
+                                $labels[] = $row['dentist_assigned'];
+                                $data[] = $row['patients_count'];
+                            }
+
+                            $patientsData = [
+                                'labels' => $labels,
+                                'datasets' => [
+                                    [
+                                        'label' => 'Number of Patients',
+                                        'data' => $data,
+                                        'backgroundColor' => '#4CAF50',
+                                        'borderWidth' => 1,
+                                    ]
+                                ]
+                            ];
+                        } else {
+                            // Handle query error if needed
+                            echo "Error executing query: " . mysqli_error($con);
+                        }
+
+                        // Query the percent left for items at critical level
+                        $query3 = "SELECT item_name, quantity, critical_level, (quantity/common_max_qty) * 100 AS percentage_left
+                                        FROM inventory1 
+                                        WHERE ((quantity/common_max_qty) * 100) < 20
+                                        ORDER BY (quantity/common_max_qty) * 100 
+                                        DESC LIMIT 7";
+
+                        $result3 = mysqli_query($con, $query3);
+
+                        // Check if the query executed successfully
+                        if ($result3) {
+                            $labels = [];
+                            $data = [];
+
+                            // Fetch data and construct arrays for labels and data
+                            while ($row = mysqli_fetch_assoc($result3)) {
+                                $labels[] = $row['item_name'];
+                                $data[] = $row['percentage_left'];
+                            }
+
+                            // Construct the Chart.js object using PHP variables
+                            $percentLeft = [
+                                'labels' => $labels,
+                                'datasets' => [
+                                    [
+                                        'label' => 'Percentage Left',
+                                        'data' => $data,
+                                        'backgroundColor' => '#FFCE56',
+                                        'borderWidth' => 1,
+                                    ]
+                                ]
+                            ];
+                        }
+
+                        // Get the total quantity of every item
+                        $sql4 = "SELECT i.item_name, SUM(iu.quantity) as total_quantity
+                                FROM items_used iu
+                                JOIN inventory1 i ON iu.item_id = i.id
+                                GROUP BY iu.item_id
+                                ORDER BY total_quantity DESC
+                                LIMIT 6";
+
+                        $result4 = $con->query($sql4);
+
+                        if ($result4->num_rows > 0) {
+                            $labels = [];
+                            $data = [];
+
+                            while ($row = mysqli_fetch_assoc($result4)) {
+                                $labels[] = $row['item_name'];
+                                $data[] = $row['total_quantity'];
+                            }
+
+                            $usedItemData = [
+                                'labels' => $labels,
+                                'datasets' => [
+                                    [
+                                        'label' => 'Used Quantity',
+                                        'data' => $data,
+                                        'backgroundColor' => '#8c17e6',
+                                        'borderWidth' => 1,
+                                    ]
+                                ]
+                            ];
+                        }
+                        // Close the database connection (if necessary)
+                        mysqli_close($con);
+                        ?>
 
                         <script>
-                            // Chart 1: Fastest Moving Supplies
-                            var inventoryData = {
-                                labels: ['Gloves', 'Mouthwash', 'Facemasks', 'Rubbers', 'Index Cards', 'Wires', 'Disposable Cups', 'Clips', 'Elastics'],
-                                datasets: [{
-                                    data: [200, 2000, 900, 300, 299, 180, 500, 200, 199],
-                                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#9C27B0', '#29CFb9', '#4ED41E', '#ED346F', '#70511']
-                                }]
-                            };
+                            // Chart 1: Item's Quantity Composition in Inventory
+                            var inventoryData = <?php echo json_encode($inventoryData); ?>;
 
                             var inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
                             var inventoryChart = new Chart(inventoryCtx, {
@@ -163,40 +299,89 @@ if (strlen($_SESSION['adminid'] == 0)) {
                                 data: inventoryData,
                             });
 
-                            // Chart 3: Supplies/Items
-                            var runningOutData = {
-                                labels: ['Gloves', 'Mouthwash', 'Facemasks', 'Rubbers', 'Index Cards', 'Wires', 'Disposable Cups', 'Clips', 'Elastics'],
-                                datasets: [{
-                                    label: 'Remaining Quantity',
-                                    data: [200, 2000, 900, 300, 299, 180, 500, 200, 199],
-                                    backgroundColor: '#FFCE56',
-                                }]
-                            };
-
+                            // Chart 2: Supplies running out
+                            var percentLeft = <?php echo json_encode($percentLeft); ?>;
                             var runningOutCtx = document.getElementById('runningOutChart').getContext('2d');
                             var runningOutChart = new Chart(runningOutCtx, {
                                 type: 'bar',
-                                data: runningOutData,
+                                data: percentLeft,
+                                options: {
+                                    scales: {
+                                        xAxes: [{
+                                            display: true,
+                                            scaleLabel: {
+                                                display: true,
+                                                labelString: 'Items'
+                                            }
+                                        }],
+                                        yAxes: [{
+                                            display: true,
+                                            ticks: {
+                                                beginAtZero: true,
+                                                max: 20
+                                            }
+                                        }]
+                                    },
+                                }
                             });
 
-                            // Chart 2: Dentist Catered Patients
-                            var patientsData = {
-                                labels: ['Dr. Lea Benitez', 'Dr. Ingrid Pedrola', 'Dr. Jurist Pedrola', 'Dr. Gerald Giba', 'New Dentist', 'Dr, Ivan Emmanuel Flores'],
-                                datasets: [{
-                                    label: 'Number of Patients',
-                                    data: [50, 45, 60, 55, 70, 30],
-                                    backgroundColor: '#4CAF50',
-                                    borderWidth: 1,
-                                }]
-                            };
+                            // Chart 3: Top 5 Dentists based on served patients
+                            var patientsData = <?php echo json_encode($patientsData); ?>;
 
                             var patientsCtx = document.getElementById('patientsChart').getContext('2d');
                             var patientsChart = new Chart(patientsCtx, {
                                 type: 'bar',
                                 data: patientsData,
+                                options: {
+                                    scales: {
+                                        xAxes: [{
+                                            display: true,
+                                            scaleLabel: {
+                                                display: true,
+                                                labelString: 'Dentists'
+                                            }
+                                        }],
+                                        yAxes: [{
+                                            display: true,
+                                            ticks: {
+                                                beginAtZero: true,
+                                                steps: 10,
+
+                                            }
+                                        }]
+                                    },
+                                }
                             });
 
-                            // Chart 4: Number of Appointments
+                            // Chart 4: Fast Moving Items
+                            var usedItemData = <?php echo json_encode($usedItemData); ?>;
+
+                            var patientsCtx = document.getElementById('fastMovingItems').getContext('2d');
+                            var patientsChart = new Chart(patientsCtx, {
+                                type: 'bar',
+                                data: usedItemData,
+                                options: {
+                                    scales: {
+                                        xAxes: [{
+                                            display: true,
+                                            scaleLabel: {
+                                                display: true,
+                                                labelString: 'Items'
+                                            }
+                                        }],
+                                        yAxes: [{
+                                            display: true,
+                                            ticks: {
+                                                beginAtZero: true,
+                                                steps: 10,
+
+                                            }
+                                        }]
+                                    },
+                                }
+                            });
+
+                            // Chart 5: Number of Appointments
                             var appointmentsData = {
                                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
                                 datasets: [{
