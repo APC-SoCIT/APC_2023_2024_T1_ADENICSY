@@ -76,7 +76,7 @@ include 'employee-nav-staff.php';
                 if ($queryResults > 0) {
                     while ($row = mysqli_fetch_assoc($result)) {
                         // Calculate and add the remaining balance to the total
-                        $totalRemainingBalance += ($row["s_total"] - $row["s_amount"]);
+                        $totalRemainingBalance += number_format(($row["s_total"] - $row["s_amount"]), 2);
                     }
                 }
 
