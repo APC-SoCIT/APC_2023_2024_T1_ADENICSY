@@ -40,6 +40,23 @@ include 'employee-nav-staff.php';
             ?>
 
             <?php
+
+            function formatValue($value)
+            {
+                if (!is_numeric($value)) {
+                    return $value; // Return as is if the value is not numeric
+                }
+
+                $decimal = fmod($value, 1);
+
+                if ($decimal === 0 || $decimal === 0.5) {
+                    return number_format($value, 2);
+                } elseif (round($decimal, 1) === 0) {
+                    return number_format($value, 1) . '0';
+                } else {
+                    return number_format($value, 2, '.', '');
+                }
+            }
             $sqlpatientinfo = "SELECT fname, lname FROM patient WHERE id='$patientID'";
             $result_info = mysqli_query($con, $sqlpatientinfo);
             $queryResults_info = mysqli_num_rows($result_info);
@@ -64,7 +81,7 @@ include 'employee-nav-staff.php';
                 }
 
                 // Display the total remaining balance
-                echo '<h4 class="text-dark fw-bold">Total Remaining Balance: ' . $totalRemainingBalance . '</h4>';
+                echo '<h4 class="text-dark fw-bold">Total Remaining Balance: ₱' . $totalRemainingBalance . '</h4>';
             }
 
             $sql = "SELECT s.s_payID, s.s_date, s.s_total, s.s_amount, s.s_balance, s.dentist_assigned, s.s_modify, s.discount_type, s.deducted_discount, GROUP_CONCAT(p.procedure_name SEPARATOR ', ') AS procedures
@@ -115,11 +132,11 @@ include 'employee-nav-staff.php';
                     echo '<td>' . $row["s_payID"] . '</td>';
                     echo '<td>' . $row["s_date"] . '</td>';
                     echo '<td>' . $procedures . '</td>';
-                    echo '<td class="text-end"><div class="me-4">' . $s_total . '</div></td>';
-                    echo '<td class="text-end"><div class="me-4">' . $row["s_amount"] . '</div></td>';
+                    echo '<td class="text-end"><div class="me-4">' . formatValue($s_total) . '</div></td>';
+                    echo '<td class="text-end"><div class="me-4">' . formatValue($row["s_amount"]) . '</div></td>';
                     echo '<td>' . $discount_type . '</td>';
-                    echo '<td class="text-end"><div class="me-4">' . $deducted_discount . '</div></td>';
-                    echo '<td class="text-end"><div class="me-4">' . $balance . '</div></td>';
+                    echo '<td class="text-end"><div class="me-4">' . formatValue($deducted_discount) . '</div></td>';
+                    echo '<td class="text-end"><div class="me-4">' . formatValue($balance) . '</div></td>';
                     echo '<td>' . $row["dentist_assigned"] . '</td>';
                     echo '<td>' . $row["s_modify"] . '</td>';
                     echo '<td class="text-center">';
@@ -135,7 +152,7 @@ include 'employee-nav-staff.php';
                 }
             } else {
                 echo '<tr>';
-                echo '<td colspan="9">No data available for this patient.</td>';
+                echo '<td colspan="11">No data available for this patient.</td>';
                 echo '</tr>';
             }
             echo '</tbody>';

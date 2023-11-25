@@ -29,10 +29,11 @@ if (strlen($_SESSION['id'] == 0)) {
             <div class="px-5-lg">
                 <?php
                 $userid = $_SESSION['id'];
-                $sql1 = "SELECT SUM(CAST(s_balance AS DECIMAL(10, 2))) AS totalbalance FROM s_payment WHERE s_patiendID='$userid'";
+                $sql1 = "SELECT SUM(s_total) - SUM(s_amount) AS total_balance FROM s_payment WHERE s_patiendID='$userid'";
                 $result1 = mysqli_query($con, $sql1);
                 $row1 = mysqli_fetch_assoc($result1);
-                $totalbalance = $row1['totalbalance'];
+                // Formatting total_balance to display 2 decimals
+                $totalbalance = number_format($row1['total_balance'], 2);
 
 
                 ?>
@@ -46,6 +47,23 @@ if (strlen($_SESSION['id'] == 0)) {
                 </div>
 
                 <?php
+                function formatValue($value)
+                {
+                    if (!is_numeric($value)) {
+                        return $value; // Return as is if the value is not numeric
+                    }
+
+                    $decimal = fmod($value, 1);
+
+                    if ($decimal === 0 || $decimal === 0.5) {
+                        return number_format($value, 2);
+                    } elseif (round($decimal, 1) === 0) {
+                        return number_format($value, 1) . '0';
+                    } else {
+                        return number_format($value, 2, '.', '');
+                    }
+                }
+
                 $sql = "SELECT s.s_date, s.s_total, s.s_amount, s.s_balance, s.dentist_assigned, s.s_modify, e.PRC_ID, GROUP_CONCAT(p.procedure_name SEPARATOR ', ') AS procedures
                         FROM s_payment s 
                         LEFT JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
@@ -85,9 +103,9 @@ if (strlen($_SESSION['id'] == 0)) {
                         echo '<tr>';
                         echo '<td>' . $row["s_date"] . '</td>';
                         echo '<td>' . $procedures . '</td>';
-                        echo '<td><div class="text-end pe-4">' . $s_total . '</div></td>';
-                        echo '<td><div class="text-end pe-4">' . $row["s_amount"] . '</div></td>';
-                        echo '<td><div class="text-end pe-4">' . $balance . '</div></td>';
+                        echo '<td><div class="text-end pe-4">' . formatValue($s_total) . '</div></td>';
+                        echo '<td><div class="text-end pe-4">' . formatValue($row["s_amount"]) . '</div></td>';
+                        echo '<td><div class="text-end pe-4">' . formatValue($balance) . '</div></td>';
                         echo '<td>' . $row["dentist_assigned"] . '</td>';
                         echo '<td><div class="text-start">' . $row["PRC_ID"] . '</div></td>';
                         echo '<td>' . $row["s_modify"] . '</td>';
@@ -95,7 +113,7 @@ if (strlen($_SESSION['id'] == 0)) {
                     }
                 } else {
                     echo '<tr>';
-                    echo '<td colspan="7">No data available for this patient.</td>';
+                    echo '<td colspan="8">No data available for this patient.</td>';
                     echo '</tr>';
                 }
                 echo '</tbody>';

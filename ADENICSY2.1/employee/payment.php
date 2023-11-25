@@ -85,6 +85,7 @@ include 'employee-nav.php';
         // Fetch payment details along with associated procedures for the patient
         $sql = "SELECT s.s_date, 
         IFNULL(GROUP_CONCAT(p.procedure_name SEPARATOR ', '), 'Paid through staff') AS procedures,
+        s.s_amount,
         s.s_total, 
         s.added_by, 
         s.dentist_assigned
@@ -114,7 +115,12 @@ include 'employee-nav.php';
                 echo '<tr>';
                 echo '<td>' . $row["s_date"] . '</td>';
                 echo '<td>' . $row["procedures"] . '</td>';
-                echo '<td>' . $row["s_total"] . '</td>';
+                // Check if procedures is 'Paid through staff'
+                if ($row["procedures"] === 'Paid through staff') {
+                    echo '<td>' . $row["s_amount"] . '</td>'; // Display s_amount
+                } else {
+                    echo '<td>' . $row["s_total"] . '</td>'; // Display s_total by default
+                }
                 echo '<td>' . $row["added_by"] . '</td>';
                 echo '<td>' . $row["dentist_assigned"] . '</td>';
                 echo '</tr>';
