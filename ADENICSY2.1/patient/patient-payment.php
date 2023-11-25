@@ -46,10 +46,11 @@ if (strlen($_SESSION['id'] == 0)) {
                 </div>
 
                 <?php
-                $sql = "SELECT s.s_date, s.s_total, s.s_amount, s.s_balance, s.dentist_assigned, s.s_modify, GROUP_CONCAT(p.procedure_name SEPARATOR ', ') AS procedures
+                $sql = "SELECT s.s_date, s.s_total, s.s_amount, s.s_balance, s.dentist_assigned, s.s_modify, e.PRC_ID, GROUP_CONCAT(p.procedure_name SEPARATOR ', ') AS procedures
                         FROM s_payment s 
                         LEFT JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
-                        LEFT JOIN procedures p ON pp.procedure_id = p.id 
+                        LEFT JOIN procedures p ON pp.procedure_id = p.id
+                        LEFT JOIN employee e ON s.dentist_assigned_ID = e.id 
                         WHERE s.s_patiendID = '$userid'
                         GROUP BY s.s_payID";
 
@@ -64,7 +65,8 @@ if (strlen($_SESSION['id'] == 0)) {
                 echo '<th>Total Cost</th>';
                 echo '<th>Paid Amount</th>';
                 echo '<th>Balance</th>';
-                echo '<th>Assigned Dentist</th>';
+                echo '<th>Dentist</th>';
+                echo '<th>PRC ID</th>';
                 echo '<th>Updated by</th>';
                 echo '</tr>';
                 echo '</thead>';
@@ -83,10 +85,11 @@ if (strlen($_SESSION['id'] == 0)) {
                         echo '<tr>';
                         echo '<td>' . $row["s_date"] . '</td>';
                         echo '<td>' . $procedures . '</td>';
-                        echo '<td>' . $s_total . '</td>';
-                        echo '<td>' . $row["s_amount"] . '</td>';
-                        echo '<td>' . $balance . '</td>';
+                        echo '<td><div class="text-end pe-4">' . $s_total . '</div></td>';
+                        echo '<td><div class="text-end pe-4">' . $row["s_amount"] . '</div></td>';
+                        echo '<td><div class="text-end pe-4">' . $balance . '</div></td>';
                         echo '<td>' . $row["dentist_assigned"] . '</td>';
+                        echo '<td><div class="text-start">' . $row["PRC_ID"] . '</div></td>';
                         echo '<td>' . $row["s_modify"] . '</td>';
                         echo '</tr>';
                     }
