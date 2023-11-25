@@ -79,62 +79,80 @@ include 'employee-nav.php';
         <a class="btn btn-primary" href="record.php?id=<?php echo $patientid; ?>" role="button"><i class="fa fa-arrow-left"></i> Back to Patient's Info</a>
     </div>
     <div class="container">
-        <h1 class="text-primary text-center fw-bold pb-3">Payment Details</h1>
-        <?php
-        // Output the payment details of the patient
-        // Fetch payment details along with associated procedures for the patient
-        $sql = "SELECT s.s_date, 
-        IFNULL(GROUP_CONCAT(p.procedure_name SEPARATOR ', '), 'Paid through staff') AS procedures,
-        s.s_amount,
-        s.s_total, 
-        s.added_by, 
-        s.dentist_assigned
-        FROM s_payment s 
-        LEFT JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
-        LEFT JOIN procedures p ON pp.procedure_id = p.id 
-        WHERE s.s_patiendID = $patientid
-        GROUP BY s.s_payID";
+    <h1 class="text-primary text-center fw-bold pb-3">Payment Details</h1>
+    <?php
+    // Pagination variables
+    $recordsPerPage = 5;
+    $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $offset = ($currentPage - 1) * $recordsPerPage;
+    $offset = max(0, $offset); // Ensure the offset is not negative.
+    // Fetch payment details along with associated procedures for the patient with pagination
+    $sql = "SELECT s.s_date, 
+            IFNULL(GROUP_CONCAT(p.procedure_name SEPARATOR ', '), 'Paid through staff') AS procedures,
+            s.s_amount,
+            s.s_total, 
+            s.added_by, 
+            s.dentist_assigned
+            FROM s_payment s 
+            LEFT JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
+            LEFT JOIN procedures p ON pp.procedure_id = p.id 
+            WHERE s.s_patiendID = $patientid
+            GROUP BY s.s_payID
+            ORDER BY s.s_date DESC
+            LIMIT $offset, $recordsPerPage";
 
-        $result = mysqli_query($con, $sql);
-
-
-        // Create a Bootstrap table to display the data
-        echo '<table class="table table-primary table-striped">';
-        echo '<thead class="text-primary h4">';
-        echo '<tr>';
-        echo '<th>Date</th>';
-        echo '<th>Procedures</th>';
-        echo '<th>Amount</th>';
-        echo '<th>Inputted by</th>';
-        echo '<th>Assigned Dentist</th>';
-        echo '</tr>';
-        echo '</thead>';
-        echo '<tbody>';
-        if (mysqli_num_rows($result) > 0) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                echo '<tr>';
-                echo '<td>' . $row["s_date"] . '</td>';
-                echo '<td>' . $row["procedures"] . '</td>';
-                // Check if procedures is 'Paid through staff'
-                if ($row["procedures"] === 'Paid through staff') {
-                    echo '<td>' . $row["s_amount"] . '</td>'; // Display s_amount
-                } else {
-                    echo '<td>' . $row["s_total"] . '</td>'; // Display s_total by default
-                }
-                echo '<td>' . $row["added_by"] . '</td>';
-                echo '<td>' . $row["dentist_assigned"] . '</td>';
-                echo '</tr>';
+    $result = mysqli_query($con, $sql);
+    // Create a Bootstrap table to display the data
+    echo '<table class="table table-primary table-striped">';
+    echo '<thead class="text-primary h4">';
+    echo '<tr>';
+    echo '<th>Date</th>';
+    echo '<th>Procedures</th>';
+    echo '<th>Amount</th>';
+    echo '<th>Inputted by</th>';
+    echo '<th>Assigned Dentist</th>';
+    echo '</tr>';
+    echo '</thead>';
+    echo '<tbody>';
+    if (mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            echo '<tr>';
+            echo '<td>' . $row["s_date"] . '</td>';
+            echo '<td>' . $row["procedures"] . '</td>';
+            // Check if procedures is 'Paid through staff'
+            if ($row["procedures"] === 'Paid through staff') {
+                echo '<td>' . $row["s_amount"] . '</td>'; // Display s_amount
+            } else {
+                echo '<td>' . $row["s_total"] . '</td>'; // Display s_total by default
             }
-        } else {
-            echo '<tr class="table-light">';
-            echo '<td colspan="5">' . "No payment data available for this patient." . '</td>';
+            echo '<td>' . $row["added_by"] . '</td>';
+            echo '<td>' . $row["dentist_assigned"] . '</td>';
             echo '</tr>';
         }
-        echo '</tbody>';
-        echo '</table>';
 
-        ?>
-    </div>
+        // Pagination links
+        $totalRecords = mysqli_num_rows(mysqli_query($con, "SELECT * FROM s_payment WHERE s_patiendID = $patientid"));
+        $totalPages = ceil($totalRecords / $recordsPerPage);
+        echo '<tr>';
+        echo '<td colspan="5" class="text-center">';
+          // Previous page link
+          if ($currentPage > 1) {
+            echo '<a href="?uid=' . urlencode($patientid) . '&page=' . ($currentPage - 1) . '">&laquo;</a> ';
+        }
+
+        // Current page link
+         echo '<strong>' . $currentPage . '</strong> ';
+
+        // Next page link
+        if ($currentPage < $totalPages) {
+            echo '<a href="?uid=' . urlencode($patientid) . '&page=' . ($currentPage + 1) . '">&raquo;</a>';
+        }
+    }
+    echo '</tbody>';
+    echo '</table>';
+    ?>
+</div>
+
     <!-- Add New Payment -->
     <div class="container">
         <div class="d-grid gap-2 d-md-flex justify-content-between">

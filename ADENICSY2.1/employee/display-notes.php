@@ -2,12 +2,13 @@
 include_once('../includes/config.php');
 if (strlen($_SESSION['doctorid'] == 0)) {
     header('location:emp-logout.php');
-} else {
+} else 
 
 ?>
     <?php
     include 'employee-nav.php';
-    $patientID = mysqli_real_escape_string($con, $_GET['id']);
+    //get the ID from the button 
+    $patientid = $_GET['id'];
     ?>
 
     <?php
@@ -18,7 +19,7 @@ if (strlen($_SESSION['doctorid'] == 0)) {
     $result1 = mysqli_query($con, $sql1);
     $row1 = mysqli_fetch_assoc($result1);
     $dentist_name = "Dr. " . $row1['fname'] . " " . $row1['lname'];
-    $patientID = mysqli_real_escape_string($con, $_GET['id']);
+    $patientID =  $_GET['id'];
     if (isset($_POST['submit'])) {
         // Get the form data
         $date = $_POST['dr_date'];
@@ -39,49 +40,67 @@ if (strlen($_SESSION['doctorid'] == 0)) {
         </div>
         <h1 class="text-primary fw-bold text-center pb-2">Dentist's Note</h1>
         <div class="container">
-            <div class="row">
-                <?php
-                //creating connection to database
+    <div class="row">
+        <?php
+        // Pagination variables
+        $recordsPerPage = 5;
+        $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $offset = ($currentPage - 1) * $recordsPerPage;
+        $offset = max(0, $offset); // Ensure the offset is not negative.
 
-                //Output Form Entries from the Database
-                $sql = "SELECT * FROM notes WHERE dr_patientID = $patientID";
-                //fire query
-                $result = mysqli_query($con, $sql);
+        // Fetch notes entries from the database with pagination and ordering
+        $sql = "SELECT * FROM notes WHERE dr_patientID = $patientID ORDER BY dr_date DESC LIMIT $offset, $recordsPerPage";
+        // Fire query
+        $result = mysqli_query($con, $sql);
 
-                // Create a Bootstrap table to display the data
-                echo '<table class="table table-primary table-striped">';
-                echo '<thead class="text-primary h4">';
+        // Create a Bootstrap table to display the data
+        echo '<table class="table table-primary table-striped">';
+        echo '<thead class="text-primary h4">';
+        echo '<tr>';
+        echo '<th>Date</th>';
+        echo '<th>Procedure</th>';
+        echo '<th>Details</th>';
+        echo '<th>Added by</th>';
+        echo '</tr>';
+        echo '</thead>';
+        echo '<tbody>';
+        if (mysqli_num_rows($result) > 0) {
+            while ($row = mysqli_fetch_assoc($result)) {
                 echo '<tr>';
-                echo '<th>Date</th>';
-                echo '<th>Procedure</th>';
-                echo '<th>Details</th>';
-                echo '<th>Added by</th>';
+                // Check if the "dr_date" key exists before accessing it
+                echo '<td> ' . (isset($row["dr_date"]) ? $row["dr_date"] : '') . '</td>';
+                echo '<td> ' . (isset($row["dr_procedure"]) ? $row["dr_procedure"] : '') . '</td>';
+                echo '<td> ' . (isset($row["dr_note"]) ? $row["dr_note"] : '') . '</td>';
+                // Check if the "dr_done" key exists before accessing it
+                echo '<td> ' . (isset($row["dr_done"]) ? $row["dr_done"] : '') . '</td>';
                 echo '</tr>';
-                echo '</thead>';
-                echo '<tbody>';
-                if (mysqli_num_rows($result) > 0) {
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        echo '<tr>';
-                        echo '<td> ' . $row["dr_date"] . '</td>';
-                        echo '<td> ' . $row["dr_procedure"] . '</td>';
-                        echo '<td> ' . $row["dr_note"] . '</td>';
-                        echo '<td> ' . $row["dr_done"] . '</td>';
-                        echo '</tr>';
-                    }
-                } else {
-                    echo '<tr>';
-                    echo '<td> ' . "No data available for this patient." . '</td>';
-                    echo '<td> ' . "" . '</td>';
-                    echo '<td> ' . "" . '</td>';
-                    echo '<td> ' . "" . '</td>';
-                    echo '</tr>';
-                }
-                echo '</tbody>';
-                echo '</table>';
-                // closing connection
-                mysqli_close($con);
+            }
 
-                ?>
+            // Pagination links
+            $totalRecords = mysqli_num_rows(mysqli_query($con, "SELECT * FROM notes WHERE dr_patientID = $patientID"));
+            $totalPages = ceil($totalRecords / $recordsPerPage);
+            echo '<tr>';
+            echo '<td colspan="4" class="text-center">';
+           // Previous page link
+        if ($currentPage > 1) {
+            echo '<a href="?id=' . urlencode($patientID) . '&page=' . ($currentPage - 1) . '">&laquo;</a> ';
+        }
+
+        // Current page link
+         echo '<strong>' . $currentPage . '</strong> ';
+
+        // Next page link
+        if ($currentPage < $totalPages) {
+            echo '<a href="?id=' . urlencode($patientID) . '&page=' . ($currentPage + 1) . '">&raquo;</a>';
+        }
+        echo '</tbody>';
+        echo '</table>';
+        // Closing connection
+        mysqli_close($con);
+        ?>
+    </div>
+</div>
+
             </div>
         </div>
         <div class="container">
