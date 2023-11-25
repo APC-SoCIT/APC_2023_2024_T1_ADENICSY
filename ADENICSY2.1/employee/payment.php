@@ -28,7 +28,8 @@ if (strlen($_SESSION['doctorid'] == 0)) {
         $proceduresData = $_POST['proceduresData']; // Assuming proceduresData is an array of procedure IDs
 
         // Calculate deducted discount based on discountPercentage and totalProcedureCost
-        $deductedDiscount = ($discountPercentage / 100) * $totalProcedureCost;
+        $deductedDiscount = ($discountPercentage / 100) * ($totalItemCost + $professionalFee);
+        $deductedDiscount = number_format($deductedDiscount, 2, '.', '');
 
         // SQL query to insert data into s_payment table
         $insertPaymentQuery = "INSERT INTO s_payment (s_date, s_total, s_patiendID, added_by, dentist_assigned_ID, dentist_assigned, discount_type, discount_percent, total_item_cost, professional_fee, deducted_discount) 
