@@ -75,17 +75,13 @@ include 'employee-nav.php';
 <html>
 
 <body style="padding-top: 120px; padding-bottom: 60px;">
-    <div class="container">
-        <a class="btn btn-primary" href="record.php?id=<?php echo $patientid; ?>" role="button"><i class="fa fa-arrow-left"></i> Back to Patient's Info</a>
-    </div>
-    <div class="container">
+<div class="container">
+    <a class="btn btn-primary" href="record.php?id=<?php echo $patientid; ?>" role="button"><i class="fa fa-arrow-left"></i> Back to Patient's Info</a>
+</div>
+
+<div class="container">
     <h1 class="text-primary text-center fw-bold pb-3">Payment Details</h1>
     <?php
-    // Pagination variables
-    $recordsPerPage = 5;
-    $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    $offset = ($currentPage - 1) * $recordsPerPage;
-    $offset = max(0, $offset); // Ensure the offset is not negative.
     // Fetch payment details along with associated procedures for the patient with pagination
     $sql = "SELECT s.s_date, 
             IFNULL(GROUP_CONCAT(p.procedure_name SEPARATOR ', '), 'Paid through staff') AS procedures,
@@ -98,12 +94,13 @@ include 'employee-nav.php';
             LEFT JOIN procedures p ON pp.procedure_id = p.id 
             WHERE s.s_patiendID = $patientid
             GROUP BY s.s_payID
-            ORDER BY s.s_date DESC
-            LIMIT $offset, $recordsPerPage";
+            ORDER BY s.s_date DESC";
 
     $result = mysqli_query($con, $sql);
-    // Create a Bootstrap table to display the data
-    echo '<table class="table table-primary table-striped">';
+
+    // Create a Bootstrap table with DataTables
+    echo '<div class="bg-light">';
+    echo '<table id="payment-details" class="table table-sm table-primary table-striped">';
     echo '<thead class="text-primary h4">';
     echo '<tr>';
     echo '<th>Date</th>';
@@ -129,30 +126,12 @@ include 'employee-nav.php';
             echo '<td>' . $row["dentist_assigned"] . '</td>';
             echo '</tr>';
         }
-
-        // Pagination links
-        $totalRecords = mysqli_num_rows(mysqli_query($con, "SELECT * FROM s_payment WHERE s_patiendID = $patientid"));
-        $totalPages = ceil($totalRecords / $recordsPerPage);
-        echo '<tr>';
-        echo '<td colspan="5" class="text-center">';
-          // Previous page link
-          if ($currentPage > 1) {
-            echo '<a href="?uid=' . urlencode($patientid) . '&page=' . ($currentPage - 1) . '">&laquo;</a> ';
-        }
-
-        // Current page link
-         echo '<strong>' . $currentPage . '</strong> ';
-
-        // Next page link
-        if ($currentPage < $totalPages) {
-            echo '<a href="?uid=' . urlencode($patientid) . '&page=' . ($currentPage + 1) . '">&raquo;</a>';
-        }
     }
     echo '</tbody>';
     echo '</table>';
+    echo '</div>';
     ?>
 </div>
-
     <!-- Add New Payment -->
     <div class="container">
         <div class="d-grid gap-2 d-md-flex justify-content-between">
@@ -304,6 +283,21 @@ include 'employee-nav.php';
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
     <script src="../js/datatables-simple-demo.js"></script>
     <script src="payment-js-handler.js"></script>
+    <!-- Include jQuery and DataTables CSS/JS -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+
+<!-- Initialize DataTables for the payment details table -->
+<script>
+    $(document).ready(function() {
+        $('#payment-details').DataTable({
+            "paging": true,
+            "lengthMenu": [5, 10, 15, 20], // Set the desired length menu
+            "order": [[0, 'desc']], // Sort by the first column (Date) in descending order by default
+        });
+    });
+</script>
 </body>
 
 </html>

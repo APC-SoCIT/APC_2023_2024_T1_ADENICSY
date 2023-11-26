@@ -84,12 +84,6 @@ include 'employee-nav-staff.php';
             echo '<h4 class="text-dark fw-bold">Total Remaining Balance: ₱' . $totalRemainingBalance . '</h4>';
         }
 
-        // Pagination variables
-        $recordsPerPage = 5;
-        $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $offset = ($currentPage - 1) * $recordsPerPage;
-        $offset = max(0, $offset); // Ensure the offset is not negative.
-
         // Fetch payment details with pagination and ordering
         $sql = "SELECT s.s_payID, s.s_date, s.s_total, s.s_amount, s.s_balance, s.dentist_assigned, s.s_modify, s.discount_type, s.deducted_discount, GROUP_CONCAT(p.procedure_name SEPARATOR ', ') AS procedures
                 FROM s_payment s 
@@ -97,13 +91,15 @@ include 'employee-nav-staff.php';
                 LEFT JOIN procedures p ON pp.procedure_id = p.id 
                 WHERE s.s_patiendID = '$patientID'
                 GROUP BY s.s_payID
-                ORDER BY s.s_date DESC
-                LIMIT $offset, $recordsPerPage";
+                ORDER BY s.s_date DESC";
 
         $result = mysqli_query($con, $sql);
         $queryResults = mysqli_num_rows($result);
-
-        echo '<table class="table table-primary table-striped">';
+        echo '<div class="table-responsive bg-light">';
+        echo '<table id="payment-table" class="table table-primary table-striped">';
+        echo '<colgroup>';
+    echo '  <col style="width: 5%;">';  // Adjust the width as needed for each column
+    echo '  <col style="width: 10%;">';
         echo '<thead class="text-primary h4">';
         echo '<tr>';
         echo '<th>ID</th>';
@@ -117,9 +113,11 @@ include 'employee-nav-staff.php';
         echo '<th>Assigned Dentist</th>';
         echo '<th>Modified by</th>';
         echo '<th>Update PA</th>';
+        echo '</colgroup>';
         echo '</tr>';
         echo '</thead>';
         echo '<tbody>';
+        echo '</div>';
 
         if ($queryResults > 0) {
             while ($row = mysqli_fetch_assoc($result)) {
@@ -159,25 +157,6 @@ include 'employee-nav-staff.php';
                 echo '</tr>';
             }
 
-          // Pagination links
-// Pagination links
-$totalRecords = mysqli_num_rows(mysqli_query($con, "SELECT s_payID FROM s_payment WHERE s_patiendID = '$patientID'"));
-$totalPages = ceil($totalRecords / $recordsPerPage);
-
-echo '<tr>';
-echo '<td colspan="11" class="text-center">';
-          // Previous page link
-          if ($currentPage > 1) {
-            echo '<a href="?id=' . urlencode($patientID) . '&page=' . ($currentPage - 1) . '">&laquo;</a> ';
-        }
-
-        // Current page link
-         echo '<strong>' . $currentPage . '</strong> ';
-
-        // Next page link
-        if ($currentPage < $totalPages) {
-            echo '<a href="?id=' . urlencode($patientID) . '&page=' . ($currentPage + 1) . '">&raquo;</a>';
-        }
     }
         ?>
     </div>
@@ -326,5 +305,24 @@ echo '<td colspan="11" class="text-center">';
             </div>
         </div>
     </div>
+    <!-- Include DataTables CSS and JavaScript files -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#payment-table').DataTable({
+            "paging": true,
+            "pageLength": 5,
+            "lengthMenu": [5, 10, 15, 25],
+            "order": [
+                [0, 'desc'] // Change to the column index you want to sort by default
+            ],
+            "columnDefs": [
+                { "orderable": false, "targets": [ 10] } // Specify which columns are not orderable
+            ],
+            // ... other options
+        });
+    });
+</script>
 </div>
 </body>
