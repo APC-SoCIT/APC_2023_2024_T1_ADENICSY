@@ -15,17 +15,19 @@ if (strlen($_SESSION['doctorid'] == 0)) {
             <input type="text" name="search" placeholder="Search" style="width:300px; height:40px; border-radius:20px; border: none; padding: 0 10px 0 29px; margin-top: 20px; box-shadow:1px 3px #888888;">
             <button type="submit" name="submit-search" class="text-primary" style="width:100px; height:40px; border-radius:20px; border: none; background-color: #E9C5FB; box-shadow:1px 3px #888888;"><b>Search</b></button>
         </form>
-        <div class="container" style="padding-top: 30px;">
+        <div class="container bg-light p-3" style="margin-top: 30px;">
             <?php
             global $queryResults;
-            if ($_GET) { // PHP will check if there is any data in the URL
+
+            if ($_GET) {
                 $search = $_GET['search'];
-                $sql = "SELECT * FROM patient WHERE `fname`  LIKE '%$search%' OR `lname`  LIKE '%$search%'"; // SQL query to search for the search term
-                $stmt = $con->query($sql); // execute the query
+                $sql = "SELECT * FROM patient WHERE `fname` LIKE '%$search%' OR `lname` LIKE '%$search%'";
+                $stmt = $con->query($sql);
                 $queryResults = mysqli_num_rows($stmt);
             }
-            // Create a Bootstrap table to display the data
-            echo '<table class="table table-primary table-striped">';
+
+            // Create a Bootstrap table
+            echo '<table id="search-results" class="table table-sm table-primary table-striped pt-2">';
             echo '<thead class="text-primary h4">';
             echo '<tr>';
             echo '<th>ID</th>';
@@ -36,21 +38,38 @@ if (strlen($_SESSION['doctorid'] == 0)) {
             echo '<tbody>';
             if ($queryResults > 0) {
                 while ($row = mysqli_fetch_assoc($stmt)) {
-
                     echo '<tr>';
-                    echo '<td> ' . $row["id"] . '</td>';
-
+                    echo '<td>' . $row["id"] . '</td>';
                     echo '<td><a href="record.php?id=' . $row['id'] . '" class="h4 fw-bold" style="text-decoration: none;">' . $row['fname'] . " " .  $row["lname"] . '</a></td>';
                     echo '<td>' . "<strong>Birthdate: </strong>" . $row["birthday"] . "<br>" . "<strong>Age: </strong>" . $row["Age"] . "<br>" . "<strong>Contact No: </strong>" . $row["contactno"] . "<br>" . "<strong>Email: </strong>" . $row["email"] . '</td>';
                     echo '</tr>';
                 }
-            } else {
-                echo '<tr><td colspan="3">No data found. Enter another word in the search bar</td></tr>';
             }
             echo '</tbody>';
             echo '</table>';
             ?>
-        </div>
-    </div>
 
-<?php } ?>
+            <!-- Include jQuery and DataTables CSS/JS -->
+            <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+            <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+            <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+            <!-- Initialize DataTables for the search results table -->
+            <script>
+                $(document).ready(function() {
+                    $('#search-results').DataTable({
+                        "searching": false,
+                        "paging": true,
+                        "lengthMenu": [5, 10, 15, 20],
+                        "order": [
+                            [0, 'asc']
+                        ], // Sort by the first column in ascending order by default
+                        "columnDefs": [{
+                                "orderable": false,
+                                "targets": [1, 2]
+                            } // Specify which columns are not orderable
+                        ]
+                    });
+                });
+            </script>
+
+        <?php } ?>

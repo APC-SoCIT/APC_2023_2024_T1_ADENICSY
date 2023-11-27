@@ -83,6 +83,10 @@ include 'employee-nav-staff.php';
                 // Display the total remaining balance
                 echo '<h4 class="text-dark fw-bold">Total Remaining Balance: ₱' . $totalRemainingBalance . '</h4>';
             }
+            ?>
+        </div>
+        <div class="bg-light p-3">
+            <?php
 
             $sql = "SELECT s.s_payID, s.s_date, s.s_total, s.s_amount, s.s_balance, s.dentist_assigned, s.s_modify, s.discount_type, s.deducted_discount, GROUP_CONCAT(p.procedure_name SEPARATOR ', ') AS procedures
                     FROM s_payment s 
@@ -94,11 +98,9 @@ include 'employee-nav-staff.php';
             $result = mysqli_query($con, $sql);
             $queryResults = mysqli_num_rows($result);
 
-
-            echo '<table class="table table-primary table-striped">';
+            echo '<table id="staff-payment-details" class="table table-primary table-striped pt-2">';
             echo '<thead class="text-primary h4">';
             echo '<tr>';
-            echo '<th>ID</th>';
             echo '<th>Date</th>';
             echo '<th>Procedures</th>';
             echo '<th>Total Cost</th>';
@@ -129,7 +131,6 @@ include 'employee-nav-staff.php';
                         $deducted_discount = "NA";
                     }
                     echo '<tr>';
-                    echo '<td>' . $row["s_payID"] . '</td>';
                     echo '<td>' . $row["s_date"] . '</td>';
                     echo '<td>' . $procedures . '</td>';
                     echo '<td class="text-end"><div class="me-4">' . formatValue($s_total) . '</div></td>';
@@ -142,7 +143,7 @@ include 'employee-nav-staff.php';
                     echo '<td class="text-center">';
 
                     if ($row["s_amount"]) {
-                        echo '<button type="button" class="btn btn-primary" disabled>Update</button>';
+                        echo '<button type="button" class="btn btn-primary" disabled>Paid</button>';
                     } else {
                         echo '<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal" data-payid="' . $row["s_payID"] . '" data-dentistassigned="' . $row["dentist_assigned"] . '" data-total="' . $row["s_total"] . '" data-balance="' . $row["s_amount"] . '">Update</button>';
                     }
@@ -232,7 +233,7 @@ include 'employee-nav-staff.php';
         }
         ?>
     </div>
-    <div class="d-grid justify-content-end gap-2">
+    <div class="d-grid justify-content-end gap-2 pb-5 pt-3">
         <button type="button" class="btn text-primary" style="background-color: #E0ADF6; box-shadow: 1px 1px 2px #858585;" data-bs-toggle="modal" data-bs-target="#exampleModal">
             Add New Payment Details
         </button>
@@ -303,4 +304,19 @@ include 'employee-nav-staff.php';
         </div>
     </div>
 </div>
+<!-- Include jQuery and DataTables CSS/JS -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#staff-payment-details').DataTable({
+            "paging": true,
+            "lengthMenu": [5, 10, 15, 20],
+            "order": [
+                [0, 'desc']
+            ]
+        });
+    });
+</script>
 </body>
