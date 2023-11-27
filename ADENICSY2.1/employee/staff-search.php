@@ -15,7 +15,7 @@ include 'employee-nav-staff.php';
         <input type="text" name="search" placeholder="Search" style="width:300px; height:40px; border-radius:20px; border: none; padding: 0 20px 0 29px; margin-top: 20px; box-shadow:1px 3px #888888;">
         <button type="submit" name="submit-search" class="text-primary" style="width:100px; height:40px; border-radius:20px; border: none; background-color: #E9C5FB; box-shadow:1px 3px #888888;"><b>Search</b></button>
     </form>
-    <div class="container bg-light" style="padding-top: 30px;">
+    <div class="container bg-light p-3" style="margin-top: 30px;">
         <?php
         // Search query
         global $queryResults;
@@ -27,7 +27,7 @@ include 'employee-nav-staff.php';
         }
 
         // Create a Bootstrap table with DataTables
-        echo '<table id="search-results" class="table table-sm table-striped table-bordered">';
+        echo '<table id="search-results" class="table table-striped table-bordered table-primary pt-3">';
         echo '<thead class="text-primary h4">';
         echo '<tr>';
         echo '<th>ID</th>';
@@ -64,11 +64,14 @@ include 'employee-nav-staff.php';
             "searching": false, // Disable the search feature
             "paging": true,
             "lengthMenu": [5, 10, 25, 50],
-            "order": [[0, 'asc']], // Sort by the first column in ascending order by default
-            "columnDefs": [
-                { "orderable": false, "targets": [1, 2] } // Specify which columns are not orderable
+            "order": [
+                [0, 'asc']
+            ], // Sort by the first column in ascending order by default
+            "columnDefs": [{
+                    "orderable": false,
+                    "targets": [1, 2]
+                } // Specify which columns are not orderable
             ]
         });
     });
 </script>
-

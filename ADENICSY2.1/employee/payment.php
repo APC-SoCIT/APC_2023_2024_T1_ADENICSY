@@ -75,15 +75,15 @@ include 'employee-nav.php';
 <html>
 
 <body style="padding-top: 120px; padding-bottom: 60px;">
-<div class="container">
-    <a class="btn btn-primary" href="record.php?id=<?php echo $patientid; ?>" role="button"><i class="fa fa-arrow-left"></i> Back to Patient's Info</a>
-</div>
+    <div class="container">
+        <a class="btn btn-primary" href="record.php?id=<?php echo $patientid; ?>" role="button"><i class="fa fa-arrow-left"></i> Back to Patient's Info</a>
+    </div>
 
-<div class="container">
-    <h1 class="text-primary text-center fw-bold pb-3">Payment Details</h1>
-    <?php
-    // Fetch payment details along with associated procedures for the patient with pagination
-    $sql = "SELECT s.s_date, 
+    <div class="container">
+        <h1 class="text-primary text-center fw-bold pb-3">Payment Details</h1>
+        <?php
+        // Fetch payment details along with associated procedures for the patient with pagination
+        $sql = "SELECT s.s_date, 
             IFNULL(GROUP_CONCAT(p.procedure_name SEPARATOR ', '), 'Paid through staff') AS procedures,
             s.s_amount,
             s.s_total, 
@@ -96,44 +96,44 @@ include 'employee-nav.php';
             GROUP BY s.s_payID
             ORDER BY s.s_date DESC";
 
-    $result = mysqli_query($con, $sql);
+        $result = mysqli_query($con, $sql);
 
-    // Create a Bootstrap table with DataTables
-    echo '<div class="bg-light">';
-    echo '<table id="payment-details" class="table table-sm table-primary table-striped">';
-    echo '<thead class="text-primary h4">';
-    echo '<tr>';
-    echo '<th>Date</th>';
-    echo '<th>Procedures</th>';
-    echo '<th>Amount</th>';
-    echo '<th>Inputted by</th>';
-    echo '<th>Assigned Dentist</th>';
-    echo '</tr>';
-    echo '</thead>';
-    echo '<tbody>';
-    if (mysqli_num_rows($result) > 0) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            echo '<tr>';
-            echo '<td>' . $row["s_date"] . '</td>';
-            echo '<td>' . $row["procedures"] . '</td>';
-            // Check if procedures is 'Paid through staff'
-            if ($row["procedures"] === 'Paid through staff') {
-                echo '<td>' . $row["s_amount"] . '</td>'; // Display s_amount
-            } else {
-                echo '<td>' . $row["s_total"] . '</td>'; // Display s_total by default
+        // Create a Bootstrap table with DataTables
+        echo '<div class="bg-light p-3">';
+        echo '<table id="payment-details" class="table table-sm table-primary table-striped pt-2">';
+        echo '<thead class="text-primary h4">';
+        echo '<tr>';
+        echo '<th>Date</th>';
+        echo '<th>Procedures</th>';
+        echo '<th>Amount</th>';
+        echo '<th>Inputted by</th>';
+        echo '<th>Assigned Dentist</th>';
+        echo '</tr>';
+        echo '</thead>';
+        echo '<tbody>';
+        if (mysqli_num_rows($result) > 0) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                echo '<tr>';
+                echo '<td>' . $row["s_date"] . '</td>';
+                echo '<td>' . $row["procedures"] . '</td>';
+                // Check if procedures is 'Paid through staff'
+                if ($row["procedures"] === 'Paid through staff') {
+                    echo '<td>' . $row["s_amount"] . '</td>'; // Display s_amount
+                } else {
+                    echo '<td>' . $row["s_total"] . '</td>'; // Display s_total by default
+                }
+                echo '<td>' . $row["added_by"] . '</td>';
+                echo '<td>' . $row["dentist_assigned"] . '</td>';
+                echo '</tr>';
             }
-            echo '<td>' . $row["added_by"] . '</td>';
-            echo '<td>' . $row["dentist_assigned"] . '</td>';
-            echo '</tr>';
         }
-    }
-    echo '</tbody>';
-    echo '</table>';
-    echo '</div>';
-    ?>
-</div>
+        echo '</tbody>';
+        echo '</table>';
+        echo '</div>';
+        ?>
+    </div>
     <!-- Add New Payment -->
-    <div class="container">
+    <div class="container pt-2">
         <div class="d-grid gap-2 d-md-flex justify-content-between">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
                 Add New Payment Details
@@ -284,20 +284,22 @@ include 'employee-nav.php';
     <script src="../js/datatables-simple-demo.js"></script>
     <script src="payment-js-handler.js"></script>
     <!-- Include jQuery and DataTables CSS/JS -->
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
 
-<!-- Initialize DataTables for the payment details table -->
-<script>
-    $(document).ready(function() {
-        $('#payment-details').DataTable({
-            "paging": true,
-            "lengthMenu": [5, 10, 15, 20], // Set the desired length menu
-            "order": [[0, 'desc']], // Sort by the first column (Date) in descending order by default
+    <!-- Initialize DataTables for the payment details table -->
+    <script>
+        $(document).ready(function() {
+            $('#payment-details').DataTable({
+                "paging": true,
+                "lengthMenu": [5, 10, 15, 20], // Set the desired length menu
+                "order": [
+                    [0, 'desc']
+                ], // Sort by the first column (Date) in descending order by default
+            });
         });
-    });
-</script>
+    </script>
 </body>
 
 </html>

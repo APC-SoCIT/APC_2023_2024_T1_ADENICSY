@@ -12,156 +12,154 @@ include 'employee-nav-staff.php';
 
 <div class="container" style="padding-top: 120px;">
     <div class="row">
-        <?php
-        $patientID = mysqli_real_escape_string($con, $_GET['id']);
-        $staffid = $_SESSION['staffid'];
-        // Retrieve the username of the doctor logged in
-        $sql1 = "SELECT fname, lname FROM employee WHERE id = $staffid";
-        // Fire Query
-        $result1 = mysqli_query($con, $sql1);
-        $row1 = mysqli_fetch_assoc($result1);
-        $staff_fname = $row1['fname'] . " " . $row1['lname'];
+        <div>
+            <?php
+            $patientID = mysqli_real_escape_string($con, $_GET['id']);
+            $staffid = $_SESSION['staffid'];
+            // Retrieve the username of the doctor logged in
+            $sql1 = "SELECT fname, lname FROM employee WHERE id = $staffid";
+            // Fire Query
+            $result1 = mysqli_query($con, $sql1);
+            $row1 = mysqli_fetch_assoc($result1);
+            $staff_fname = $row1['fname'] . " " . $row1['lname'];
 
-        // Submitting the form for new payment details
-        if (isset($_POST['submit'])) {
-            // Get the form data
-            $date = $_POST['date'];
-            $amount = $_POST['amount'];
-            $dentist_id = (int)$_POST['dentist-id'];
-            $dentist_name = $_POST['dentist-name'];
-            $msg1 = mysqli_query($con, "insert into s_payment (s_date, s_amount, s_patiendID, added_by, s_modify, dentist_assigned_ID, dentist_assigned) VALUES ('$date', '$amount', '$patientID', '$staff_fname', '$staff_fname', '$dentist_id', '$dentist_name')");
+            // Submiting the form for new payment details
+            if (isset($_POST['submit'])) {
+                // Get the form data
+                $date = $_POST['date'];
+                $amount = $_POST['amount'];
+                $dentist_id = (int)$_POST['dentist-id'];
+                $dentist_name = $_POST['dentist-name'];
+                $msg1 = mysqli_query($con, "insert into s_payment (s_date, s_amount, s_patiendID, added_by, s_modify, dentist_assigned_ID, dentist_assigned) VALUES ('$date', '$amount', '$patientID', '$staff_fname', '$staff_fname', '$dentist_id', '$dentist_name')");
 
-            if ($msg1) {
-                echo "<script>alert('Payment Details Added Successfully');</script>";
-                echo "<script type='text/javascript'> document.location = 'Staff-record.php?id=" . $patientID . "'; </script>";
+                if ($msg1) {
+                    echo "<script>alert('Payment Details Added Successfully');</script>";
+                    echo "<script type='text/javascript'> document.location = 'Staff-record.php?id=" . $patientID . "'; </script>";
+                }
             }
-        }
-        ?>
+            ?>
 
-        <?php
-        function formatValue($value)
-        {
-            if (!is_numeric($value)) {
-                return $value; // Return as is if the value is not numeric
+            <?php
+
+            function formatValue($value)
+            {
+                if (!is_numeric($value)) {
+                    return $value; // Return as is if the value is not numeric
+                }
+
+                $decimal = fmod($value, 1);
+
+                if ($decimal === 0 || $decimal === 0.5) {
+                    return number_format($value, 2);
+                } elseif (round($decimal, 1) === 0) {
+                    return number_format($value, 1) . '0';
+                } else {
+                    return number_format($value, 2, '.', '');
+                }
             }
+            $sqlpatientinfo = "SELECT fname, lname FROM patient WHERE id='$patientID'";
+            $result_info = mysqli_query($con, $sqlpatientinfo);
+            $queryResults_info = mysqli_num_rows($result_info);
+            // Initialize the total remaining balance to 0
+            $totalRemainingBalance = 0;
 
-            $decimal = fmod($value, 1);
+            if ($queryResults_info > 0) {
+                while ($data = mysqli_fetch_assoc($result_info)) {
+                    echo '<h2 class="text-primary fw-bold">' . $data["fname"] . " " . $data["lname"] . " Account" . '</h2>';
+                }
 
-            if ($decimal === 0 || $decimal === 0.5) {
-                return number_format($value, 2);
-            } elseif (round($decimal, 1) === 0) {
-                return number_format($value, 1) . '0';
-            } else {
-                return number_format($value, 2, '.', '');
+                // Calculate the total remaining balance for the current patient
+                $sql = "SELECT * FROM s_payment WHERE s_patiendID='$patientID'";
+                $result = mysqli_query($con, $sql);
+                $queryResults = mysqli_num_rows($result);
+
+                if ($queryResults > 0) {
+                    while ($row = mysqli_fetch_assoc($result)) {
+                        // Calculate and add the remaining balance to the total
+                        $totalRemainingBalance += ($row["s_total"] - $row["s_amount"]);
+                    }
+                }
+
+                // Display the total remaining balance
+                echo '<h4 class="text-dark fw-bold">Total Remaining Balance: ₱' . $totalRemainingBalance . '</h4>';
             }
-        }
+            ?>
+        </div>
+        <div class="bg-light p-3">
+            <?php
 
-        $sqlpatientinfo = "SELECT fname, lname FROM patient WHERE id='$patientID'";
-        $result_info = mysqli_query($con, $sqlpatientinfo);
-        $queryResults_info = mysqli_num_rows($result_info);
+            $sql = "SELECT s.s_payID, s.s_date, s.s_total, s.s_amount, s.s_balance, s.dentist_assigned, s.s_modify, s.discount_type, s.deducted_discount, GROUP_CONCAT(p.procedure_name SEPARATOR ', ') AS procedures
+                    FROM s_payment s 
+                    LEFT JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
+                    LEFT JOIN procedures p ON pp.procedure_id = p.id 
+                    WHERE s.s_patiendID = '$patientID'
+                    GROUP BY s.s_payID";
 
-        // Initialize the total remaining balance to 0
-        $totalRemainingBalance = 0;
-
-        if ($queryResults_info > 0) {
-            while ($data = mysqli_fetch_assoc($result_info)) {
-                echo '<h2 class="text-primary fw-bold">' . $data["fname"] . " " . $data["lname"] . " Account" . '</h2>';
-            }
-
-            // Calculate the total remaining balance for the current patient
-            $sql = "SELECT * FROM s_payment WHERE s_patiendID='$patientID'";
             $result = mysqli_query($con, $sql);
             $queryResults = mysqli_num_rows($result);
 
+            echo '<table id="staff-payment-details" class="table table-primary table-striped pt-2">';
+            echo '<thead class="text-primary h4">';
+            echo '<tr>';
+            echo '<th>Date</th>';
+            echo '<th>Procedures</th>';
+            echo '<th>Total Cost</th>';
+            echo '<th>Paid Amount</th>';
+            echo '<th>Discount Type</th>';
+            echo '<th>Discount Amount</th>';
+            echo '<th>Balance</th>';
+            echo '<th>Assigned Dentist</th>';
+            echo '<th>Modified by</th>';
+            echo '<th>Update PA</th>';
+            echo '</tr>';
+            echo '</thead>';
+            echo '<tbody>';
+
             if ($queryResults > 0) {
                 while ($row = mysqli_fetch_assoc($result)) {
-                    // Calculate and add the remaining balance to the total
-                    $totalRemainingBalance += ($row["s_total"] - $row["s_amount"]);
+                    // Check if 'procedures' column is empty or NULL
+                    $procedures = $row["procedures"];
+                    $balance = $row["s_balance"];
+                    $s_total = $row["s_total"];
+                    $discount_type = $row["discount_type"];
+                    $deducted_discount = $row["deducted_discount"];
+                    if (empty($procedures) || is_null($procedures)) {
+                        $procedures = 'Paid through staff';
+                        $balance = "NA";
+                        $s_total = "NA";
+                        $discount_type = "None";
+                        $deducted_discount = "NA";
+                    }
+                    echo '<tr>';
+                    echo '<td>' . $row["s_date"] . '</td>';
+                    echo '<td>' . $procedures . '</td>';
+                    echo '<td class="text-end"><div class="me-4">' . formatValue($s_total) . '</div></td>';
+                    echo '<td class="text-end"><div class="me-4">' . formatValue($row["s_amount"]) . '</div></td>';
+                    echo '<td>' . $discount_type . '</td>';
+                    echo '<td class="text-end"><div class="me-4">' . formatValue($deducted_discount) . '</div></td>';
+                    echo '<td class="text-end"><div class="me-4">' . formatValue($balance) . '</div></td>';
+                    echo '<td>' . $row["dentist_assigned"] . '</td>';
+                    echo '<td>' . $row["s_modify"] . '</td>';
+                    echo '<td class="text-center">';
+
+                    if ($row["s_amount"]) {
+                        echo '<button type="button" class="btn btn-primary" disabled>Paid</button>';
+                    } else {
+                        echo '<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal" data-payid="' . $row["s_payID"] . '" data-dentistassigned="' . $row["dentist_assigned"] . '" data-total="' . $row["s_total"] . '" data-balance="' . $row["s_amount"] . '">Update</button>';
+                    }
+
+                    echo '</td>';
+                    echo '</tr>';
                 }
-            }
-
-            // Display the total remaining balance
-            echo '<h4 class="text-dark fw-bold">Total Remaining Balance: ₱' . $totalRemainingBalance . '</h4>';
-        }
-
-        // Fetch payment details with pagination and ordering
-        $sql = "SELECT s.s_payID, s.s_date, s.s_total, s.s_amount, s.s_balance, s.dentist_assigned, s.s_modify, s.discount_type, s.deducted_discount, GROUP_CONCAT(p.procedure_name SEPARATOR ', ') AS procedures
-                FROM s_payment s 
-                LEFT JOIN payment_procedures pp ON s.s_payID = pp.payment_id 
-                LEFT JOIN procedures p ON pp.procedure_id = p.id 
-                WHERE s.s_patiendID = '$patientID'
-                GROUP BY s.s_payID
-                ORDER BY s.s_date DESC";
-
-        $result = mysqli_query($con, $sql);
-        $queryResults = mysqli_num_rows($result);
-        echo '<div class="table-responsive bg-light">';
-        echo '<table id="payment-table" class="table table-primary table-striped">';
-        echo '<colgroup>';
-    echo '  <col style="width: 5%;">';  // Adjust the width as needed for each column
-    echo '  <col style="width: 10%;">';
-        echo '<thead class="text-primary h4">';
-        echo '<tr>';
-        echo '<th>ID</th>';
-        echo '<th>Date</th>';
-        echo '<th>Procedures</th>';
-        echo '<th>Total Cost</th>';
-        echo '<th>Paid Amount</th>';
-        echo '<th>Discount Type</th>';
-        echo '<th>Discount Amount</th>';
-        echo '<th>Balance</th>';
-        echo '<th>Assigned Dentist</th>';
-        echo '<th>Modified by</th>';
-        echo '<th>Update PA</th>';
-        echo '</colgroup>';
-        echo '</tr>';
-        echo '</thead>';
-        echo '<tbody>';
-        echo '</div>';
-
-        if ($queryResults > 0) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                // Check if 'procedures' column is empty or NULL
-                $procedures = $row["procedures"];
-                $balance = $row["s_balance"];
-                $s_total = $row["s_total"];
-                $discount_type = $row["discount_type"];
-                $deducted_discount = $row["deducted_discount"];
-                if (empty($procedures) || is_null($procedures)) {
-                    $procedures = 'Paid through staff';
-                    $balance = "NA";
-                    $s_total = "NA";
-                    $discount_type = "None";
-                    $deducted_discount = "NA";
-                }
+            } else {
                 echo '<tr>';
-                echo '<td>' . $row["s_payID"] . '</td>';
-                echo '<td>' . $row["s_date"] . '</td>';
-                echo '<td>' . $procedures . '</td>';
-                echo '<td class="text-end"><div class="me-4">' . formatValue($s_total) . '</div></td>';
-                echo '<td class="text-end"><div class="me-4">' . formatValue($row["s_amount"]) . '</div></td>';
-                echo '<td>' . $discount_type . '</td>';
-                echo '<td class="text-end"><div class="me-4">' . formatValue($deducted_discount) . '</div></td>';
-                echo '<td class="text-end"><div class="me-4">' . formatValue($balance) . '</div></td>';
-                echo '<td>' . $row["dentist_assigned"] . '</td>';
-                echo '<td>' . $row["s_modify"] . '</td>';
-                echo '<td class="text-center">';
-
-                if ($row["s_amount"]) {
-                    echo '<button type="button" class="btn btn-primary" disabled>Update</button>';
-                } else {
-                    echo '<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal" data-payid="' . $row["s_payID"] . '" data-dentistassigned="' . $row["dentist_assigned"] . '" data-total="' . $row["s_total"] . '" data-balance="' . $row["s_amount"] . '">Update</button>';
-                }
-
-                echo '</td>';
+                echo '<td colspan="11">No data available for this patient.</td>';
                 echo '</tr>';
             }
-
-    }
-        ?>
-    </div>
-</div>
-
+            echo '</tbody>';
+            echo '</table>';
+            ?>
+        </div>
         <!-- Script for handling the data from button to modal -->
         <script>
             $(document).ready(function() {
@@ -235,7 +233,7 @@ include 'employee-nav-staff.php';
         }
         ?>
     </div>
-    <div class="d-grid justify-content-end gap-2">
+    <div class="d-grid justify-content-end gap-2 pb-5 pt-3">
         <button type="button" class="btn text-primary" style="background-color: #E0ADF6; box-shadow: 1px 1px 2px #858585;" data-bs-toggle="modal" data-bs-target="#exampleModal">
             Add New Payment Details
         </button>
@@ -305,24 +303,20 @@ include 'employee-nav-staff.php';
             </div>
         </div>
     </div>
-    <!-- Include DataTables CSS and JavaScript files -->
+</div>
+<!-- Include jQuery and DataTables CSS/JS -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
 <script>
     $(document).ready(function() {
-        $('#payment-table').DataTable({
+        $('#staff-payment-details').DataTable({
             "paging": true,
-            "pageLength": 5,
-            "lengthMenu": [5, 10, 15, 25],
+            "lengthMenu": [5, 10, 15, 20],
             "order": [
-                [0, 'desc'] // Change to the column index you want to sort by default
-            ],
-            "columnDefs": [
-                { "orderable": false, "targets": [ 10] } // Specify which columns are not orderable
-            ],
-            // ... other options
+                [0, 'desc']
+            ]
         });
     });
 </script>
-</div>
 </body>
