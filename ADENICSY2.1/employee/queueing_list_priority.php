@@ -18,7 +18,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
                 <a class="btn text-light" href="queueing_list_priority.php" role="button" style="background-color:hotpink;">Priority List</a>
             </div>
             <h1 class="fw-bold text-center py-2" style="color: #ff2793; ">Priority Queueing List</h1>
-            <div class="row">
+            <div class="bg-light p-3">
                 <?php
                 ob_start();
                 // Handle reset button
@@ -48,7 +48,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
 
 
                 // Create a Bootstrap table to display the data
-                echo '<table class="table table-primary table-striped">';
+                echo '<table id="priority-queueing-table" class="table table-primary table-striped pt-2">';
                 echo '<thead class="text-primary h4">';
                 echo '<tr>';
                 echo '<th>Queue</th>';
@@ -181,7 +181,7 @@ if (strlen($_SESSION['staffid'] == 0)) {
             </div>
         </div>
         <!-- Reset for regular patient -->
-        <div class="container">
+        <div class="container pt-2">
             <form method="post">
                 <button id="reset-btn-list" class="btn text-light btn-block text-center" type="submit" name="resetlist" style="background-color: red;">Reset List</button>
             </form>
@@ -213,6 +213,21 @@ if (strlen($_SESSION['staffid'] == 0)) {
                     </div>
                 </div>
             </div>
+            <!-- Include jQuery and DataTables CSS/JS -->
+            <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+            <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+            <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+            <script>
+                $(document).ready(function() {
+                    $('#priority-queueing-table').DataTable({
+                        "paging": true,
+                        "lengthMenu": [10, 25, 50, 100],
+                        "order": [
+                            [0, 'desc']
+                        ]
+                    });
+                });
+            </script>
             <?php
             function fetch_data()
             {
